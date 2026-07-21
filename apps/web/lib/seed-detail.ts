@@ -10,10 +10,15 @@
  * 인덱서/가격 API 단계에서 이 모듈 전체가 대체된다.
  */
 
-import { weiToDisplayKrw } from "@giwa/shared";
+import { KRW_SCALE, weiToDisplayKrw } from "@giwa/shared";
 import type { VerifiedAsset, WeiAmount } from "@giwa/shared";
 import { hashSeed, mulberry32 } from "./prng";
 import { MOCK_ETH_KRW } from "./seed-data";
+
+/** 변동률 → 배율. -100% 이하로 내려가 (1+r) 이 0/음수가 되지 않게 클램프 */
+function rateOf(changeBps: number): number {
+  return Math.max(-0.9999, changeBps / 10_000);
+}
 
 export interface DailyCandle {
   time: string; // yyyy-mm-dd (일봉)
@@ -40,7 +45,7 @@ const LAST_DAY_UTC = Date.UTC(2026, 6, 21);
 
 /** wei → 원화 환산 float (차트 기하 전용) */
 export function asKrwNumber(v: WeiAmount): number {
-  return Number(weiToDisplayKrw(v, MOCK_ETH_KRW)) / 1000;
+  return Number(weiToDisplayKrw(v, MOCK_ETH_KRW)) / Number(KRW_SCALE);
 }
 
 /** 가격대별 소수 자릿수 — formatKrw 표시 규칙과 동일 */
@@ -56,9 +61,9 @@ function dayString(i: number): string {
 export function generateCandles(asset: VerifiedAsset): DailyCandle[] {
   const rnd = mulberry32(hashSeed(asset.symbol));
   const end = asKrwNumber(asset.priceWei);
-  const t = asset.stats.today.changeBps / 10_000;
-  const w = asset.stats.week.changeBps / 10_000;
-  const m = asset.stats.month.changeBps / 10_000;
+  const t = rateOf(asset.stats.today.changeBps);
+  const w = rateOf(asset.stats.week.changeBps);
+  const m = rateOf(asset.stats.month.changeBps);
   const last = TOTAL_DAYS - 1;
 
   // 앵커: 각 윈도우 시가 = 현재가 / (1 + 변동률) — 목록 화면과 경계 일치

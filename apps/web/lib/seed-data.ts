@@ -32,7 +32,8 @@ const TREND_POINTS = 16;
 /** 시작점 = 100/(1+변동률), 끝점 = 100 — 표의 변동률과 스파크라인이 항상 정합 */
 function trend(changeBps: number, seedKey: string): number[] {
   const rnd = mulberry32(hashSeed(seedKey));
-  const r = changeBps / 10_000;
+  // -100% 이하로 내려가 (1+r) 이 0/음수가 되지 않게 클램프 (Infinity 방지)
+  const r = Math.max(-0.9999, changeBps / 10_000);
   const start = 100 / (1 + r);
   const target = Math.log(100);
   const vol = Math.min(0.02, Math.max(0.002, Math.abs(r) / 10 + 0.003));

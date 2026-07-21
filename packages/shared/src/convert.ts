@@ -15,7 +15,12 @@ export function weiToDisplayKrw(amount: WeiAmount, krwPerEth: bigint): DisplayKr
 
 /** ETH 소수 문자열("0.00042") → wei. 시드 데이터 정의 편의를 위한 헬퍼 */
 export function ethToWei(eth: string): WeiAmount {
-  const [intPart = "0", fracPart = ""] = eth.split(".");
+  const s = eth.trim();
+  // 음수·지수 표기·빈 문자열은 거부 — 조용히 틀린 wei 를 만들지 않는다
+  if (!/^\d+(\.\d+)?$/.test(s)) {
+    throw new Error(`ETH 표기는 음수 없는 소수 문자열이어야 한다: ${eth}`);
+  }
+  const [intPart = "0", fracPart = ""] = s.split(".");
   if (fracPart.length > 18) {
     throw new Error(`ETH 소수 자릿수는 18을 넘을 수 없다: ${eth}`);
   }

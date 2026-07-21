@@ -17,15 +17,22 @@ function groupDigits(digits: string): string {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-/** 밀리원 → 원화 숫자 문자열 (통화 기호 없이) */
+/** 주소·트랜잭션 해시 축약 — "0xAbCd…1234". 화면 여러 곳의 단일 소스 */
+export function shortHex(hex: string, lead = 6, tail = 4): string {
+  return hex.length <= lead + tail ? hex : `${hex.slice(0, lead)}…${hex.slice(-tail)}`;
+}
+
+/** 밀리원 → 원화 숫자 문자열 (통화 기호 없이). 음수도 부호를 보존해 안전하게 처리 */
 export function formatKrw(v: DisplayKrw): string {
   const milli = v as bigint;
-  const won = milli / KRW_SCALE;
-  const frac = (milli % KRW_SCALE).toString().padStart(3, "0");
+  const sign = milli < 0n ? "-" : "";
+  const abs = milli < 0n ? -milli : milli;
+  const won = abs / KRW_SCALE;
+  const frac = (abs % KRW_SCALE).toString().padStart(3, "0");
 
-  if (won >= 1_000n) return groupDigits(won.toString());
-  if (won >= 100n) return `${won.toString()}.${frac.slice(0, 1)}`;
-  return `${won.toString()}.${frac.slice(0, 2)}`;
+  if (won >= 1_000n) return `${sign}${groupDigits(won.toString())}`;
+  if (won >= 100n) return `${sign}${won.toString()}.${frac.slice(0, 1)}`;
+  return `${sign}${won.toString()}.${frac.slice(0, 2)}`;
 }
 
 /**

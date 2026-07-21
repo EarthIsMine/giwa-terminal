@@ -7,6 +7,7 @@ import {
   formatEth,
   formatKrw,
   formatKrwCompact,
+  shortHex,
 } from "../src/format.ts";
 import { displayKrw, wei } from "../src/types.ts";
 
@@ -17,6 +18,9 @@ test("ethToWei: 소수 문자열을 정확한 wei 로 변환한다", () => {
   assert.equal(ethToWei("0.00042") as bigint, 420_000_000_000_000n);
   assert.equal(ethToWei("0.000000000000000001") as bigint, 1n);
   assert.throws(() => ethToWei("0.0000000000000000001")); // 19자리
+  assert.throws(() => ethToWei("-1.5")); // 음수 거부
+  assert.throws(() => ethToWei("abc")); // 비수치 거부
+  assert.throws(() => ethToWei("1e3")); // 지수 표기 거부
 });
 
 test("weiToDisplayKrw: bigint 만으로 환산하고 내림한다", () => {
@@ -35,6 +39,18 @@ test("formatKrw: 금액대별 자릿수 규칙 (지수 표기 금지)", () => {
   assert.equal(formatKrw(displayKrw(42_062n)), "42.06");
   assert.equal(formatKrw(displayKrw(999n)), "0.99");
   assert.equal(formatKrw(displayKrw(0n)), "0.00");
+  // 음수도 부호를 보존해 깨지지 않게 (과거엔 "-1.-5" 같은 garbage)
+  assert.equal(formatKrw(displayKrw(-2_453_640n)), "-2,453");
+  assert.equal(formatKrw(displayKrw(-181_104n)), "-181.1");
+  assert.equal(formatKrw(displayKrw(-42_062n)), "-42.06");
+});
+
+test("shortHex: 주소·해시 축약 (단일 소스)", () => {
+  assert.equal(
+    shortHex("0xAbCdEf0123456789AbCdEf0123456789AbCd1234"),
+    "0xAbCd…1234",
+  );
+  assert.equal(shortHex("0x1234"), "0x1234"); // 짧으면 그대로
 });
 
 test("formatKrwCompact: 만/억 축약", () => {

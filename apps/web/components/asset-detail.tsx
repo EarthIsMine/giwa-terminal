@@ -10,6 +10,7 @@ import {
   formatEth,
   formatKrw,
   formatKrwCompact,
+  shortHex,
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
@@ -43,10 +44,6 @@ function krwCompactParts(v: WeiAmount): { num: string; unit: string | undefined 
 
 function changeColor(bps: number): string {
   return bps > 0 ? "text-up" : bps < 0 ? "text-down" : "text-ink-3";
-}
-
-function shortAddress(a: string): string {
-  return `${a.slice(0, 6)}…${a.slice(-4)}`;
 }
 
 /** 표시는 항상 내림 — 과대 표시 금지 (지표 정의). 체결 표는 float라 여기서 절사한다 */
@@ -192,7 +189,7 @@ export function AssetDetail({ address }: { address: string }) {
               ) : null}
             </div>
             <div className="mt-1 flex items-center gap-1.5 font-mono text-[12px] text-ink-3">
-              {shortAddress(asset.address)}
+              {shortHex(asset.address)}
               <CopyAddress address={asset.address} />
               <a
                 href={explorerAddressUrl(asset.address)}
@@ -276,7 +273,7 @@ export function AssetDetail({ address }: { address: string }) {
             <span className="flex items-center gap-1.5">
               풀 주소{" "}
               <span className="font-mono text-ink-2">
-                {shortAddress(pool)}
+                {shortHex(pool)}
               </span>
               <CopyAddress address={pool} />
             </span>
@@ -349,7 +346,7 @@ export function AssetDetail({ address }: { address: string }) {
                           rel="noreferrer"
                           className="font-mono text-[12px] text-ink-3 transition-colors hover:text-ink-2"
                         >
-                          {t.txHash.slice(0, 6)}…{t.txHash.slice(-4)} ↗
+                          {shortHex(t.txHash)} ↗
                         </a>
                       </td>
                     </tr>
@@ -469,7 +466,7 @@ export function AssetDetail({ address }: { address: string }) {
               을 통과해 목록에 표시됩니다. 나루는 검증된 자산만 다룹니다.
             </p>
             <div className="mt-3 flex items-center gap-1.5 border-t border-good/15 pt-3 font-mono text-[12px] text-ink-3">
-              컨트랙트 {shortAddress(asset.address)}
+              컨트랙트 {shortHex(asset.address)}
               <CopyAddress address={asset.address} />
               <a
                 href={explorerAddressUrl(asset.address)}

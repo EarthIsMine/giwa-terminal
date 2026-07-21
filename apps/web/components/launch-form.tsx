@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 /**
@@ -118,14 +118,26 @@ export function LaunchForm() {
   const formValid = name.trim() !== "" && ticker.length >= 2;
   const showLogo = logoUrl.trim() !== "" && !logoError;
 
+  // 검증 시뮬레이션 타이머 — 리셋·언마운트 시 정리해 유령 setState 를 막는다
+  const verifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (verifyTimer.current !== null) clearTimeout(verifyTimer.current);
+    };
+  }, []);
+
   const startVerification = () => {
     if (gate === null || gateStatus !== "idle") return;
     setGateStatus("verifying");
     // 데모 시뮬레이션 — 실제 검증은 도장/GIWA ID 연동 후 대체된다
-    setTimeout(() => setGateStatus("verified"), 1400);
+    verifyTimer.current = setTimeout(() => setGateStatus("verified"), 1400);
   };
 
   const reset = () => {
+    if (verifyTimer.current !== null) {
+      clearTimeout(verifyTimer.current);
+      verifyTimer.current = null;
+    }
     setGate(null);
     setGateStatus("idle");
     setName("");

@@ -13,10 +13,16 @@ export function CopyAddress({ address }: { address: string }) {
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
-        void navigator.clipboard.writeText(address).then(() => {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1200);
-        });
+        // 비보안 컨텍스트(HTTP·IP·iframe)에선 clipboard 가 없다 — 조용히 무시
+        const clip = navigator.clipboard;
+        if (!clip) return;
+        void clip.writeText(address).then(
+          () => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1200);
+          },
+          () => undefined, // 권한 거부·포커스 없음 등 reject 도 삼킨다
+        );
       }}
       className={`transition-colors ${copied ? "text-good" : "text-ink-3 hover:text-ink-2"}`}
     >

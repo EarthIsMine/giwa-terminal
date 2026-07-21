@@ -23,4 +23,5 @@ export {
   formatEth,
   formatKrw,
   formatKrwCompact,
+  shortHex,
 } from "./format.ts";

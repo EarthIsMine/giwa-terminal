@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { giwaChain } from "@giwa/config";
+import { shortHex } from "@giwa/shared";
 
 /**
  * 로그인 진입점 — 버튼 하나, 방식 선택은 모달에서.
@@ -40,10 +41,6 @@ function errorCode(e: unknown): number | null {
     if (typeof c === "number") return c;
   }
   return null;
-}
-
-function shortAddress(a: string): string {
-  return `${a.slice(0, 6)}…${a.slice(-4)}`;
 }
 
 function firstString(v: unknown): string | null {
@@ -323,7 +320,7 @@ export function LoginButton() {
         {loggedIn && account ? (
           <>
             <span aria-hidden className="size-1.5 rounded-full bg-good" />
-            {shortAddress(account)}
+            {shortHex(account)}
           </>
         ) : (
           "로그인"
@@ -396,7 +393,7 @@ export function LoginButton() {
                           {connectedWallet.info.name}
                         </p>
                         <p className="font-mono text-[11.5px] text-ink-3">
-                          {shortAddress(account)}
+                          {shortHex(account)}
                         </p>
                       </div>
                       <span className="flex items-center gap-1 text-[11px] font-medium text-good">
@@ -488,7 +485,7 @@ export function LoginButton() {
                               {connectedWallet.info.name}
                             </p>
                             <p className="font-mono text-[11.5px] text-ink-3">
-                              {shortAddress(account)}
+                              {shortHex(account)}
                             </p>
                           </div>
                           <button
