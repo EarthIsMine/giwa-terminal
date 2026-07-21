@@ -268,9 +268,14 @@ export function LoginButton() {
     }
   }, [connectedWallet]);
 
-  /* 서명 로그인 — 소유 확인용 personal_sign. 온체인 전송이 아니다 */
+  /* 서명 로그인 — 소유 확인용 personal_sign. 온체인 전송이 아니다.
+     서명 메시지가 GIWA를 대상으로 단언하므로, 실제로 GIWA에 연결됐을 때만 진행한다 */
   const signIn = useCallback(async () => {
     if (!connectedWallet || !account) return;
+    if (!onGiwa) {
+      setErrorMsg(`먼저 ${giwaChain.name} 네트워크로 전환해 주세요`);
+      return;
+    }
     setSignStatus("pending");
     setErrorMsg(null);
     try {
@@ -302,7 +307,7 @@ export function LoginButton() {
           : "로그인 서명에 실패했습니다",
       );
     }
-  }, [connectedWallet, account]);
+  }, [connectedWallet, account, onGiwa]);
 
   return (
     <>
@@ -503,13 +508,15 @@ export function LoginButton() {
 
                         <button
                           type="button"
-                          disabled={signStatus === "pending"}
+                          disabled={signStatus === "pending" || !onGiwa}
                           onClick={() => void signIn()}
-                          className="mt-2.5 w-full rounded-lg bg-accent py-2.5 text-[13px] font-semibold text-accent-ink transition-[filter] hover:brightness-110 disabled:cursor-wait disabled:opacity-70"
+                          className="mt-2.5 w-full rounded-lg bg-accent py-2.5 text-[13px] font-semibold text-accent-ink transition-[filter] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {signStatus === "pending"
                             ? "지갑에서 서명해 주세요…"
-                            : "서명하고 로그인"}
+                            : !onGiwa
+                              ? "네트워크 전환 후 로그인"
+                              : "서명하고 로그인"}
                         </button>
                         <p className="mt-2 text-[10.5px] leading-relaxed text-ink-3">
                           서명은 지갑 소유 확인용입니다 · 온체인 전송이 아니며

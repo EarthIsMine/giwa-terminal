@@ -49,17 +49,22 @@ function shortAddress(a: string): string {
   return `${a.slice(0, 6)}…${a.slice(-4)}`;
 }
 
+/** 표시는 항상 내림 — 과대 표시 금지 (지표 정의). 체결 표는 float라 여기서 절사한다 */
+function floorTo(v: number, d: number): number {
+  const f = 10 ** d;
+  return Math.floor(v * f) / f;
+}
+
 function fmtFloatKrw(v: number, decimals = 0): string {
-  return v.toLocaleString("ko-KR", {
+  return floorTo(v, decimals).toLocaleString("ko-KR", {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
 }
 
 function fmtTokens(t: number): string {
-  if (t >= 100) return t.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
-  if (t >= 1) return t.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
-  return t.toLocaleString("ko-KR", { maximumFractionDigits: 4 });
+  const d = t >= 100 ? 0 : t >= 1 ? 2 : 4;
+  return floorTo(t, d).toLocaleString("ko-KR", { maximumFractionDigits: d });
 }
 
 /* ---------- 사이드바 조각 ---------- */

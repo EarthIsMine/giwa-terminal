@@ -9,6 +9,12 @@ import {
 } from "lightweight-charts";
 import type { DailyCandle } from "@/lib/seed-detail";
 
+/** 원화 표시는 항상 내림 — 과대 표시 금지 (지표 정의). 차트는 float라 여기서 절사한다 */
+function floorTo(v: number, d: number): number {
+  const f = 10 ** d;
+  return Math.floor(v * f) / f;
+}
+
 /**
  * 일봉 캔들 + 거래대금 히스토그램.
  * y축은 원화 환산 값 — 차트 카드 헤더에 "원화 환산" 라벨을 항상 함께 띄운다 (절대 규칙 1).
@@ -51,7 +57,7 @@ export function CandleChart({
       localization: {
         locale: "ko-KR",
         priceFormatter: (p: number) =>
-          `₩${p.toLocaleString("ko-KR", {
+          `₩${floorTo(p, decimals).toLocaleString("ko-KR", {
             minimumFractionDigits: 0,
             maximumFractionDigits: decimals,
           })}`,
