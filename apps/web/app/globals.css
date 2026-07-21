@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/*
+ * 디자인 토큰 — "옻칠 목재 소반 위의 터미널".
+ * 배경은 흑칠 월넛 + 은은한 수평 판자 나뭇결(SVG 프로시저럴, 에셋 없음),
+ * 텍스트는 한지빛, 액센트는 랜턴 불빛 아래 골든 오크.
+ * up/down 데이터 색은 dataviz 검증기 통과 값 (웜 서피스에서 deutan ΔE 19).
+ * 액센트(나무색)는 하락 빨강과 색각이상 축이 가까우므로(ΔE 14.8)
+ * 데이터 인코딩에는 절대 쓰지 않는다 — 라벨·보더를 동반한 UI 크롬 전용.
+ * 색 관례(팀 결정): 상승 = 초록, 하락 = 빨강 — 국제 관례, 임의로 뒤집지 않는다.
+ */
+@theme {
+  --color-base: #2a1c10;
+  /* 작은 컨트롤(칩·인풋·필)용 옅은 그늘 — 나무가 짙게 비친다 */
+  --color-panel: rgba(10, 6, 3, 0.35);
+  --color-panel-2: rgba(96, 66, 38, 0.3);
+  --color-hairline: rgba(140, 100, 58, 0.28);
+
+  /* 한지빛 잉크 3단 */
+  --color-ink: #f3eee3;
+  --color-ink-2: #b3a690;
+  --color-ink-3: #8d8068;
+
+  /* 골든 오크(주 액센트) / 호두(짙은 보조) / 먹빛(액센트 위 텍스트) */
+  --color-accent: #c9a554;
+  --color-accent-deep: #8f6d31;
+  --color-accent-ink: #211703;
+  --color-up: #1fa971;
+  --color-down: #f6465d;
+  --color-warn: #fab219;
+  --color-good: #0ca30c;
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
+  --font-serif: var(--font-noto-serif-kr), "Noto Serif KR", "Nanum Myeongjo",
+    serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+}
+
+/* 나루터 풍경 애니메이션 — 배 흔들림 · 물안개 드리프트 · 달빛 윤슬 */
+@keyframes ns-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+@keyframes ns-drift {
+  0% {
+    transform: translateX(-24px);
+  }
+  100% {
+    transform: translateX(24px);
+  }
+}
+@keyframes ns-shimmer {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+@keyframes ns-ferry {
+  0% {
+    transform: translateX(-88px);
+  }
+  100% {
+    transform: translateX(88px);
+  }
+}
+@keyframes ns-current {
+  0% {
+    transform: translateX(-14px);
+  }
+  100% {
+    transform: translateX(14px);
+  }
+}
+@keyframes ns-ripple {
+  0% {
+    transform: scale(0.25);
+    opacity: 0.38;
+  }
+  70% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+/* 노 저을 때 퍼지는 파문 — fill-box 기준으로 제자리에서 확장 */
+.ns-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ns-ripple 4.2s ease-out infinite;
+}
+
+/*
+ * 음각(carved) 서피스 — 유리판 대신 나무를 파낸 홈.
+ * 위 모서리는 그림자, 아래 턱은 빛을 받는다. 보더 없이 깊이로 구분한다.
+ */
+.carved {
+  background: rgba(10, 6, 3, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(0, 0, 0, 0.55),
+    inset 0 3px 9px rgba(0, 0, 0, 0.38),
+    inset 0 -1px 0 rgba(236, 197, 128, 0.1);
+}
+
+body {
+  background-color: var(--color-base);
+  /* 원목 마루 바닥 — 판자 홈·엇갈린 이음매·결이 있는 심리스 타일 (public/wood-floor.svg) */
+  background-image: url("/wood-floor.svg");
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 40%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
+  outline-offset: 2px;
+}
