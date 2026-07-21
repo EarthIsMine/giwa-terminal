@@ -4,6 +4,7 @@ import { SITE_LINKS } from "@/lib/site";
 import { BrandLogo } from "./brand-logo";
 import { HeaderSearch } from "./header-search";
 import { MainNav } from "./main-nav";
+import { LoginButton } from "./login-button";
 import { TelegramIcon, XIcon } from "./social-icons";
 
 const ICON_BUTTON_CLASS =
@@ -65,39 +66,22 @@ export function SiteHeader() {
               href={giwaChain.explorerUrl}
               target="_blank"
               rel="noreferrer"
-              title="블록 익스플로러"
-              aria-label="블록 익스플로러 열기"
-              className={ICON_BUTTON_CLASS}
+              title="GIWA 익스플로러"
+              aria-label="GIWA 익스플로러 열기"
+              className={`group ${ICON_BUTTON_CLASS}`}
             >
-              <svg
-                viewBox="0 0 16 16"
-                width={14}
-                height={14}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden
-              >
-                <path d="M6.5 3.5H3.8A1.3 1.3 0 0 0 2.5 4.8v7.4a1.3 1.3 0 0 0 1.3 1.3h7.4a1.3 1.3 0 0 0 1.3-1.3V9.5" />
-                <path d="M9.5 2.5h4v4" />
-                <path d="M13.2 2.8L7.5 8.5" />
-              </svg>
+              {/* 기와 공식 마크(누끼 PNG) — 검정 원화라 다크 배경에선 invert로 밝힌다 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/giwa-mark.png"
+                alt=""
+                width={17}
+                height={17}
+                className="opacity-65 invert transition-opacity group-hover:opacity-95"
+              />
             </a>
           </div>
-          <button
-            type="button"
-            className="rounded-lg px-3 py-2 text-[13px] text-ink-3 transition-colors hover:text-ink-2"
-          >
-            지갑 연결
-          </button>
-          <button
-            type="button"
-            className="rounded-lg bg-accent px-4 py-2 text-[13px] font-semibold text-accent-ink transition-[filter] hover:brightness-110"
-          >
-            이메일로 시작
-          </button>
+          <LoginButton />
         </div>
       </div>
     </header>

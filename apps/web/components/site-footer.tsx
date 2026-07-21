@@ -63,6 +63,16 @@ export function SiteFooter() {
                 블록 익스플로러 ↗
               </a>
             </li>
+            <li>
+              <a
+                href={giwaChain.bridgeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="transition-colors hover:text-ink"
+              >
+                공식 브릿지 ↗
+              </a>
+            </li>
             <li className="text-ink-3">컨트랙트 주소는 배포 후 공개됩니다</li>
           </ul>
         </div>

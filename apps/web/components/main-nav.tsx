@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { giwaChain } from "@giwa/config";
 
 /**
  * 상단 주 메뉴 — 항목은 실제 있는 화면만 (절대 규칙 3: 밀도를 낮춘다).
- * 자산(목록·상세) / 발행(신원 게이트 전제) / 내 자산(준비 중)
+ * 토큰(목록·상세) / 발행(신원 게이트 전제) / 내 자산(준비 중)
  */
 const ITEMS = [
   {
     href: "/",
-    label: "자산",
+    label: "토큰",
     match: (p: string) => p === "/" || p.startsWith("/asset"),
   },
   {
@@ -41,6 +42,15 @@ export function MainNav() {
           </Link>
         );
       })}
+      {/* 공식 네이티브 브릿지 — 외부 이동 (docs.giwa.io 안내 링크) */}
+      <a
+        href={giwaChain.bridgeUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="rounded-md border border-transparent px-3 py-1.5 text-ink-3 transition-colors hover:text-ink-2"
+      >
+        브릿지
+      </a>
       <span className="flex cursor-default items-center gap-1.5 rounded-md px-3 py-1.5 text-ink-3">
         내 자산
         <span className="rounded border border-hairline px-1 py-px text-[9.5px] text-ink-3">

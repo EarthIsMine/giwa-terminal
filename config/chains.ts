@@ -14,6 +14,8 @@ export interface ChainConfig {
   name: string;
   rpcUrl: string;
   explorerUrl: string;
+  /** 공식 네이티브 브릿지 (docs.giwa.io/tools/bridges 안내, Superbridge 기반) */
+  bridgeUrl: string;
   nativeCurrency: {
     name: string;
     symbol: string;
@@ -36,6 +38,8 @@ export const giwaChain: ChainConfig = {
   rpcUrl: process.env.NEXT_PUBLIC_GIWA_RPC_URL ?? "https://sepolia-rpc.giwa.io",
   explorerUrl:
     process.env.NEXT_PUBLIC_GIWA_EXPLORER_URL ?? "https://sepolia-explorer.giwa.io",
+  bridgeUrl:
+    process.env.NEXT_PUBLIC_GIWA_BRIDGE_URL ?? "https://sepolia-bridge.giwa.io",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   factoryAddress: asAddress(process.env.NEXT_PUBLIC_GIWA_FACTORY_ADDRESS),
   startBlock: process.env.NEXT_PUBLIC_GIWA_START_BLOCK
