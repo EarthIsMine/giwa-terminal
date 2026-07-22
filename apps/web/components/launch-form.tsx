@@ -2,11 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { explorerAddressUrl, giwaChain } from "@giwa/config";
+import { shortHex } from "@giwa/shared";
 
 /**
  * 검증 런치패드 (2026-07-21 팀 결정: 제품이다).
  * 퍼미션리스가 아니라 신원 검증 발행이 정체성 — 흐름은 신청 → 검증 → 상장.
- * 데모 단계: 검증·발행은 시뮬레이션이며 화면에 명시한다. 온체인 연결은 컨트랙트 배포 후.
+ * 데모 단계: 검증·발행 신청은 시뮬레이션이며 화면에 명시한다.
+ * 발행 게이트(TokenFactory)·신원 원장(IdentityRegistry)은 GIWA Sepolia에 배포·검증
+ * 완료 — 주소는 env로 주입되며(절대 규칙 4) 우측 카드에서 익스플로러로 확인할 수 있다.
  */
 
 const INPUT_CLASS =
@@ -80,6 +84,66 @@ function GateTile({
   );
 }
 
+/* ---------- 진행 단계 스텝퍼 ---------- */
+
+type StepState = "done" | "active" | "pending";
+
+interface Step {
+  label: string;
+  desc: string;
+  state: StepState;
+}
+
+/** 신청 → 상장 사다리를 항상 보여준다 — 지금 어디까지 왔는지가 한눈에 읽힌다 */
+function Stepper({ steps }: { steps: readonly Step[] }) {
+  return (
+    <ol className="flex flex-wrap gap-y-4">
+      {steps.map((step, i) => {
+        const isLast = i === steps.length - 1;
+        return (
+          <li
+            key={step.label}
+            className={`flex items-start gap-3 ${isLast ? "" : "flex-1"} min-w-[150px]`}
+          >
+            <span
+              aria-hidden
+              className={`mt-px grid size-7 shrink-0 place-items-center rounded-full border text-[12px] font-semibold ${
+                step.state === "done"
+                  ? "border-good/40 bg-good/10 text-good"
+                  : step.state === "active"
+                    ? "border-accent/45 bg-accent/15 text-accent"
+                    : "border-hairline text-ink-3"
+              }`}
+            >
+              {step.state === "done" ? <CheckIcon size={12} /> : i + 1}
+            </span>
+            <span className="min-w-0 shrink-0">
+              <span
+                className={`block text-[13px] font-semibold ${
+                  step.state === "pending" ? "text-ink-3" : ""
+                }`}
+              >
+                {step.label}
+              </span>
+              <span className="mt-0.5 block text-[11.5px] text-ink-3">
+                {step.desc}
+              </span>
+            </span>
+            {!isLast ? (
+              <span
+                aria-hidden
+                className={`mt-3.5 h-px min-w-6 flex-1 ${
+                  step.state === "done" ? "bg-good/30" : "bg-hairline"
+                }`}
+              />
+            ) : null}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function SummaryRow({
   label,
   value,
@@ -118,6 +182,30 @@ export function LaunchForm() {
   const formValid = name.trim() !== "" && ticker.length >= 2;
   const showLogo = logoUrl.trim() !== "" && !logoError;
 
+  /* 사다리 상태 — 폼 진행과 1:1로 연동 */
+  const steps: readonly Step[] = [
+    {
+      label: "신원 검증",
+      desc: "도장 · GIWA ID",
+      state: verified ? "done" : "active",
+    },
+    {
+      label: "자산 정보",
+      desc: "이름 · 심볼 · 로고",
+      state: formValid ? "done" : verified ? "active" : "pending",
+    },
+    {
+      label: "발행 신청",
+      desc: "조건 확정 · 접수",
+      state: submitted ? "done" : verified && formValid ? "active" : "pending",
+    },
+    {
+      label: "심사 후 상장",
+      desc: "검증 배지와 함께 목록 노출",
+      state: submitted ? "active" : "pending",
+    },
+  ];
+
   // 검증 시뮬레이션 타이머 — 리셋·언마운트 시 정리해 유령 setState 를 막는다
   const verifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -153,7 +241,10 @@ export function LaunchForm() {
   if (submitted) {
     return (
       <div className="mx-auto w-full max-w-[1840px] px-8 pb-4 pt-12">
-        <div className="mx-auto max-w-[640px] rounded-2xl carved p-10 text-center">
+        <div className="mx-auto max-w-[640px]">
+          <Stepper steps={steps} />
+        </div>
+        <div className="mx-auto mt-8 max-w-[640px] rounded-2xl carved p-10 text-center">
           <div className="mx-auto grid size-14 place-items-center rounded-full border border-good/30 bg-good/10 text-good">
             <CheckIcon size={26} />
           </div>
@@ -179,8 +270,8 @@ export function LaunchForm() {
           </dl>
 
           <p className="mt-5 text-[11.5px] leading-relaxed text-ink-3">
-            테스트넷 데모 — 신청은 시뮬레이션이며, 온체인 발행은 컨트랙트 배포
-            후 연결됩니다.
+            테스트넷 데모 — 신청은 시뮬레이션입니다. 발행 게이트 컨트랙트는
+            GIWA Sepolia에 배포되어 있으며, 폼 연동을 준비 중입니다.
           </p>
 
           <div className="mt-6 flex justify-center gap-2.5">
@@ -220,6 +311,11 @@ export function LaunchForm() {
           <span className="text-ink">GIWA ID 연동</span>이 전제이며, 흐름은
           신청 → 검증 → 상장입니다.
         </p>
+      </div>
+
+      {/* 진행 사다리 — 폼 상태와 연동 */}
+      <div className="mt-8 max-w-[980px]">
+        <Stepper steps={steps} />
       </div>
 
       <div className="mt-9 flex flex-col items-start gap-5 xl:flex-row">
@@ -509,10 +605,57 @@ export function LaunchForm() {
             )}
 
             <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
-              테스트넷 데모 — 검증·발행은 시뮬레이션이며, 온체인 발행은
-              컨트랙트 배포 후 연결됩니다.
+              테스트넷 데모 — 검증·발행 신청은 시뮬레이션이며, 아래 발행
+              게이트 컨트랙트와의 연동을 준비 중입니다.
             </p>
           </div>
+
+          {/* 발행 게이트 온체인 — 배포·검증된 실제 컨트랙트 (주소는 env 주입) */}
+          {giwaChain.tokenFactoryAddress ? (
+            <div className="mt-4 rounded-xl carved p-6">
+              <h2 className="text-[15px] font-semibold">발행 게이트 온체인</h2>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-3">
+                이 폼이 연결될 컨트랙트는 {giwaChain.name}에 배포되어 있고
+                소스가 공개 검증되어 있습니다.
+              </p>
+              <dl className="mt-3">
+                <div className="flex items-center justify-between gap-4 border-b border-hairline/60 py-2.5">
+                  <dt className="text-[12.5px] text-ink-3">발행 게이트</dt>
+                  <dd>
+                    <a
+                      href={explorerAddressUrl(giwaChain.tokenFactoryAddress)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-mono text-[12.5px] text-ink-2 transition-colors hover:text-accent"
+                    >
+                      {shortHex(giwaChain.tokenFactoryAddress)}
+                      <span aria-hidden className="text-[10px]">↗</span>
+                    </a>
+                  </dd>
+                </div>
+                {giwaChain.identityRegistryAddress ? (
+                  <div className="flex items-center justify-between gap-4 py-2.5">
+                    <dt className="text-[12.5px] text-ink-3">신원 검증 원장</dt>
+                    <dd>
+                      <a
+                        href={explorerAddressUrl(giwaChain.identityRegistryAddress)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 font-mono text-[12.5px] text-ink-2 transition-colors hover:text-accent"
+                      >
+                        {shortHex(giwaChain.identityRegistryAddress)}
+                        <span aria-hidden className="text-[10px]">↗</span>
+                      </a>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+              <p className="mt-2.5 text-[11px] leading-relaxed text-ink-3">
+                참여자 검증(업비트 아이디 로그인)도 준비 중입니다 — 발행과
+                참여 모두 신원 기반으로 갑니다.
+              </p>
+            </div>
+          ) : null}
         </aside>
       </div>
     </div>

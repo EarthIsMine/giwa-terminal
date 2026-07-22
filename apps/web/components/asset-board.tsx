@@ -10,43 +10,46 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { ColumnDef, Row, SortingState } from "@tanstack/react-table";
+import { explorerAddressUrl } from "@giwa/config";
 import {
-  STAT_WINDOWS,
-  STAT_WINDOW_LABEL,
-  formatChangeBps,
   formatCount,
   formatEth,
   formatKrw,
   formatKrwCompact,
+  shortHex,
+  wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
-import type { StatWindow, VerifiedAsset, WeiAmount } from "@giwa/shared";
-import { MOCK_ETH_KRW, SEED_ASSETS } from "@/lib/seed-data";
+import type { WeiAmount } from "@giwa/shared";
+import type { LiveAssetWire } from "@/lib/onchain";
 import { AssetAvatar } from "./asset-avatar";
-import { AssetLinksIcons } from "./asset-links";
 import { CopyAddress } from "./copy-address";
 import { useSearch } from "./search-context";
-import { Sparkline } from "./sparkline";
 import { VerifiedBadge } from "./verified-badge";
 
-/* ---------- 표시 유틸 ---------- */
+/**
+ * 자산 보드 — GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
+ * 현재가·예치 규모는 페어 준비금에서, 자산 메타는 발행 게이트 레지스트리에서 온다.
+ * 변동·거래량·참여 인원 지표는 이벤트 집계가 필요해 인덱서 연결 후 복원한다.
+ */
 
-function krw(v: WeiAmount): string {
-  return formatKrw(weiToDisplayKrw(v, MOCK_ETH_KRW));
+interface LiveAsset {
+  address: `0x${string}`;
+  pair: `0x${string}`;
+  symbol: string;
+  nameKo: string;
+  issuerName: string;
+  priceWei: WeiAmount;
+  liquidityWei: WeiAmount;
 }
 
 function cmpBigint(a: bigint, b: bigint): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-function changeColor(bps: number): string {
-  // 색 관례(팀 결정): 상승 초록 / 하락 빨강
-  return bps > 0 ? "text-up" : bps < 0 ? "text-down" : "text-ink-3";
-}
-
 /** "1.27억" → 숫자와 단위를 분리해 단위를 한 단계 죽인다 */
-function KrwCompact({ v }: { v: WeiAmount }) {
-  const s = formatKrwCompact(weiToDisplayKrw(v, MOCK_ETH_KRW));
+function KrwCompact({ v, ethKrw }: { v: WeiAmount; ethKrw: bigint }) {
+  const s = formatKrwCompact(weiToDisplayKrw(v, ethKrw));
   const m = /^([\d,.]+)(억|만)?$/.exec(s);
   const num = m?.[1] ?? s;
   const unit = m?.[2];
@@ -60,12 +63,10 @@ function KrwCompact({ v }: { v: WeiAmount }) {
   );
 }
 
-/* ---------- 자산 셀 ---------- */
-
-function AssetCell({ asset }: { asset: VerifiedAsset }) {
+function AssetCell({ asset }: { asset: LiveAsset }) {
   return (
     <div className="flex items-center gap-2.5">
-      <AssetAvatar asset={asset} size={30} />
+      <AssetAvatar symbol={asset.symbol} size={30} />
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
           <Link
@@ -75,14 +76,14 @@ function AssetCell({ asset }: { asset: VerifiedAsset }) {
           >
             {asset.symbol}
           </Link>
-          <VerifiedBadge verification={asset.verification} />
-          {asset.isQuoteAnchor ? (
-            <span className="rounded border border-hairline px-1 py-px text-[9.5px] text-ink-3">
-              기준 자산
-            </span>
-          ) : null}
+          <VerifiedBadge
+            verification={{
+              status: "verified",
+              method: "dojang",
+              label: "도장 검증(데모 어테스테이션)",
+            }}
+          />
           <CopyAddress address={asset.address} />
-          <AssetLinksIcons links={asset.links} />
         </div>
         <p className="mt-0.5 text-[11.5px] text-ink-3">{asset.nameKo}</p>
       </div>
@@ -90,40 +91,52 @@ function AssetCell({ asset }: { asset: VerifiedAsset }) {
   );
 }
 
-/* ---------- 보드 ---------- */
-
-const RIGHT_ALIGNED = new Set(["price", "change", "volume", "traders", "liquidity"]);
+const RIGHT_ALIGNED = new Set(["price", "liquidity", "onchain"]);
 
 /** 컬럼별 고정 폭 — 나머지는 자산 컬럼이 흡수한다 */
 const COL_WIDTH: Record<string, string> = {
-  trend: "w-[170px]",
-  price: "w-[170px]",
-  change: "w-[120px]",
-  volume: "w-[140px]",
-  traders: "w-[120px]",
-  liquidity: "w-[140px]",
+  issuer: "w-[200px]",
+  price: "w-[220px]",
+  liquidity: "w-[180px]",
+  onchain: "w-[170px]",
 };
 
-export function AssetBoard() {
+export function AssetBoard({
+  assets,
+  ethKrw: ethKrwRaw,
+}: {
+  assets: LiveAssetWire[];
+  ethKrw: string | null;
+}) {
   const router = useRouter();
   const { query } = useSearch();
-  const [win, setWin] = useState<StatWindow>("today");
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "volume", desc: true },
+    { id: "liquidity", desc: true },
   ]);
 
-  const data = useMemo(() => {
+  const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
+
+  const data = useMemo<LiveAsset[]>(() => {
+    const parsed = assets.map((a) => ({
+      address: a.address,
+      pair: a.pair,
+      symbol: a.symbol,
+      nameKo: a.nameKo,
+      issuerName: a.issuerName,
+      priceWei: wei(BigInt(a.priceWei)),
+      liquidityWei: wei(BigInt(a.liquidityWei)),
+    }));
     const q = query.trim().toLowerCase();
-    if (q === "") return [...SEED_ASSETS];
-    return SEED_ASSETS.filter(
+    if (q === "") return parsed;
+    return parsed.filter(
       (a) =>
         a.symbol.toLowerCase().includes(q) ||
         a.nameKo.includes(q) ||
         a.address.toLowerCase().includes(q),
     );
-  }, [query]);
+  }, [assets, query]);
 
-  const columns = useMemo<ColumnDef<VerifiedAsset>[]>(
+  const columns = useMemo<ColumnDef<LiveAsset>[]>(
     () => [
       {
         id: "asset",
@@ -132,16 +145,13 @@ export function AssetBoard() {
         cell: ({ row }) => <AssetCell asset={row.original} />,
       },
       {
-        id: "trend",
-        header: "추세",
+        id: "issuer",
+        header: "발행자",
         enableSorting: false,
         cell: ({ row }) => (
-          <Sparkline
-            points={row.original.stats[win].trend}
-            changeBps={row.original.stats[win].changeBps}
-            height={26}
-            label={`${row.original.nameKo} ${STAT_WINDOW_LABEL[win]} 가격 추이`}
-          />
+          <span className="text-[12.5px] text-ink-2">
+            {row.original.issuerName}
+          </span>
         ),
       },
       {
@@ -149,68 +159,64 @@ export function AssetBoard() {
         accessorFn: (a) => a.priceWei,
         header: "현재가",
         sortDescFirst: true,
-        sortingFn: (a: Row<VerifiedAsset>, b: Row<VerifiedAsset>) =>
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
           cmpBigint(a.original.priceWei, b.original.priceWei),
-        cell: ({ row }) => (
-          <div>
+        cell: ({ row }) =>
+          ethKrw ? (
+            <div>
+              <p className="font-mono text-[13.5px] font-medium tabular-nums">
+                <span className="mr-px text-ink-2">₩</span>
+                {formatKrw(weiToDisplayKrw(row.original.priceWei, ethKrw))}
+              </p>
+              <p className="mt-0.5 font-mono text-[10.5px] tabular-nums text-ink-3">
+                {formatEth(row.original.priceWei, 8)} ETH
+              </p>
+            </div>
+          ) : (
             <p className="font-mono text-[13.5px] font-medium tabular-nums">
-              <span className="mr-px text-ink-2">₩</span>
-              {krw(row.original.priceWei)}
+              {formatEth(row.original.priceWei, 8)}{" "}
+              <span className="text-[11px] text-ink-3">ETH</span>
             </p>
-            <p className="mt-0.5 font-mono text-[10.5px] tabular-nums text-ink-3">
-              {formatEth(row.original.priceWei, 8)} ETH
-            </p>
-          </div>
-        ),
-      },
-      {
-        id: "change",
-        accessorFn: (a) => a.stats[win].changeBps,
-        header: `${STAT_WINDOW_LABEL[win]} 변동`,
-        sortDescFirst: true,
-        cell: ({ row }) => {
-          const bps = row.original.stats[win].changeBps;
-          return (
-            <span
-              className={`font-mono text-[13px] font-medium tabular-nums ${changeColor(bps)}`}
-            >
-              {formatChangeBps(bps)}
-            </span>
-          );
-        },
-      },
-      {
-        id: "volume",
-        accessorFn: (a) => a.stats[win].volumeWei,
-        header: "거래대금",
-        sortDescFirst: true,
-        sortingFn: (a: Row<VerifiedAsset>, b: Row<VerifiedAsset>) =>
-          cmpBigint(a.original.stats[win].volumeWei, b.original.stats[win].volumeWei),
-        cell: ({ row }) => <KrwCompact v={row.original.stats[win].volumeWei} />,
-      },
-      {
-        id: "traders",
-        accessorFn: (a) => a.stats[win].traders,
-        header: "참여 인원",
-        sortDescFirst: true,
-        cell: ({ row }) => (
-          <span className="font-mono text-[13px] tabular-nums">
-            {formatCount(row.original.stats[win].traders)}
-            <span className="ml-0.5 font-sans text-[11px] text-ink-3">명</span>
-          </span>
-        ),
+          ),
       },
       {
         id: "liquidity",
         accessorFn: (a) => a.liquidityWei,
         header: "예치 규모",
         sortDescFirst: true,
-        sortingFn: (a: Row<VerifiedAsset>, b: Row<VerifiedAsset>) =>
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
           cmpBigint(a.original.liquidityWei, b.original.liquidityWei),
-        cell: ({ row }) => <KrwCompact v={row.original.liquidityWei} />,
+        cell: ({ row }) =>
+          ethKrw ? (
+            <KrwCompact v={row.original.liquidityWei} ethKrw={ethKrw} />
+          ) : (
+            <span className="font-mono text-[13px] tabular-nums">
+              {formatEth(row.original.liquidityWei, 4)}{" "}
+              <span className="text-[11px] text-ink-3">ETH</span>
+            </span>
+          ),
+      },
+      {
+        id: "onchain",
+        header: "온체인",
+        enableSorting: false,
+        cell: ({ row }) => (
+          <span className="inline-flex items-center gap-2.5 font-mono text-[11.5px]">
+            <a
+              href={explorerAddressUrl(row.original.address)}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-ink-3 transition-colors hover:text-accent"
+              title="토큰 컨트랙트"
+            >
+              {shortHex(row.original.address, 6, 4)} ↗
+            </a>
+          </span>
+        ),
       },
     ],
-    [win],
+    [ethKrw],
   );
 
   const table = useReactTable({
@@ -226,29 +232,12 @@ export function AssetBoard() {
 
   return (
     <div>
-      {/* 툴바 — 레퍼런스처럼 우측 정렬 */}
-      <div className="flex flex-wrap items-center justify-end gap-2.5">
-        <div
-          role="group"
-          aria-label="집계 기간"
-          className="inline-flex rounded-lg border border-hairline bg-panel p-0.5"
-        >
-          {STAT_WINDOWS.map((w) => (
-            <button
-              key={w}
-              type="button"
-              aria-pressed={win === w}
-              onClick={() => setWin(w)}
-              className={`rounded-md px-3 py-1 text-[12px] transition-colors ${
-                win === w
-                  ? "border border-accent/25 bg-accent/15 font-medium text-ink"
-                  : "border border-transparent text-ink-3 hover:text-ink-2"
-              }`}
-            >
-              {STAT_WINDOW_LABEL[w]}
-            </button>
-          ))}
-        </div>
+      {/* 툴바 — 온체인 실시간 상태 + 새로고침 (기간 토글은 인덱서 연결 시 복원) */}
+      <div className="flex flex-wrap items-center justify-end gap-2.5 px-8">
+        <span className="flex h-8 items-center gap-2 rounded-lg border border-hairline bg-panel px-2.5 text-[12px] text-ink-2">
+          <span aria-hidden className="size-1.5 rounded-full bg-good animate-pulse-dot" />
+          온체인 실시간
+        </span>
 
         <button
           type="button"
@@ -283,13 +272,14 @@ export function AssetBoard() {
         </span>
       </div>
 
-      {/* 테이블 */}
-      <div className="mt-4 overflow-hidden rounded-xl carved">
+      {/* 테이블 — 감싸는 패널 없이 전폭으로 펼친다. 행은 투명하게 두고
+          영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */}
+      <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1240px] border-collapse text-left">
+          <table className="w-full min-w-[1080px] border-collapse text-left">
             <caption className="sr-only">
-              기와체인 검증 자산 목록 — 가격, 변동, 거래대금, 참여 인원, 예치
-              규모
+              기와체인 검증 자산 목록 — 온체인 실데이터: 현재가, 예치 규모,
+              발행자
             </caption>
             <thead>
               {table.getHeaderGroups().map((hg) => (
@@ -299,7 +289,7 @@ export function AssetBoard() {
                 >
                   <th
                     scope="col"
-                    className="w-12 py-2.5 pl-5 pr-2 text-[10.5px] font-medium tracking-[0.1em] text-ink-3"
+                    className="w-14 py-2.5 pl-8 pr-2 text-[10.5px] font-medium tracking-[0.1em] text-ink-3"
                   >
                     #
                   </th>
@@ -317,7 +307,7 @@ export function AssetBoard() {
                               ? "descending"
                               : undefined
                         }
-                        className={`px-4 py-2.5 text-[10.5px] font-medium tracking-[0.1em] text-ink-3 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
+                        className={`px-4 py-2.5 text-[10.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
                       >
                         {header.column.getCanSort() ? (
                           <button
@@ -351,12 +341,14 @@ export function AssetBoard() {
             </thead>
             <tbody>
               {rows.length === 0 ? (
-                <tr className="bg-[#1e150d]/[0.96]">
+                <tr>
                   <td
-                    colSpan={8}
+                    colSpan={6}
                     className="py-14 text-center text-[13.5px] text-ink-3"
                   >
-                    {`"${query}" 검색 결과가 없습니다`}
+                    {query.trim() === ""
+                      ? "온체인 자산을 불러오는 중이거나 아직 발행된 자산이 없습니다"
+                      : `"${query}" 검색 결과가 없습니다`}
                   </td>
                 </tr>
               ) : (
@@ -366,19 +358,15 @@ export function AssetBoard() {
                     onClick={() =>
                       router.push(`/asset/${row.original.address}`)
                     }
-                    className={`cursor-pointer border-b border-black/25 transition-colors last:border-0 hover:bg-[#2c1d10]/[0.96] ${
-                      i % 2 === 0
-                        ? "bg-[#1e150d]/[0.96]"
-                        : "bg-[#191008]/[0.96]"
-                    }`}
+                    className="cursor-pointer border-b border-black/30 transition-colors last:border-0 hover:bg-black/30"
                   >
-                    <td className="py-1.5 pl-5 pr-2 font-mono text-[11px] text-ink-3">
+                    <td className="py-2.5 pl-8 pr-2 font-mono text-[11px] text-ink-3">
                       #{i + 1}
                     </td>
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className={`px-4 py-1.5 ${RIGHT_ALIGNED.has(cell.column.id) ? "text-right" : ""}`}
+                        className={`px-4 py-2.5 last:pr-8 ${RIGHT_ALIGNED.has(cell.column.id) ? "text-right" : ""}`}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
@@ -391,16 +379,17 @@ export function AssetBoard() {
         </div>
       </div>
 
-      {/* 환산 고지 (절대 규칙 1: 환산 표시임을 항상 밝힌다) */}
-      <div className="mt-3 space-y-1 text-[11.5px] leading-relaxed text-ink-3">
+      {/* 환산·집계 고지 (절대 규칙 1·5) */}
+      <div className="mt-3 space-y-1 px-8 text-[11.5px] leading-relaxed text-ink-3">
         <p>
-          · 원화 금액은 업비트 KRW-ETH 시세(₩
-          {formatCount(Number(MOCK_ETH_KRW))} · 데모 고정값)로 환산한
-          참고값입니다. 원화 자산이 온체인에 존재하는 것은 아닙니다.
+          {ethKrw
+            ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다. 원화 자산이 온체인에 존재하는 것은 아닙니다.`
+            : "· 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다."}
         </p>
         <p>
-          · 변동은 각 기간 시가 대비, 참여 인원은 기간 내 고유 지갑 수, 예치
-          규모는 풀 보유 기준 자산 잔고 × 2 기준입니다.
+          · 목록·가격·예치 규모는 GIWA Sepolia 온체인 실데이터입니다. 변동률 ·
+          거래대금 · 참여 인원은 인덱서 연결 후 제공되며, 거래 데이터는 데모
+          시드 봇이 생성합니다.
         </p>
       </div>
     </div>

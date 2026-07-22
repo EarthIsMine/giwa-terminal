@@ -21,8 +21,16 @@ export interface ChainConfig {
     symbol: string;
     decimals: number;
   };
-  /** V2 팩토리 주소 — 컨트랙트 배포 후 env로 주입 */
+  /** V2 팩토리(NaruswapV2Factory) 주소 — 컨트랙트 배포 후 env로 주입 */
   factoryAddress: `0x${string}` | null;
+  /** 라우터(NaruswapV2Router) 주소 — 컨트랙트 배포 후 env로 주입 */
+  routerAddress: `0x${string}` | null;
+  /** 발행 게이트(TokenFactory) 주소 — 컨트랙트 배포 후 env로 주입 */
+  tokenFactoryAddress: `0x${string}` | null;
+  /** 신원 검증 원장(IdentityRegistry) 주소 — 컨트랙트 배포 후 env로 주입 */
+  identityRegistryAddress: `0x${string}` | null;
+  /** WETH 주소 — OP Stack 프리디플로이가 기본값 (체인 상수) */
+  wethAddress: `0x${string}`;
   /** 인덱서 시작 블록 — 컨트랙트 배포 후 env로 주입 */
   startBlock: bigint | null;
   testnet: boolean;
@@ -42,6 +50,14 @@ export const giwaChain: ChainConfig = {
     process.env.NEXT_PUBLIC_GIWA_BRIDGE_URL ?? "https://sepolia-bridge.giwa.io",
   nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   factoryAddress: asAddress(process.env.NEXT_PUBLIC_GIWA_FACTORY_ADDRESS),
+  routerAddress: asAddress(process.env.NEXT_PUBLIC_GIWA_ROUTER_ADDRESS),
+  tokenFactoryAddress: asAddress(process.env.NEXT_PUBLIC_GIWA_TOKEN_FACTORY_ADDRESS),
+  identityRegistryAddress: asAddress(
+    process.env.NEXT_PUBLIC_GIWA_IDENTITY_REGISTRY_ADDRESS,
+  ),
+  wethAddress:
+    asAddress(process.env.NEXT_PUBLIC_GIWA_WETH_ADDRESS) ??
+    "0x4200000000000000000000000000000000000006",
   startBlock: process.env.NEXT_PUBLIC_GIWA_START_BLOCK
     ? BigInt(process.env.NEXT_PUBLIC_GIWA_START_BLOCK)
     : null,
@@ -51,4 +67,9 @@ export const giwaChain: ChainConfig = {
 /** 익스플로러 주소 상세 페이지 링크 */
 export function explorerAddressUrl(address: string): string {
   return `${giwaChain.explorerUrl}/address/${address}`;
+}
+
+/** 익스플로러 트랜잭션 상세 페이지 링크 */
+export function explorerTxUrl(hash: string): string {
+  return `${giwaChain.explorerUrl}/tx/${hash}`;
 }

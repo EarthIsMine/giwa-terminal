@@ -73,7 +73,20 @@ export function SiteFooter() {
                 공식 브릿지 ↗
               </a>
             </li>
-            <li className="text-ink-3">컨트랙트 주소는 배포 후 공개됩니다</li>
+            {giwaChain.tokenFactoryAddress ? (
+              <li>
+                <a
+                  href={`${giwaChain.explorerUrl}/address/${giwaChain.tokenFactoryAddress}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-ink"
+                >
+                  발행 게이트 컨트랙트 ↗
+                </a>
+              </li>
+            ) : (
+              <li className="text-ink-3">컨트랙트 주소는 배포 후 공개됩니다</li>
+            )}
           </ul>
         </div>
 

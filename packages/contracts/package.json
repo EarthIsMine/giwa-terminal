@@ -1,0 +1,9 @@
+{
+  "name": "@giwa-terminal/contracts",
+  "private": true,
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "typecheck": "forge build"
+  }
+}

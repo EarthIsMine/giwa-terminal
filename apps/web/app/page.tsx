@@ -1,35 +1,38 @@
-import {
-  formatCount,
-  formatKrwCompact,
-  wei,
-  weiToDisplayKrw,
-} from "@giwa/shared";
+import { formatEth, formatKrwCompact, wei, weiToDisplayKrw } from "@giwa/shared";
 import { AssetBoard } from "@/components/asset-board";
 import { Hero } from "@/components/hero";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { MOCK_ETH_KRW, NETWORK_STATS, SEED_ASSETS } from "@/lib/seed-data";
+import { getEthKrw } from "@/lib/krw";
+import { getLiveAssets } from "@/lib/onchain";
 
-export default function Home() {
-  // 자산별 거래대금 합산은 정의상 안전하다(quote 환산 합계).
-  // 참여 인원은 중복 계상 문제로 네트워크 집계(distinct)를 쓴다 — 지표 정의 참고.
-  const todayVolumeWei = wei(
-    SEED_ASSETS.reduce((acc, a) => acc + (a.stats.today.volumeWei as bigint), 0n),
+/** 온체인 현재 상태 + 업비트 시세 — 15초 재생성으로 공개 RPC 부하를 묶는다 */
+export const revalidate = 15;
+
+export default async function Home() {
+  const [assets, ethKrw] = await Promise.all([getLiveAssets(), getEthKrw()]);
+
+  // 총 예치 규모 = 전 자산 유동성 합 (풀 WETH 잔고 × 2의 합)
+  const totalLiquidity = wei(
+    assets.reduce((acc, a) => acc + BigInt(a.liquidityWei), 0n),
   );
+  const depositDisplay = ethKrw
+    ? `${formatKrwCompact(weiToDisplayKrw(totalLiquidity, ethKrw))}원`
+    : `${formatEth(totalLiquidity, 4)} ETH`;
 
   return (
     <>
       <SiteHeader />
       <main>
         <Hero
-          assetCount={SEED_ASSETS.length}
-          todayVolumeCompact={formatKrwCompact(
-            weiToDisplayKrw(todayVolumeWei, MOCK_ETH_KRW),
-          )}
-          todayTraders={formatCount(NETWORK_STATS.today.distinctTraders)}
+          assetCount={assets.length}
+          depositDisplay={depositDisplay}
+          depositIsKrw={ethKrw !== null}
+          ethKrwLabel={ethKrw ? `₩${Number(ethKrw).toLocaleString("ko-KR")}` : null}
         />
-        <section className="mx-auto w-full max-w-[1840px] px-8 pt-8">
-          <AssetBoard />
+        {/* 보드는 컨테이너 없이 뷰포트 전폭으로 펼친다 — 내부에서 여백을 관리한다 */}
+        <section className="w-full pt-8">
+          <AssetBoard assets={assets} ethKrw={ethKrw?.toString() ?? null} />
         </section>
       </main>
       <SiteFooter />

@@ -77,6 +77,8 @@ export interface VerifiedAsset {
   /** 기준(quote) 자산 여부 — WETH. 모든 가격의 분모가 된다 */
   isQuoteAnchor: boolean;
   verification: AssetVerification;
+  /** 발행 주체 표시명 — 발행 게이트(TokenFactory) 레지스트리의 발행자 메타에서 온다 */
+  issuerName: string;
   /** quote 토큰(WETH) 기준 가격, wei */
   priceWei: WeiAmount;
   /** 풀 보유 quote 잔고 × 2 (V2 기준) */

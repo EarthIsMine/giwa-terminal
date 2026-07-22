@@ -1,0 +1,5 @@
+# forge 빌드 산출물
+out/
+cache/
+
+# broadcast/는 커밋한다 — 배포 기록(주소·tx)이 제출 증빙이다

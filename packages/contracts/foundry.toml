@@ -1,0 +1,24 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.30"
+evm_version = "shanghai"
+optimizer = true
+optimizer_runs = 200
+
+[fmt]
+line_length = 100
+
+[lint]
+# ERC-20 ABI(name/symbol/decimals 소문자 getter)와 V2 캐노니컬 네이밍·모디파이어를
+# 유지하기 위한 제외 — 실질 경고(unsafe-typecast 등)는 켜둔다
+exclude_lints = [
+  "mixed-case-function",
+  "mixed-case-variable",
+  "screaming-snake-case-const",
+  "screaming-snake-case-immutable",
+  "unwrapped-modifier-logic",
+  # keccak 인라인 어셈블리 제안 — 가독성 우선 (CREATE2 salt 1회 계산)
+  "asm-keccak256",
+]

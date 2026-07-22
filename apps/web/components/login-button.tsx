@@ -15,25 +15,8 @@ import { shortHex } from "@giwa/shared";
  * config 주입(절대 규칙 4). 세션은 React state에만 둔다(스토리지 금지 컨벤션).
  */
 
-/* ---------- EIP-1193 / EIP-6963 최소 타입 ---------- */
-
-interface Eip1193Provider {
-  request(args: { method: string; params?: unknown }): Promise<unknown>;
-  on?(event: string, listener: (...args: unknown[]) => void): void;
-  removeListener?(event: string, listener: (...args: unknown[]) => void): void;
-}
-
-interface Eip6963ProviderInfo {
-  uuid: string;
-  name: string;
-  icon: string;
-  rdns: string;
-}
-
-interface Eip6963ProviderDetail {
-  info: Eip6963ProviderInfo;
-  provider: Eip1193Provider;
-}
+import { useWallet } from "./wallet-context";
+import type { Eip6963ProviderDetail } from "./wallet-context";
 
 function errorCode(e: unknown): number | null {
   if (typeof e === "object" && e !== null && "code" in e) {
@@ -94,13 +77,20 @@ function NetworkRow({
 }
 
 export function LoginButton() {
-  const [open, setOpen] = useState(false);
   const [wallets, setWallets] = useState<readonly Eip6963ProviderDetail[]>([]);
-  const [connectedWallet, setConnectedWallet] =
-    useState<Eip6963ProviderDetail | null>(null);
-  const [account, setAccount] = useState<string | null>(null);
-  const [chainHex, setChainHex] = useState<string | null>(null);
-  const [signedAccount, setSignedAccount] = useState<string | null>(null);
+  /* 연결 상태·모달 개폐는 컨텍스트 공유 — 내 자산·거래 패널이 같은 세션을 쓴다 */
+  const {
+    connectedWallet,
+    setConnectedWallet,
+    account,
+    setAccount,
+    chainHex,
+    setChainHex,
+    signedAccount,
+    setSignedAccount,
+    loginOpen: open,
+    setLoginOpen: setOpen,
+  } = useWallet();
   const [connectingRdns, setConnectingRdns] = useState<string | null>(null);
   const [netStatus, setNetStatus] = useState<ReqStatus>("idle");
   const [signStatus, setSignStatus] = useState<ReqStatus>("idle");
@@ -460,6 +450,47 @@ export function LoginButton() {
                       </span>
                     </button>
 
+                    {/* 업비트 아이디 — 참여 게이트 동선 (팀 결정 2026-07-22: KYC 신원으로
+                        런치패드 참여 자격까지 연결). 연동 전이라 비활성 + 준비 중 표기 */}
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      className="mt-2.5 w-full cursor-not-allowed rounded-xl border border-hairline bg-panel px-4 py-3.5 text-left opacity-75"
+                    >
+                      <span className="flex items-center gap-3.5">
+                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-panel-2 text-ink-2">
+                          <svg
+                            viewBox="0 0 16 16"
+                            width={16}
+                            height={16}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden
+                          >
+                            <rect x="1.8" y="2.6" width="12.4" height="10.8" rx="1.8" />
+                            <circle cx="5.6" cy="7" r="1.5" />
+                            <path d="M3.6 11.2c.5-1.3 1.2-1.9 2-1.9s1.5.6 2 1.9" />
+                            <path d="M9.6 6.4h3M9.6 9h2.2" />
+                          </svg>
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[14px] font-semibold">
+                            업비트 아이디로 시작
+                          </span>
+                          <span className="mt-0.5 block text-[11.5px] text-ink-3">
+                            업비트 KYC 신원으로 런치패드 참여 자격까지 연결됩니다
+                          </span>
+                        </span>
+                        <span className="shrink-0 rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[10px] text-warn">
+                          준비 중
+                        </span>
+                      </span>
+                    </button>
+
                     <div className="mt-4 flex items-center gap-3">
                       <span className="h-px flex-1 bg-hairline" aria-hidden />
                       <span className="text-[11px] text-ink-3">
@@ -467,6 +498,39 @@ export function LoginButton() {
                       </span>
                       <span className="h-px flex-1 bg-hairline" aria-hidden />
                     </div>
+
+                    {/* 기와 월렛 — 기와 공식 지갑. 출시되면 최우선 지갑 동선이 된다 */}
+                    {!account ? (
+                      <button
+                        type="button"
+                        disabled
+                        aria-disabled="true"
+                        className="mt-4 w-full cursor-not-allowed rounded-xl border border-hairline bg-panel px-4 py-3.5 text-left opacity-75"
+                      >
+                        <span className="flex items-center gap-3.5">
+                          {/* 기와 월렛 공식 로고 — 코너 투명화 처리한 원본 (검정 타일 + 흰 마크) */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/giwa-wallet-mark.png"
+                            alt=""
+                            width={36}
+                            height={36}
+                            className="size-9 shrink-0"
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[14px] font-semibold">
+                              기와 월렛
+                            </span>
+                            <span className="mt-0.5 block text-[11.5px] text-ink-3">
+                              기와 공식 지갑으로 로그인합니다
+                            </span>
+                          </span>
+                          <span className="shrink-0 rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[10px] text-warn">
+                            출시 대기
+                          </span>
+                        </span>
+                      </button>
+                    ) : null}
 
                     {account && connectedWallet ? (
                       /* 연결됨 — 네트워크 확인 후 서명 로그인 */
