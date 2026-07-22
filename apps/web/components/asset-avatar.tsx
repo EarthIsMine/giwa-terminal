@@ -1,6 +1,3 @@
-import type { VerifiedAsset } from "@giwa/shared";
-import { SEED_ASSETS } from "@/lib/seed-data";
-
 /** 아바타 색은 자산 정체성을 따른다(순위 아님) — 전통 공예 모티프 팔레트 */
 const AVATAR_GRADIENTS: readonly [string, string][] = [
   ["#627eea", "#3c4e9c"], // 이더리움 블루
@@ -17,20 +14,42 @@ const AVATAR_GRADIENTS: readonly [string, string][] = [
   ["#c96a8a", "#8a3f5c"], // 노리개 연지
 ];
 
-const AVATAR_INDEX = new Map(SEED_ASSETS.map((a, i) => [a.symbol, i]));
+/** 시드 자산의 색 정체성 고정 매핑 — 목록에 없는 심볼은 이름 해시로 팔레트를 고른다 */
+const SYMBOL_ORDER = [
+  "WETH",
+  "CHUNGJA",
+  "BAEKJA",
+  "HANJI",
+  "NAJEON",
+  "SUMUK",
+  "DANCHNG",
+  "BUNCHEONG",
+  "OTCHIL",
+  "SOBAN",
+  "GAT",
+  "NORIGAE",
+] as const;
+
+function paletteIndex(symbol: string): number {
+  const fixed = SYMBOL_ORDER.indexOf(symbol as (typeof SYMBOL_ORDER)[number]);
+  if (fixed >= 0) return fixed;
+  let hash = 0;
+  for (const ch of symbol) hash = (hash * 31 + ch.charCodeAt(0)) % 997;
+  return hash % AVATAR_GRADIENTS.length;
+}
 
 export function AssetAvatar({
-  asset,
+  symbol,
+  isQuoteAnchor = false,
   size = 40,
 }: {
-  asset: VerifiedAsset;
+  symbol: string;
+  isQuoteAnchor?: boolean;
   size?: number;
 }) {
-  const idx = AVATAR_INDEX.get(asset.symbol) ?? 0;
-  const [from, to] = AVATAR_GRADIENTS[idx % AVATAR_GRADIENTS.length] ?? [
-    "#5c6b84",
-    "#2e3a4e",
-  ];
+  const [from, to] = AVATAR_GRADIENTS[
+    paletteIndex(symbol) % AVATAR_GRADIENTS.length
+  ] ?? ["#5c6b84", "#2e3a4e"];
   return (
     <div
       aria-hidden
@@ -42,7 +61,7 @@ export function AssetAvatar({
         background: `linear-gradient(135deg, ${from}, ${to})`,
       }}
     >
-      {asset.isQuoteAnchor ? "Ξ" : asset.symbol.charAt(0)}
+      {isQuoteAnchor ? "Ξ" : symbol.charAt(0)}
     </div>
   );
 }

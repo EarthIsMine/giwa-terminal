@@ -128,7 +128,8 @@ scripts/
 
 ### 가격
 - V2: `reserve1 / reserve0`, 양쪽 decimals 보정 필수
-- 스왑 이벤트마다 재계산해서 캔들에 반영
+- 스왑 이벤트마다 재계산해서 캔들에 반영. 구현: 같은 tx 에서 Sync 가 Swap 보다 먼저 나오므로(V2 `_update` 순서), Sync 핸들러가 준비금·가격을 갱신하고 Swap 핸들러가 그 가격으로 체결·캔들을 기록한다 (`packages/indexer`)
+- 캔들 저장: `candles_1m` 원본과 1h/1d 롤업을 스왑 시점에 같은 트랜잭션으로 upsert. 일봉 버킷은 00:00 UTC = 09:00 KST — 업비트 일봉과 같은 경계라 그대로 쓴다
 - **모든 화폐 계산은 bigint.** float 금지. 표시 직전에만 문자열로 변환
 
 ### USD / KRW 환산
@@ -226,6 +227,9 @@ PairCreated(address,address,address,uint256)
 
 Swap(address,uint256,uint256,uint256,uint256,address)   # V2
   0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822
+
+Sync(uint112,uint112)                                   # V2 준비금 갱신 — 가격 재계산 트리거
+  0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1
 
 Transfer(address,address,uint256)
   0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef

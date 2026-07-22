@@ -3,16 +3,19 @@ import { NaruScene } from "./naru-scene";
 /**
  * 히어로 — 브랜드 워드마크를 반복하지 않는다(헤더에 이미 있음).
  * 대신 진짜 나루터 풍경(물·산·나룻배)이 아이덴티티를 말한다.
- * 절대 규칙 3: 통계 카드는 3장뿐.
+ * 절대 규칙 3: 통계 카드는 3장뿐. 값은 전부 온체인·업비트 실데이터다.
+ * (거래대금·참여 인원 카드는 인덱서 연결 시 복원한다)
  */
 export function Hero({
   assetCount,
-  todayVolumeCompact,
-  todayTraders,
+  depositDisplay,
+  depositIsKrw,
+  ethKrwLabel,
 }: {
   assetCount: number;
-  todayVolumeCompact: string;
-  todayTraders: string;
+  depositDisplay: string;
+  depositIsKrw: boolean;
+  ethKrwLabel: string | null;
 }) {
   return (
     <section className="relative overflow-hidden border-b border-black/40">
@@ -20,7 +23,7 @@ export function Hero({
       {/* 좌측 텍스트 가독용 스크림 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(19,13,7,0.7),rgba(19,13,7,0.28)_45%,transparent_68%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(19,13,7,0.55),rgba(19,13,7,0.18)_45%,transparent_60%)]"
       />
 
       <div className="relative mx-auto flex min-h-[280px] w-full max-w-[1840px] flex-wrap items-end justify-between gap-x-10 gap-y-7 px-8 pb-10 pt-16">
@@ -46,31 +49,31 @@ export function Hero({
                 종
               </span>
             </dd>
+            <p className="mt-2 text-[10px] text-ink-3">온체인 발행 게이트 기준</p>
           </div>
 
           <div className="min-w-[172px] rounded-xl carved px-5 py-4">
             <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
-              오늘 거래대금
+              총 예치 규모
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
-              {todayVolumeCompact}
-              <span className="ml-1 font-sans text-[12px] font-normal text-ink-3">
-                원
-              </span>
+              {depositDisplay}
             </dd>
-            <p className="mt-2 text-[10px] text-ink-3">업비트 시세 환산</p>
+            <p className="mt-2 text-[10px] text-ink-3">
+              {depositIsKrw ? "업비트 시세 환산" : "환산 일시 불가 · ETH 표시"}
+            </p>
           </div>
 
-          <div className="min-w-[148px] rounded-xl carved px-5 py-4">
+          <div className="min-w-[172px] rounded-xl carved px-5 py-4">
             <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
-              오늘 참여 인원
+              환산 기준 시세
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
-              {todayTraders}
-              <span className="ml-1 font-sans text-[12px] font-normal text-ink-3">
-                명
-              </span>
+              {ethKrwLabel ?? "—"}
             </dd>
+            <p className="mt-2 text-[10px] text-ink-3">
+              {ethKrwLabel ? "업비트 KRW-ETH · 60초 갱신" : "업비트 시세 조회 불가"}
+            </p>
           </div>
         </dl>
       </div>

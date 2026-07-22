@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "./globals.css";
 import { SearchProvider } from "@/components/search-context";
+import { WalletProvider } from "@/components/wallet-context";
 
 /** 히어로 헤드라인 전용 명조 — 수묵 풍경과 붓글씨 결 */
 const notoSerifKr = Noto_Serif_KR({
@@ -29,7 +30,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${GeistMono.variable} ${notoSerifKr.variable}`}>
       <body>
-        <SearchProvider>{children}</SearchProvider>
+        <WalletProvider>
+          <SearchProvider>{children}</SearchProvider>
+        </WalletProvider>
       </body>
     </html>
   );

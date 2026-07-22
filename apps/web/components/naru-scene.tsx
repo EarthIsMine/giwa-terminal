@@ -14,14 +14,14 @@ export function NaruScene() {
     >
       <defs>
         <linearGradient id="ns-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#171008" />
-          <stop offset="0.52" stopColor="#241910" />
-          <stop offset="0.75" stopColor="#3a2a16" />
-          <stop offset="0.82" stopColor="#241a10" />
+          <stop offset="0" stopColor="#26190d" />
+          <stop offset="0.52" stopColor="#3a2915" />
+          <stop offset="0.75" stopColor="#5a411f" />
+          <stop offset="0.82" stopColor="#3a2a16" />
         </linearGradient>
         <radialGradient id="ns-moonglow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#c9a554" stopOpacity="0.32" />
-          <stop offset="0.55" stopColor="#c9a554" stopOpacity="0.1" />
+          <stop offset="0" stopColor="#c9a554" stopOpacity="0.42" />
+          <stop offset="0.55" stopColor="#c9a554" stopOpacity="0.15" />
           <stop offset="1" stopColor="#c9a554" stopOpacity="0" />
         </radialGradient>
         {/* 달 원반 — 좌상단 광원의 구형 음영 */}
@@ -35,14 +35,14 @@ export function NaruScene() {
           <circle cx="1178" cy="58" r="28" />
         </clipPath>
         <linearGradient id="ns-water" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#2c1e10" />
-          <stop offset="0.25" stopColor="#1a1309" />
-          <stop offset="1" stopColor="#0e0a06" />
+          <stop offset="0" stopColor="#46311a" />
+          <stop offset="0.25" stopColor="#2a1d0e" />
+          <stop offset="1" stopColor="#171008" />
         </linearGradient>
         <linearGradient id="ns-mist" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#f3eee3" stopOpacity="0" />
-          <stop offset="0.35" stopColor="#f3eee3" stopOpacity="0.1" />
-          <stop offset="0.7" stopColor="#f3eee3" stopOpacity="0.05" />
+          <stop offset="0.35" stopColor="#f3eee3" stopOpacity="0.16" />
+          <stop offset="0.7" stopColor="#f3eee3" stopOpacity="0.08" />
           <stop offset="1" stopColor="#f3eee3" stopOpacity="0" />
         </linearGradient>
         <filter id="ns-soft1"><feGaussianBlur stdDeviation="1.6" /></filter>
@@ -71,7 +71,7 @@ export function NaruScene() {
       </g>
 
       {/* 기러기 */}
-      <g stroke="#b3a690" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.4">
+      <g stroke="#cdbfa5" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.55">
         <path d="M492 66l10 7 11-7" />
         <path d="M527 52l8 6 9-6" />
         <path d="M551 72l7 5 8-5" />
@@ -82,21 +82,21 @@ export function NaruScene() {
         {/* 원경 산 — 수묵 번짐 */}
         <path
           d="M0 216C90 208 170 186 268 192C360 197 428 170 520 164C610 158 668 184 760 192C850 199 948 168 1052 162C1150 157 1214 180 1310 190C1400 199 1520 190 1600 180L1600 292L0 292Z"
-          fill="#2a1d10"
+          fill="#453117"
           opacity="0.8"
           filter="url(#ns-soft1)"
         />
         {/* 중경 산 */}
         <path
           d="M0 252C70 246 122 220 208 214C296 208 330 186 420 190C520 195 560 224 660 230C760 236 830 200 930 196C1030 192 1080 220 1180 228C1280 236 1370 214 1450 212C1510 210 1560 218 1600 222L1600 292L0 292Z"
-          fill="#1e1509"
+          fill="#32220f"
           opacity="0.92"
           filter="url(#ns-soft2)"
         />
         {/* 근경 언덕 */}
         <path
           d="M0 280C110 272 190 258 300 262C420 267 500 280 620 284C760 288 860 274 980 272C1120 270 1240 282 1360 286C1450 289 1540 286 1600 284L1600 300L0 300Z"
-          fill="#140d07"
+          fill="#201409"
         />
 
         {/* 물안개 */}
@@ -107,10 +107,10 @@ export function NaruScene() {
 
         {/* 물 */}
         <rect y="290" width="1600" height="110" fill="url(#ns-water)" />
-        <rect y="289" width="1600" height="1.2" fill="#c9a554" opacity="0.22" />
+        <rect y="289" width="1600" height="1.2" fill="#c9a554" opacity="0.32" />
 
         {/* 윤슬 — 두 무리가 서로 다른 결로 흘러 잔잔한 물살을 만든다 */}
-        <g fill="#d8b878" className="[animation:ns-current_16s_ease-in-out_infinite_alternate]">
+        <g fill="#eeda9f" className="[animation:ns-current_16s_ease-in-out_infinite_alternate]">
           <rect x="120" y="304" width="90" height="1.4" opacity="0.1" />
           <rect x="252" y="336" width="120" height="1.6" opacity="0.07" />
           <rect x="520" y="300" width="130" height="1.4" opacity="0.11" />
@@ -118,7 +118,7 @@ export function NaruScene() {
           <rect x="1330" y="308" width="100" height="1.4" opacity="0.1" />
           <rect x="1250" y="356" width="160" height="1.9" opacity="0.05" />
         </g>
-        <g fill="#d8b878" className="[animation:ns-current_21s_ease-in-out_infinite_alternate-reverse]">
+        <g fill="#eeda9f" className="[animation:ns-current_21s_ease-in-out_infinite_alternate-reverse]">
           <rect x="330" y="318" width="60" height="1.2" opacity="0.08" />
           <rect x="610" y="326" width="70" height="1.3" opacity="0.08" />
           <rect x="470" y="352" width="150" height="1.8" opacity="0.06" />
@@ -126,7 +126,7 @@ export function NaruScene() {
           <rect x="1420" y="332" width="80" height="1.5" opacity="0.07" />
         </g>
         {/* 달빛 물기둥 */}
-        <g fill="#f0e0b8" className="[animation:ns-shimmer_5.5s_ease-in-out_infinite]">
+        <g fill="#fdf3d5" className="[animation:ns-shimmer_5.5s_ease-in-out_infinite]">
           <rect x="1146" y="296" width="66" height="1.6" opacity="0.3" />
           <rect x="1158" y="306" width="46" height="1.5" opacity="0.24" />
           <rect x="1140" y="318" width="78" height="1.7" opacity="0.2" />
@@ -147,8 +147,8 @@ export function NaruScene() {
           <rect x="488" y="283" width="6" height="32" fill="#0c0805" />
           <rect x="545" y="283" width="6" height="34" fill="#0c0805" />
           {/* 상판(널) */}
-          <rect x="-20" y="281" width="585" height="8" fill="#1c130b" />
-          <rect x="-20" y="280.6" width="585" height="1.2" fill="#c9a554" opacity="0.45" />
+          <rect x="-20" y="281" width="585" height="8" fill="#2b1d10" />
+          <rect x="-20" y="280.6" width="585" height="1.2" fill="#c9a554" opacity="0.6" />
           <rect x="-20" y="289" width="585" height="2" fill="#060402" opacity="0.5" />
           {/* 널 이음 홈 */}
           <g fill="#060402" opacity="0.4">
@@ -189,14 +189,14 @@ export function NaruScene() {
           <g>
             {/* 배 몸통 */}
             <path d="M905 296c14 12 76 12 92-2l14-4c-4 12-26 22-60 22s-52-8-58-18z" fill="#0b0704" />
-            <path d="M903 295c16 3 82 3 110-6" stroke="#c9a554" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.55" />
+            <path d="M903 295c16 3 82 3 110-6" stroke="#c9a554" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.75" />
             {/* 사공 */}
             <path d="M952 270c2.6 0 4.6 2 4.6 4.6 0 1.4-.6 2.6-1.6 3.6 3 1.4 5 3.8 5.6 7.4l1 8.4h-18l1.6-8.8c.6-3.2 2.4-5.6 5-6.9-1-.9-1.6-2.2-1.6-3.7 0-2.6 2-4.6 4.4-4.6z" fill="#0b0704" />
             {/* 삿대 */}
             <path d="M962 268l16 40" stroke="#0b0704" strokeWidth="2.4" strokeLinecap="round" />
-            <path d="M962 268l16 40" stroke="#c9a554" strokeWidth="0.8" strokeLinecap="round" opacity="0.35" />
+            <path d="M962 268l16 40" stroke="#c9a554" strokeWidth="0.8" strokeLinecap="round" opacity="0.5" />
             {/* 노 젓는 파문 — 삿대 끝 동심원 + 배 밑에서 넓게 밀리는 물결 */}
-            <g stroke="#d8b878" strokeWidth="1" fill="none">
+            <g stroke="#eeda9f" strokeWidth="1" fill="none">
               <ellipse className="ns-ripple" cx="978" cy="309" rx="12" ry="3" />
               <ellipse
                 className="ns-ripple"
@@ -226,7 +226,7 @@ export function NaruScene() {
             </g>
           </g>
           {/* 반영 */}
-          <g transform="translate(0, 626) scale(1, -1)" opacity="0.14" filter="url(#ns-reflectblur)">
+          <g transform="translate(0, 626) scale(1, -1)" opacity="0.2" filter="url(#ns-reflectblur)">
             <path d="M905 296c14 12 76 12 92-2l14-4c-4 12-26 22-60 22s-52-8-58-18z" fill="#c9a554" />
             <path d="M952 270c2.6 0 4.6 2 4.6 4.6 0 1.4-.6 2.6-1.6 3.6 3 1.4 5 3.8 5.6 7.4l1 8.4h-18l1.6-8.8c.6-3.2 2.4-5.6 5-6.9-1-.9-1.6-2.2-1.6-3.7 0-2.6 2-4.6 4.4-4.6z" fill="#c9a554" />
           </g>

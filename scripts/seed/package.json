@@ -1,0 +1,22 @@
+{
+  "name": "@giwa/seed",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "issue": "tsx src/issue.ts",
+    "fund": "tsx src/fund-bots.ts",
+    "bot": "tsx src/bot.ts",
+    "start": "tsx src/issue.ts && tsx src/fund-bots.ts && tsx src/bot.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@giwa/config": "workspace:*",
+    "viem": "^2.44.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}
