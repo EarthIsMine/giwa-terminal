@@ -119,6 +119,11 @@ contract E2ETest is Test {
             keccak256("Swap(address,uint256,uint256,uint256,uint256,address)"),
             bytes32(0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822)
         );
+        // Sync 는 가격 재계산 트리거 — 인덱서가 준비금·가격 갱신에 의존하는 핵심 이벤트
+        assertEq(
+            keccak256("Sync(uint112,uint112)"),
+            bytes32(0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1)
+        );
         assertEq(
             keccak256("Transfer(address,address,uint256)"),
             bytes32(0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef)
