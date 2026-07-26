@@ -485,7 +485,7 @@ export function LoginButton() {
                             업비트 KYC 신원으로 런치패드 참여 자격까지 연결됩니다
                           </span>
                         </span>
-                        <span className="shrink-0 rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[10px] text-warn">
+                        <span className="shrink-0 rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[11px] text-warn">
                           준비 중
                         </span>
                       </span>
@@ -525,7 +525,7 @@ export function LoginButton() {
                               기와 공식 지갑으로 로그인합니다
                             </span>
                           </span>
-                          <span className="shrink-0 rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[10px] text-warn">
+                          <span className="shrink-0 rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[11px] text-warn">
                             출시 대기
                           </span>
                         </span>
@@ -579,7 +579,7 @@ export function LoginButton() {
                               ? "네트워크 전환 후 로그인"
                               : "서명하고 로그인"}
                         </button>
-                        <p className="mt-2 text-[10.5px] leading-relaxed text-ink-3">
+                        <p className="mt-2 text-[11.5px] leading-relaxed text-ink-3">
                           서명은 지갑 소유 확인용입니다 · 온체인 전송이 아니며
                           수수료가 들지 않습니다
                         </p>
@@ -639,7 +639,7 @@ export function LoginButton() {
                   <p className="mt-3 text-[12px] text-down">{errorMsg}</p>
                 ) : null}
 
-                <p className="mt-4 text-[10.5px] text-ink-3">
+                <p className="mt-4 text-[11.5px] text-ink-3">
                   이메일 로그인은 준비 중입니다 · 지갑 연결, 네트워크 추가,
                   서명 로그인은 실제로 동작합니다
                 </p>

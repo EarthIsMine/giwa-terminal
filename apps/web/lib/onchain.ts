@@ -9,7 +9,8 @@
  * bigint는 RSC 직렬화 이슈를 피하려고 문자열로 내보낸다(표시 직전 복원).
  */
 import { createPublicClient, defineChain, http, parseAbi } from "viem";
-import { giwaChain } from "@giwa/config";
+import { giwaChain, serverRpcUrl } from "@giwa/config";
+import type { AssetVerification } from "@giwa/shared";
 
 const chain = defineChain({
   id: giwaChain.chainId,
@@ -22,9 +23,10 @@ const chain = defineChain({
   testnet: giwaChain.testnet,
 });
 
+// 서버 전용 RPC 우선 (GIWA_SERVER_RPC_URL) — 공개 RPC 레이트리밋·키 노출 방어
 const client = createPublicClient({
   chain,
-  transport: http(),
+  transport: http(serverRpcUrl),
   batch: { multicall: true },
 });
 
@@ -58,6 +60,20 @@ export interface LiveAssetWire {
   totalSupply: string;
   issuedAt: number;
   identityRef: `0x${string}`;
+  /** 발행자 지갑 — 심사에서 등록되는 라벨 (온체인 분석·피드 판정의 기준 주소) */
+  issuer: `0x${string}`;
+  /** 배지 표시용 — 발행 게이트가 어테스테이션을 강제하므로 목록 존재 = 검증 완료 */
+  verification: AssetVerification;
+}
+
+/**
+ * 검증 배지의 단일 결정 지점 (절대 규칙 6).
+ * 주체는 "나루 검증" — 현행 신원 원장은 도장 스키마를 준거한 자체
+ * IdentityRegistry이고, identityRef 가 발행 시점 검증 근거의 지문이다.
+ * 도장 정식 연동(P1) 시 ref 유형에 따라 method 를 분기한다.
+ */
+function verificationFrom(_identityRef: `0x${string}`): AssetVerification {
+  return { status: "verified", method: "dojang", label: "나루 검증" };
 }
 
 interface SeedMetadata {
@@ -103,6 +119,20 @@ export async function getLiveAssets(): Promise<LiveAssetWire[]> {
   if (!factory) return [];
   if (memo && Date.now() - memo.at < MEMO_TTL_MS) return memo.data;
 
+  try {
+    const data = await fetchLiveAssets(factory);
+    memo = { at: Date.now(), data };
+    return data;
+  } catch {
+    // RPC 히컵 한 번에 페이지가 500으로 죽지 않게 마지막 성공 스냅샷으로 버틴다.
+    // 스냅샷조차 없으면 빈 목록 — 보드는 "불러오는 중" 자리표시로 폴백한다.
+    return memo?.data ?? [];
+  }
+}
+
+async function fetchLiveAssets(
+  factory: `0x${string}`,
+): Promise<LiveAssetWire[]> {
   const length = await client.readContract({
     address: factory,
     abi: factoryAbi,
@@ -132,7 +162,7 @@ export async function getLiveAssets(): Promise<LiveAssetWire[]> {
           args: [token],
         }),
       ]);
-      const [, identityRef, pair, issuedAt, metadataURI] = issued;
+      const [issuer, identityRef, pair, issuedAt, metadataURI] = issued;
       const meta = parseMetadata(metadataURI);
       if (!meta || pair === "0x0000000000000000000000000000000000000000") return null;
 
@@ -163,15 +193,15 @@ export async function getLiveAssets(): Promise<LiveAssetWire[]> {
         totalSupply: totalSupply.toString(),
         issuedAt: Number(issuedAt),
         identityRef,
+        issuer,
+        verification: verificationFrom(identityRef),
       } satisfies LiveAssetWire;
     }),
   );
 
-  const data = entries
+  return entries
     .filter((e): e is LiveAssetWire => e !== null)
     .sort((a, b) => (BigInt(a.liquidityWei) < BigInt(b.liquidityWei) ? 1 : -1));
-  memo = { at: Date.now(), data };
-  return data;
 }
 
 export async function getLiveAsset(address: string): Promise<LiveAssetWire | null> {
@@ -182,6 +212,46 @@ export async function getLiveAsset(address: string): Promise<LiveAssetWire | nul
 const balanceAbi = parseAbi([
   "function balanceOf(address) view returns (uint256)",
 ]);
+
+const dojangAbi = parseAbi([
+  "function isVerified(address wallet, bytes32 attesterId) view returns (bool)",
+]);
+
+/**
+ * 도장(Dojang) 업비트 KYC 인증 여부 — 나루 포인트 참여 게이트 (명세서 §2.5).
+ * 발급은 허가형이지만 조회는 퍼미션리스라 실컨트랙트를 그대로 읽는다
+ * (주소·attesterId 는 config 주입, 2026-07-26 온체인 실검증).
+ * null = 조회 실패(미설정·RPC 오류) — 미인증(false)과 구분해 표시한다.
+ */
+export async function isKycVerified(
+  wallet: `0x${string}`,
+): Promise<boolean | null> {
+  const dojang = giwaChain.dojangScrollAddress;
+  if (!dojang) return null;
+  try {
+    return await client.readContract({
+      address: dojang,
+      abi: dojangAbi,
+      functionName: "isVerified",
+      args: [wallet, giwaChain.upbitKycAttesterId],
+    });
+  } catch {
+    return null;
+  }
+}
+
+/** 단건 토큰 잔고 — 온체인 분석(발행자 물량)용 */
+export async function getTokenBalance(
+  token: `0x${string}`,
+  owner: `0x${string}`,
+): Promise<bigint> {
+  return client.readContract({
+    address: token,
+    abi: balanceAbi,
+    functionName: "balanceOf",
+    args: [owner],
+  });
+}
 
 export interface PortfolioWire {
   /** 네이티브 ETH 잔고 (문자열 bigint) */

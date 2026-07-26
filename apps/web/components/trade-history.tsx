@@ -44,10 +44,10 @@ export function TradeHistory({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-left">
           <caption className="sr-only">
-            {symbol} 최근 체결 내역 — 시간, 구분, 체결가, 수량, 체결액
+            {symbol} 최근 체결 내역: 시간, 구분, 체결가, 수량, 체결액
           </caption>
           <thead>
-            <tr className="border-y border-black/45 bg-[#120c06]/[0.97] text-[10.5px] font-medium tracking-[0.1em] text-ink-3">
+            <tr className="border-y border-black/45 bg-[#120c06]/[0.97] text-[11.5px] font-medium tracking-[0.1em] text-ink-3">
               <th scope="col" className="py-2 pl-6 pr-3">
                 시간
               </th>

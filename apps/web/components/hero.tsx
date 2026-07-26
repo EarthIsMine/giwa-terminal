@@ -23,13 +23,14 @@ export function Hero({
       {/* 좌측 텍스트 가독용 스크림 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(19,13,7,0.55),rgba(19,13,7,0.18)_45%,transparent_60%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(19,13,7,0.68),rgba(19,13,7,0.26)_45%,transparent_60%)]"
       />
 
-      <div className="relative mx-auto flex min-h-[280px] w-full max-w-[1840px] flex-wrap items-end justify-between gap-x-10 gap-y-7 px-8 pb-10 pt-16">
-        <div className="max-w-[680px]">
+      <div className="relative mx-auto flex min-h-[280px] w-full max-w-[1840px] flex-wrap items-end justify-between gap-x-10 gap-y-7 px-8 pb-10 pt-12">
+        {/* 헤드라인은 위쪽에 둔다 — 아래로 내려오면 물결·배와 겹쳐 액센트가 묻힌다 */}
+        <div className="max-w-[680px] self-start">
           <h1 className="font-serif text-[36px] font-bold leading-[1.32] tracking-[-0.01em] text-ink">
-            업비트에서 기와 온체인으로
+            업비트에서 기와체인으로
             <br />
             오는 <span className="text-accent">나룻길</span>
           </h1>
@@ -40,7 +41,7 @@ export function Hero({
 
         <dl className="flex flex-wrap gap-2.5">
           <div className="min-w-[148px] rounded-xl carved px-5 py-4">
-            <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+            <dt className="text-[11.5px] font-medium tracking-[0.12em] text-ink-3">
               검증 자산
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
@@ -49,29 +50,29 @@ export function Hero({
                 종
               </span>
             </dd>
-            <p className="mt-2 text-[10px] text-ink-3">온체인 발행 게이트 기준</p>
+            <p className="mt-2 text-[11px] text-ink-3">온체인 발행 게이트 기준</p>
           </div>
 
           <div className="min-w-[172px] rounded-xl carved px-5 py-4">
-            <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+            <dt className="text-[11.5px] font-medium tracking-[0.12em] text-ink-3">
               총 예치 규모
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
               {depositDisplay}
             </dd>
-            <p className="mt-2 text-[10px] text-ink-3">
+            <p className="mt-2 text-[11px] text-ink-3">
               {depositIsKrw ? "업비트 시세 환산" : "환산 일시 불가 · ETH 표시"}
             </p>
           </div>
 
           <div className="min-w-[172px] rounded-xl carved px-5 py-4">
-            <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+            <dt className="text-[11.5px] font-medium tracking-[0.12em] text-ink-3">
               환산 기준 시세
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
               {ethKrwLabel ?? "—"}
             </dd>
-            <p className="mt-2 text-[10px] text-ink-3">
+            <p className="mt-2 text-[11px] text-ink-3">
               {ethKrwLabel ? "업비트 KRW-ETH · 60초 갱신" : "업비트 시세 조회 불가"}
             </p>
           </div>

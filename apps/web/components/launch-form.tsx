@@ -270,7 +270,7 @@ export function LaunchForm() {
           </dl>
 
           <p className="mt-5 text-[11.5px] leading-relaxed text-ink-3">
-            테스트넷 데모 — 신청은 시뮬레이션입니다. 발행 게이트 컨트랙트는
+            테스트넷 데모 · 신청은 시뮬레이션입니다. 발행 게이트 컨트랙트는
             GIWA Sepolia에 배포되어 있으며, 폼 연동을 준비 중입니다.
           </p>
 
@@ -325,7 +325,7 @@ export function LaunchForm() {
           <section className="rounded-xl carved p-6">
             <div className="flex items-center gap-2.5">
               <h2 className="text-[15px] font-semibold">1. 신원 검증</h2>
-              <span className="rounded-md border border-good/25 bg-good/10 px-1.5 py-0.5 text-[10.5px] font-medium text-good">
+              <span className="rounded-md border border-good/25 bg-good/10 px-1.5 py-0.5 text-[11.5px] font-medium text-good">
                 필수
               </span>
               <span className="ml-auto flex items-center gap-1.5 text-[12px]">
@@ -379,7 +379,7 @@ export function LaunchForm() {
               >
                 {gateStatus === "verified" ? "검증되었습니다" : "검증 시작"}
               </button>
-              <span className="rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[10px] text-warn">
+              <span className="rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[11px] text-warn">
                 데모 시뮬레이션
               </span>
             </div>
@@ -433,7 +433,7 @@ export function LaunchForm() {
                 <span className="font-normal text-ink-3">(이미지 URL)</span>
               </span>
               <div className="flex items-center gap-4">
-                <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-dashed border-hairline text-[10px] text-ink-3">
+                <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-dashed border-hairline text-[11px] text-ink-3">
                   {showLogo ? (
                     // 미리보기 전용 원격 이미지 — 업로드 전 확인 용도라 next/image 최적화 대상이 아니다
                     // eslint-disable-next-line @next/next/no-img-element
@@ -605,7 +605,7 @@ export function LaunchForm() {
             )}
 
             <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
-              테스트넷 데모 — 검증·발행 신청은 시뮬레이션이며, 아래 발행
+              테스트넷 데모입니다. 검증·발행 신청은 시뮬레이션이며, 아래 발행
               게이트 컨트랙트와의 연동을 준비 중입니다.
             </p>
           </div>
@@ -629,7 +629,7 @@ export function LaunchForm() {
                       className="inline-flex items-center gap-1 font-mono text-[12.5px] text-ink-2 transition-colors hover:text-accent"
                     >
                       {shortHex(giwaChain.tokenFactoryAddress)}
-                      <span aria-hidden className="text-[10px]">↗</span>
+                      <span aria-hidden className="text-[11px]">↗</span>
                     </a>
                   </dd>
                 </div>
@@ -644,14 +644,14 @@ export function LaunchForm() {
                         className="inline-flex items-center gap-1 font-mono text-[12.5px] text-ink-2 transition-colors hover:text-accent"
                       >
                         {shortHex(giwaChain.identityRegistryAddress)}
-                        <span aria-hidden className="text-[10px]">↗</span>
+                        <span aria-hidden className="text-[11px]">↗</span>
                       </a>
                     </dd>
                   </div>
                 ) : null}
               </dl>
               <p className="mt-2.5 text-[11px] leading-relaxed text-ink-3">
-                참여자 검증(업비트 아이디 로그인)도 준비 중입니다 — 발행과
+                참여자 검증(업비트 아이디 로그인)도 준비 중입니다. 발행과
                 참여 모두 신원 기반으로 갑니다.
               </p>
             </div>

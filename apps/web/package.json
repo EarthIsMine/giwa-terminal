@@ -12,6 +12,7 @@
     "@giwa/config": "workspace:*",
     "@giwa/shared": "workspace:*",
     "@tanstack/react-table": "^8.21.3",
+    "d3-force": "^3.0.0",
     "geist": "^1.7.2",
     "lightweight-charts": "^5.2.0",
     "next": "^16.2.10",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/d3-force": "^3.0.10",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

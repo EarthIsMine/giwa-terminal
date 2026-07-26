@@ -17,11 +17,15 @@ if (giwaChain.chainId !== EXPECTED_TESTNET_CHAIN_ID || !giwaChain.testnet) {
   );
 }
 
+/** 봇 전용 RPC — 상시 가동 봇이 레이트리밋 걸린 공개 RPC의 최대 소비자가 되지
+ *  않도록 전용 엔드포인트(Nodit 등)를 SEED_RPC_URL 로 주입한다. 미설정 시 공개 RPC 폴백. */
+const rpcUrl = process.env.SEED_RPC_URL ?? giwaChain.rpcUrl;
+
 export const chain = defineChain({
   id: giwaChain.chainId,
   name: giwaChain.name,
   nativeCurrency: giwaChain.nativeCurrency,
-  rpcUrls: { default: { http: [giwaChain.rpcUrl] } },
+  rpcUrls: { default: { http: [rpcUrl] } },
   testnet: true,
 });
 
