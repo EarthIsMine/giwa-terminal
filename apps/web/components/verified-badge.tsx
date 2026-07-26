@@ -13,17 +13,19 @@ export function VerifiedBadge({
 }: {
   verification: AssetVerification;
 }) {
+  // 라벨 문구는 배지에 찍지 않는다 — 좁은 셀에서 줄바꿈이 생겨 목록이 흐트러진다.
+  // 주체·고지는 툴팁과 접근성 라벨로 전달하고, 본문은 자산 상세의 "신원 검증" 카드가 맡는다.
   const disclosure = `${verification.label} · 검증은 사기 필터이며 투자 보증이 아닙니다`;
   return (
     <span
       title={disclosure}
       aria-label={disclosure}
-      className="inline-flex items-center gap-1 rounded border border-good/25 bg-good/10 px-1.5 py-[2.5px] text-[11.5px] font-medium leading-none text-good"
+      className="inline-flex shrink-0 items-center rounded border border-good/25 bg-good/10 p-[3px] text-good"
     >
       <svg
         viewBox="0 0 12 12"
-        width={10}
-        height={10}
+        width={11}
+        height={11}
         fill="none"
         stroke="currentColor"
         strokeWidth="1.4"
@@ -34,7 +36,6 @@ export function VerifiedBadge({
         <path d="M6 1l3.8 1.4v2.8c0 2.5-1.6 4.3-3.8 5.3C3.8 9.5 2.2 7.7 2.2 5.2V2.4L6 1z" />
         <path d="M4.4 5.9l1.2 1.2 2-2.3" />
       </svg>
-      {verification.label}
     </span>
   );
 }

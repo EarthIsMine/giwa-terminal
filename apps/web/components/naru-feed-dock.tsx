@@ -28,6 +28,8 @@ interface FeedResponse {
   items: FeedItemWire[] | null;
   ethKrw: string | null;
   tickers: MarketTickerWire[];
+  usdKrwCents: number | null;
+  kimchiBps: number | null;
 }
 
 /**
@@ -35,12 +37,23 @@ interface FeedResponse {
  * 나루 화면의 원화는 "환산 참고값"이지만 이건 거래소 실제 체결가라
  * 출처(업비트)를 라벨로 붙여 구분한다.
  */
-function TickerStrip({ tickers }: { tickers: MarketTickerWire[] }) {
+function TickerStrip({
+  tickers,
+  usdKrwCents,
+  kimchiBps,
+}: {
+  tickers: MarketTickerWire[];
+  usdKrwCents: number | null;
+  kimchiBps: number | null;
+}) {
   if (tickers.length === 0) return null;
+  // 폭이 좁으면 뒤쪽(USDT)부터 접는다 — 앞의 셋이 기준점 역할을 한다
+  const primary = tickers.filter((t) => t.symbol !== "USDT");
+  const usdt = tickers.find((t) => t.symbol === "USDT");
   return (
     <div className="hidden shrink-0 items-center gap-3 border-l border-hairline pl-3 text-[11.5px] xl:flex">
       <span className="text-ink-3">업비트</span>
-      {tickers.map((t) => (
+      {primary.map((t) => (
         <span key={t.symbol} className="flex items-baseline gap-1.5">
           <span className="font-medium text-ink-2">{t.symbol}</span>
           {/* 실제 체결가라 축약하지 않는다 (업비트 표기와 같은 감각) */}
@@ -54,6 +67,49 @@ function TickerStrip({ tickers }: { tickers: MarketTickerWire[] }) {
           </span>
         </span>
       ))}
+
+      {usdt ? (
+        <span className="hidden items-baseline gap-1.5 2xl:flex">
+          <span className="font-medium text-ink-2">USDT</span>
+          <span className="font-mono tabular-nums text-ink-2">
+            {formatKrw(BigInt(usdt.krw) as DisplayKrw)}
+          </span>
+          <span
+            className={`font-mono tabular-nums ${usdt.changeBps >= 0 ? "text-up" : "text-down"}`}
+          >
+            {formatChangeBps(usdt.changeBps)}
+          </span>
+        </span>
+      ) : null}
+
+      {usdKrwCents !== null ? (
+        <span
+          className="hidden items-baseline gap-1.5 border-l border-hairline pl-3 2xl:flex"
+          title="USD/KRW 매매기준율 (영업일 기준)"
+        >
+          <span className="text-ink-3">환율</span>
+          <span className="font-mono tabular-nums text-ink-2">
+            {(usdKrwCents / 100).toLocaleString("ko-KR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
+        </span>
+      ) : null}
+
+      {kimchiBps !== null ? (
+        <span
+          className="hidden items-baseline gap-1.5 2xl:flex"
+          title="김치 프리미엄 — 업비트 BTC 원화가와 해외 시세×환율의 차이"
+        >
+          <span className="text-ink-3">김프</span>
+          <span
+            className={`font-mono tabular-nums ${kimchiBps >= 0 ? "text-up" : "text-down"}`}
+          >
+            {formatChangeBps(kimchiBps)}
+          </span>
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -145,6 +201,8 @@ export function NaruFeedDock() {
   const [items, setItems] = useState<FeedItemWire[]>([]);
   const [ethKrwRaw, setEthKrwRaw] = useState<string | null>(null);
   const [tickers, setTickers] = useState<MarketTickerWire[]>([]);
+  const [usdKrwCents, setUsdKrwCents] = useState<number | null>(null);
+  const [kimchiBps, setKimchiBps] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
 
@@ -162,6 +220,8 @@ export function NaruFeedDock() {
         }
         // 시세는 인덱서와 무관한 외부 소스 — 소식이 없어도 표시한다
         setTickers(data.tickers ?? []);
+        setUsdKrwCents(data.usdKrwCents ?? null);
+        setKimchiBps(data.kimchiBps ?? null);
       } catch {
         /* 소식·시세 모두 조용히 폴백 (바는 유지) */
       }
@@ -340,7 +400,11 @@ export function NaruFeedDock() {
               )}
             </button>
             {/* 업비트 주요 시세 — 업저씨의 기준점 */}
-            <TickerStrip tickers={tickers} />
+            <TickerStrip
+              tickers={tickers}
+              usdKrwCents={usdKrwCents}
+              kimchiBps={kimchiBps}
+            />
 
             {/* 온보딩 가이드 — 물음표 아이콘 하나로 (문구 없이 직관적으로) */}
             <span aria-hidden className="h-4 w-px shrink-0 bg-hairline" />
