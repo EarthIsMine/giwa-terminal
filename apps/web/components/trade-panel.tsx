@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { encodeFunctionData, parseAbi } from "viem";
 import { explorerAddressUrl, giwaChain } from "@giwa/config";
@@ -21,7 +21,18 @@ const routerAbi = parseAbi([
 const erc20Abi = parseAbi([
   "function approve(address spender, uint256 value) returns (bool)",
   "function allowance(address owner, address spender) view returns (uint256)",
+  "function balanceOf(address owner) view returns (uint256)",
 ]);
+
+/** MAX 매수 시 가스 예약분 — 잔고 전액을 넣으면 가스가 없어 실패한다 (명세서 §2.1) */
+const GAS_RESERVE_WEI = 10n ** 15n; // 0.001 ETH
+
+/** wei → 입력창 문자열 (콤마 없는 순수 소수 표기 — 포맷터와 달리 입력 파서와 왕복 가능) */
+function weiToInput(v: bigint): string {
+  const int = v / 10n ** 18n;
+  const frac = (v % 10n ** 18n).toString().padStart(18, "0").replace(/0+$/, "");
+  return frac ? `${int}.${frac}` : int.toString();
+}
 
 /** V2 스왑 견적 — 컨트랙트 getAmountOut과 동일식 (수수료 0.3%) */
 function getAmountOut(amountIn: bigint, reserveIn: bigint, reserveOut: bigint): bigint {
@@ -70,11 +81,71 @@ export function TradePanel({
       ? getAmountOut(amountIn, wethReserve, tokenReserve)
       : getAmountOut(amountIn, tokenReserve, wethReserve);
   }, [amountIn, side, tokenReserve, wethReserve]);
-  /* 슬리피지 허용 1% — 최소 수령량 미만이면 컨트랙트가 되돌린다 */
+  /* 슬리피지(체결 오차) 허용 1% — 최소 수령량 미만이면 컨트랙트가 되돌린다 */
   const minOut = quote !== null ? (quote * 99n) / 100n : null;
+
+  /* 수수료 절대액 — ETH 레그 기준 0.3% (명세서 §2.1: 원화로 체감시킨다).
+     매수는 지불 ETH의 0.3%, 매도는 수령 ETH가 수수료 차감 후 값이라 역산한다 */
+  const fee =
+    amountIn === null || amountIn <= 0n
+      ? null
+      : side === "buy"
+        ? (amountIn * 3n) / 1_000n
+        : quote !== null
+          ? (quote * 3n) / 997n
+          : null;
 
   const provider = connectedWallet?.provider ?? null;
   const busy = phase !== "idle";
+
+  /* 보유 잔고 — MAX 버튼과 라벨 표시용. 체결 완료(doneTx) 후 재조회 */
+  const [balance, setBalance] = useState<bigint | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setBalance(null);
+    if (!provider || !account) return;
+    const load = async () => {
+      try {
+        const hex =
+          side === "buy"
+            ? await provider.request({
+                method: "eth_getBalance",
+                params: [account, "latest"],
+              })
+            : await provider.request({
+                method: "eth_call",
+                params: [
+                  {
+                    to: asset.address,
+                    data: encodeFunctionData({
+                      abi: erc20Abi,
+                      functionName: "balanceOf",
+                      args: [account as `0x${string}`],
+                    }),
+                  },
+                  "latest",
+                ],
+              });
+        if (!cancelled && typeof hex === "string") setBalance(BigInt(hex));
+      } catch {
+        /* 잔고 조회 실패 — MAX 버튼만 비활성으로 남긴다 */
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [provider, account, side, asset.address, doneTx]);
+
+  /* MAX: 매수는 가스 예약분(0.001 ETH)을 차감, 매도는 보유 전량 */
+  const maxAmount =
+    balance === null
+      ? null
+      : side === "buy"
+        ? balance > GAS_RESERVE_WEI
+          ? balance - GAS_RESERVE_WEI
+          : 0n
+        : balance;
 
   async function waitReceipt(hash: string): Promise<void> {
     if (!provider) return;
@@ -208,9 +279,17 @@ export function TradePanel({
         ))}
       </div>
 
-      <label htmlFor="trade-amount" className="mt-4 block text-[12.5px] font-medium text-ink-2">
-        {side === "buy" ? "지불 ETH" : `판매 ${asset.symbol}`}
-      </label>
+      <div className="mt-4 flex items-baseline justify-between gap-3">
+        <label htmlFor="trade-amount" className="text-[12.5px] font-medium text-ink-2">
+          {side === "buy" ? "지불 ETH" : `판매 ${asset.symbol}`}
+        </label>
+        {account && balance !== null ? (
+          <span className="font-mono text-[11px] tabular-nums text-ink-3">
+            보유 {formatEth(wei(balance), side === "buy" ? 5 : 2)}{" "}
+            {side === "buy" ? "ETH" : asset.symbol}
+          </span>
+        ) : null}
+      </div>
       <div className="mt-1.5 flex items-center gap-2">
         <input
           id="trade-amount"
@@ -221,10 +300,38 @@ export function TradePanel({
           placeholder={side === "buy" ? "0.0001" : "10"}
           className="h-10 w-full rounded-lg border border-hairline bg-panel px-3.5 font-mono text-[13.5px] text-ink placeholder:text-ink-3"
         />
+        <button
+          type="button"
+          disabled={maxAmount === null || maxAmount <= 0n}
+          onClick={() => maxAmount !== null && setAmount(weiToInput(maxAmount))}
+          title={side === "buy" ? "보유 ETH에서 가스 예약분 0.001을 뺀 값" : "보유 전량"}
+          className="h-10 shrink-0 rounded-lg border border-hairline px-2.5 text-[11px] font-semibold text-ink-3 transition-colors hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          MAX
+        </button>
         <span className="shrink-0 text-[12px] text-ink-3">
           {side === "buy" ? "ETH" : asset.symbol}
         </span>
       </div>
+      {side === "buy" ? (
+        <p className="mt-1.5 text-[10.5px] text-ink-3">
+          MAX는 네트워크 수수료(가스) 예약분 0.001 ETH를 빼고 채웁니다
+        </p>
+      ) : null}
+      {/* 브릿지는 필요한 순간에만 — 매수하려는데 ETH가 가스 예약분에도 못 미칠 때 */}
+      {account && side === "buy" && balance !== null && balance <= GAS_RESERVE_WEI ? (
+        <p className="mt-2 rounded-lg border border-accent/20 bg-accent/[0.06] px-3 py-2 text-[11.5px] leading-relaxed text-ink-2">
+          ETH가 부족하신가요?{" "}
+          <a
+            href={giwaChain.bridgeUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-accent hover:underline"
+          >
+            공식 브릿지에서 가져오기 ↗
+          </a>
+        </p>
+      ) : null}
 
       {/* 견적 */}
       <dl className="mt-3 rounded-lg border border-hairline/60 bg-black/20 px-3.5 py-1">
@@ -254,10 +361,20 @@ export function TradePanel({
           </dd>
         </div>
         <div className="flex items-baseline justify-between border-t border-hairline/40 py-2">
-          <dt className="text-[12px] text-ink-3">최소 수령 (슬리피지 1%)</dt>
+          <dt className="text-[12px] text-ink-3">최소 수령 (체결 오차 1%)</dt>
           <dd className="font-mono text-[12px] tabular-nums text-ink-3">
             {minOut !== null && minOut > 0n
               ? `${formatEth(wei(minOut), side === "buy" ? 2 : 8)} ${side === "buy" ? asset.symbol : "ETH"}`
+              : "—"}
+          </dd>
+        </div>
+        <div className="flex items-baseline justify-between border-t border-hairline/40 py-2">
+          <dt className="text-[12px] text-ink-3">교환 수수료 (0.3%)</dt>
+          <dd className="font-mono text-[12px] tabular-nums text-ink-3">
+            {fee !== null && fee > 0n
+              ? ethKrw
+                ? `≈ ₩${formatKrw(weiToDisplayKrw(wei(fee), ethKrw))}`
+                : `${formatEth(wei(fee), 8)} ETH`
               : "—"}
           </dd>
         </div>

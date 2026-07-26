@@ -5,7 +5,8 @@ import { TelegramIcon, XIcon } from "./social-icons";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-14 border-t border-hairline">
+    // 본문 마루와 구분되는 짙은 그늘 영역 — 나무는 배경으로 희미하게만 비친다
+    <footer className="mt-14 border-t border-black/50 bg-[#150d07]/85">
       <div className="mx-auto grid w-full max-w-[1840px] grid-cols-1 gap-10 px-8 py-12 text-[13px] md:grid-cols-[1.2fr_1fr_1.6fr]">
         <div>
           <div className="flex items-center gap-2">
@@ -49,10 +50,6 @@ export function SiteFooter() {
             네트워크
           </h2>
           <ul className="mt-3 space-y-1.5 text-ink-2">
-            <li>
-              {giwaChain.name} · Chain ID{" "}
-              <span className="font-mono">{giwaChain.chainId}</span>
-            </li>
             <li>
               <a
                 href={giwaChain.explorerUrl}
@@ -104,6 +101,14 @@ export function SiteFooter() {
               자산이 온체인에 존재하는 것은 아닙니다.
             </li>
             <li>표시 자산은 신원 검증을 통과한 자산으로 한정됩니다.</li>
+            <li>
+              검증은 사기 필터이지 투자 보증이 아닙니다. 발행 시점의 신원과
+              온체인 안전장치를 확인한 것입니다.
+            </li>
+            <li>
+              나루는 두나무가 만든 GIWA 체인 위에서 동작하는 독립 서비스이며,
+              업비트·두나무와 제휴 관계가 아닙니다.
+            </li>
           </ul>
         </div>
       </div>

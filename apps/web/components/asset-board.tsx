@@ -20,7 +20,7 @@ import {
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
-import type { WeiAmount } from "@giwa/shared";
+import type { AssetVerification, WeiAmount } from "@giwa/shared";
 import type { LiveAssetWire } from "@/lib/onchain";
 import { AssetAvatar } from "./asset-avatar";
 import { CopyAddress } from "./copy-address";
@@ -41,6 +41,7 @@ interface LiveAsset {
   issuerName: string;
   priceWei: WeiAmount;
   liquidityWei: WeiAmount;
+  verification: AssetVerification;
 }
 
 function cmpBigint(a: bigint, b: bigint): number {
@@ -76,13 +77,7 @@ function AssetCell({ asset }: { asset: LiveAsset }) {
           >
             {asset.symbol}
           </Link>
-          <VerifiedBadge
-            verification={{
-              status: "verified",
-              method: "dojang",
-              label: "도장 검증(데모 어테스테이션)",
-            }}
-          />
+          <VerifiedBadge verification={asset.verification} />
           <CopyAddress address={asset.address} />
         </div>
         <p className="mt-0.5 text-[11.5px] text-ink-3">{asset.nameKo}</p>
@@ -125,6 +120,7 @@ export function AssetBoard({
       issuerName: a.issuerName,
       priceWei: wei(BigInt(a.priceWei)),
       liquidityWei: wei(BigInt(a.liquidityWei)),
+      verification: a.verification,
     }));
     const q = query.trim().toLowerCase();
     if (q === "") return parsed;
@@ -390,6 +386,11 @@ export function AssetBoard({
           · 목록·가격·예치 규모는 GIWA Sepolia 온체인 실데이터입니다. 변동률 ·
           거래대금 · 참여 인원은 인덱서 연결 후 제공되며, 거래 데이터는 데모
           시드 봇이 생성합니다.
+        </p>
+        <p>
+          · <b className="font-medium text-ink-2">검증은 사기 필터이지 투자
+          보증이 아닙니다.</b>{" "}
+          발행 시점의 신원과 온체인 안전장치를 확인한 것입니다.
         </p>
       </div>
     </div>

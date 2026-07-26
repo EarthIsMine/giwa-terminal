@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { AssetDetailLive } from "@/components/asset-detail-live";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { getAssetMarket } from "@/lib/indexer";
+import { getHolderAnalysis } from "@/lib/analysis";
+import { getAssetMarket, getHolderGraph } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
 import { getLiveAsset } from "@/lib/onchain";
 
@@ -30,7 +31,16 @@ export default async function AssetPage({
   const { address } = await params;
   const [asset, ethKrw] = await Promise.all([getLiveAsset(address), getEthKrw()]);
   if (!asset) notFound();
-  const market = await getAssetMarket(asset.pair);
+  const [market, analysis, graph] = await Promise.all([
+    getAssetMarket(asset.pair),
+    getHolderAnalysis({
+      token: asset.address,
+      pair: asset.pair,
+      issuer: asset.issuer,
+      totalSupply: asset.totalSupply,
+    }),
+    getHolderGraph(asset.address),
+  ]);
 
   return (
     <>
@@ -40,6 +50,8 @@ export default async function AssetPage({
           asset={asset}
           ethKrw={ethKrw?.toString() ?? null}
           market={market}
+          analysis={analysis}
+          graph={graph}
         />
       </main>
       <SiteFooter />

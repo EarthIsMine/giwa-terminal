@@ -46,6 +46,41 @@ export interface AssetMarketWire {
   stats: StatsWire | null;
 }
 
+/** 나루터 소식 피드 항목 — 판정은 인덱서 API, 문구는 웹이 만든다 */
+export interface FeedItemWire {
+  id: string;
+  type: "listed" | "issuer_sell" | "large_trade";
+  token: `0x${string}`;
+  symbol: string;
+  timestamp: number;
+  side?: "buy" | "sell";
+  wethAmount?: string;
+  /** 풀 유동성 대비 체결 비율 ‰ */
+  poolPermille?: number;
+  txHash?: `0x${string}`;
+}
+
+/** 홀더 관계도 노드 — 클러스터 판정은 인덱서 API(union-find)가 끝내서 내려준다 */
+export interface GraphNodeWire {
+  address: `0x${string}`;
+  balance: string;
+  /** 총공급 대비 ‰ */
+  permille: number;
+  isIssuer: boolean;
+  /** 발행자와 같은 연결 성분 (1단계 이상 전송으로 이어짐) */
+  issuerLinked: boolean;
+  /** 2인 이상 성분 소속 여부 */
+  clustered: boolean;
+  clusterId: string;
+}
+
+export interface HolderGraphWire {
+  totalSupply: string;
+  issuer: `0x${string}`;
+  nodes: GraphNodeWire[];
+  links: { source: string; target: string }[];
+}
+
 const INDEXER_URL = process.env.INDEXER_URL ?? null;
 
 async function fetchJson<T>(path: string): Promise<T | null> {
@@ -59,6 +94,19 @@ async function fetchJson<T>(path: string): Promise<T | null> {
   } catch {
     return null;
   }
+}
+
+/** 나루터 소식 — 인덱서 미연결·실패면 null (홈은 섹션 자체를 감춘다) */
+export async function getFeed(): Promise<FeedItemWire[] | null> {
+  const res = await fetchJson<{ items: FeedItemWire[] }>("/feed?limit=8");
+  return res?.items ?? null;
+}
+
+/** 홀더 관계도 — 인덱서 미연결·미인덱싱이면 null (자리표시 폴백) */
+export async function getHolderGraph(
+  token: `0x${string}`,
+): Promise<HolderGraphWire | null> {
+  return fetchJson<HolderGraphWire>(`/graph/${token}`);
 }
 
 /** 일봉이 이만큼 쌓이기 전에는 시간봉을 보여준다 (테스트넷 초기 구간) */

@@ -186,6 +186,15 @@ export function PortfolioView() {
           <span aria-hidden className="size-1.5 rounded-full bg-good" />
           {giwaChain.name}
         </span>
+        {/* 자산을 채우는 화면이라 브릿지 진입점을 상시로 둔다 (네비에서 이전) */}
+        <a
+          href={giwaChain.bridgeUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-hairline bg-panel px-3 text-[12.5px] text-ink-2 transition-colors hover:border-accent/40 hover:text-accent"
+        >
+          브릿지에서 가져오기 <span aria-hidden className="text-[10px]">↗</span>
+        </a>
         <span className="flex h-9 items-center gap-2.5 rounded-lg border border-hairline bg-panel px-3 text-[13px]">
           <span className="text-ink-3">총 평가액</span>
           <span className="font-mono font-semibold tabular-nums">
