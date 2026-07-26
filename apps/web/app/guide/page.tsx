@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header";
  */
 
 export const metadata: Metadata = {
-  title: "온보딩 가이드 — 나루 NARU",
+  title: "온보딩 가이드 · 나루 NARU",
   description:
     "업비트에서 기와(GIWA) 온체인으로 처음 건너오는 길: 지갑 준비, 출금, 브릿지, 첫 교환.",
 };

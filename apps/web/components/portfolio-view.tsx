@@ -65,7 +65,7 @@ export function PortfolioView() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setData((await res.json()) as PortfolioResponse);
     } catch {
-      setError("잔고 조회에 실패했습니다 — 잠시 후 다시 시도해 주세요");
+      setError("잔고 조회에 실패했습니다. 잠시 후 다시 시도해 주세요");
     } finally {
       setLoading(false);
     }
@@ -170,7 +170,7 @@ export function PortfolioView() {
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-[28px] font-bold tracking-tight">내 자산</h1>
         {signedAccount !== account ? (
-          <span className="rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[10px] text-warn">
+          <span className="rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[11px] text-warn">
             조회 전용 · 서명 로그인 전
           </span>
         ) : null}
@@ -193,7 +193,7 @@ export function PortfolioView() {
           rel="noreferrer"
           className="flex h-9 items-center gap-1.5 rounded-lg border border-hairline bg-panel px-3 text-[12.5px] text-ink-2 transition-colors hover:border-accent/40 hover:text-accent"
         >
-          브릿지에서 가져오기 <span aria-hidden className="text-[10px]">↗</span>
+          브릿지에서 가져오기 <span aria-hidden className="text-[11px]">↗</span>
         </a>
         <span className="flex h-9 items-center gap-2.5 rounded-lg border border-hairline bg-panel px-3 text-[13px]">
           <span className="text-ink-3">총 평가액</span>
@@ -274,19 +274,19 @@ export function PortfolioView() {
       <div className="mt-6 border-y border-black/45 bg-black/[0.12]">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] border-collapse text-left">
-            <caption className="sr-only">보유 자산 — 현재가, 보유 수량, 평가액, 비중</caption>
+            <caption className="sr-only">보유 자산: 현재가, 보유 수량, 평가액, 비중</caption>
             <thead>
               <tr className="border-b border-black/45 bg-[#120c06]/[0.97]">
-                <th scope="col" className="py-2.5 pl-8 pr-4 text-[10.5px] font-medium tracking-[0.1em] text-ink-3">
+                <th scope="col" className="py-2.5 pl-8 pr-4 text-[11.5px] font-medium tracking-[0.1em] text-ink-3">
                   자산
                 </th>
-                <th scope="col" className="w-[200px] px-4 py-2.5 text-right text-[10.5px] font-medium tracking-[0.1em] text-ink-3">
+                <th scope="col" className="w-[200px] px-4 py-2.5 text-right text-[11.5px] font-medium tracking-[0.1em] text-ink-3">
                   현재가
                 </th>
-                <th scope="col" className="w-[220px] px-4 py-2.5 text-right text-[10.5px] font-medium tracking-[0.1em] text-ink-3">
+                <th scope="col" className="w-[220px] px-4 py-2.5 text-right text-[11.5px] font-medium tracking-[0.1em] text-ink-3">
                   보유
                 </th>
-                <th scope="col" className="w-[240px] px-4 py-2.5 pr-8 text-right text-[10.5px] font-medium tracking-[0.1em] text-ink-3">
+                <th scope="col" className="w-[240px] px-4 py-2.5 pr-8 text-right text-[11.5px] font-medium tracking-[0.1em] text-ink-3">
                   비중
                 </th>
               </tr>
@@ -301,7 +301,7 @@ export function PortfolioView() {
               ) : holdings.every((h) => h.balance === 0n) ? (
                 <tr>
                   <td colSpan={4} className="py-14 text-center text-[13.5px] text-ink-3">
-                    아직 보유 자산이 없습니다 —{" "}
+                    아직 보유 자산이 없습니다.{" "}
                     <a
                       href={giwaChain.bridgeUrl}
                       target="_blank"
@@ -355,7 +355,7 @@ export function PortfolioView() {
                               {formatKrw(weiToDisplayKrw(h.priceWei, ethKrw))}
                             </p>
                             {h.address ? (
-                              <p className="mt-0.5 font-mono text-[10.5px] tabular-nums text-ink-3">
+                              <p className="mt-0.5 font-mono text-[11.5px] tabular-nums text-ink-3">
                                 {formatEth(h.priceWei, 8)} ETH
                               </p>
                             ) : null}
@@ -376,7 +376,7 @@ export function PortfolioView() {
                             </span>
                           </Masked>
                         </p>
-                        <p className="mt-0.5 font-mono text-[10.5px] tabular-nums text-ink-3">
+                        <p className="mt-0.5 font-mono text-[11.5px] tabular-nums text-ink-3">
                           <Masked hidden={hidden}>
                             {ethKrw
                               ? `₩${formatKrw(weiToDisplayKrw(h.valueWei, ethKrw))}`

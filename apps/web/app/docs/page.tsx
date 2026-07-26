@@ -12,7 +12,7 @@ import type { DocSection } from "@/components/docs-nav";
  */
 
 export const metadata: Metadata = {
-  title: "기술 문서 — 나루 NARU",
+  title: "기술 문서 · 나루 NARU",
   description:
     "나루의 아키텍처, 체인 파라미터 주입 구조, 지표 정의, 컨트랙트, 신원 검증·온체인 분석 설계를 공개합니다.",
 };
@@ -118,7 +118,7 @@ export default function DocsPage() {
           기술 문서
         </h1>
         <p className="mt-2 max-w-[640px] text-[13px] leading-relaxed text-ink-3">
-          나루가 어떻게 만들어져 있는지 공개합니다 — 아키텍처, 지표 산식,
+          나루가 어떻게 만들어져 있는지 공개합니다: 아키텍처, 지표 산식,
           컨트랙트, 신원 검증 구조. 화면의 모든 숫자는 이 문서의 정의를
           따릅니다.
         </p>
@@ -139,7 +139,7 @@ export default function DocsPage() {
               </pre>
               <p>
                 타겟은 온체인 경험이 없는 업비트 이용자입니다. 그래서 화면은
-                반대로 갑니다 — 신원 검증을 통과한 자산만 수십 종 이내, 원화
+                반대로 갑니다. 신원 검증을 통과한 자산만 수십 종 이내, 원화
                 환산 우선 표기, 일·월 단위 변동률, 낮은 정보 밀도. 지수
                 표기(<span className="font-mono text-[12px]">$0.0₅…</span>)와
                 무한 스크롤은 쓰지 않습니다.
@@ -151,9 +151,9 @@ export default function DocsPage() {
               <table className="w-full text-[12.5px]">
                 <tbody>
                   {[
-                    ["packages/contracts", "Foundry — V2 포크 DEX + 발행 게이트 + 신원 원장"],
-                    ["packages/indexer", "Ponder — 이벤트 전수 인덱싱 + 가격 API(Hono)"],
-                    ["apps/web", "Next.js App Router — 터미널 프론트 (서버 컴포넌트 중심)"],
+                    ["packages/contracts", "Foundry · V2 포크 DEX + 발행 게이트 + 신원 원장"],
+                    ["packages/indexer", "Ponder · 이벤트 전수 인덱싱 + 가격 API(Hono)"],
+                    ["apps/web", "Next.js App Router · 터미널 프론트 (서버 컴포넌트 중심)"],
                     ["scripts/seed", "데모 토큰 발행 + 스왑 봇 (프로덕션 번들과 격리)"],
                   ].map(([k, v]) => (
                     <tr key={k} className="border-b border-black/25 last:border-0">
@@ -178,7 +178,7 @@ export default function DocsPage() {
 
             <Section id="chain-config" title="체인 파라미터 주입">
               <p>
-                RPC URL, chainId, 컨트랙트 주소, 시작 블록, 익스플로러 URL —
+                RPC URL, chainId, 컨트랙트 주소, 시작 블록, 익스플로러 URL 등
                 체인에 의존하는 모든 값은 <Term>env로 주입</Term>되며{" "}
                 <span className="font-mono text-[12px]">config/chains.ts</span>{" "}
                 한 곳으로만 흐릅니다. 코드에 주소나 chainId를 하드코딩하지
@@ -186,7 +186,7 @@ export default function DocsPage() {
               </p>
               <p>
                 따라서 프라이빗 메인넷 초대 시 <Term>env 교체만으로
-                재싱크</Term>됩니다 — 인덱서와 시드 봇은 재시작으로 충분하고,
+                재싱크</Term>됩니다. 인덱서와 시드 봇은 재시작으로 충분하고,
                 웹은 NEXT_PUBLIC 값이 빌드 타임에 정적 치환되므로{" "}
                 <Term>재빌드 1회가 포함</Term>됩니다. 서버 전용 RPC(Nodit 등 키
                 포함 엔드포인트)는 NEXT_PUBLIC 접두사 없는 별도 변수로 분리해
@@ -211,9 +211,9 @@ export default function DocsPage() {
               </table>
               <p>캐노니컬 V2 대비 의도적 변경은 세 가지뿐입니다.</p>
               <ul className="list-disc space-y-1 pl-5">
-                <li>플래시스왑 제거 — 데모 범위에서 공격 표면 축소</li>
+                <li>플래시스왑 제거 · 데모 범위에서 공격 표면 축소</li>
                 <li>
-                  프로토콜 수수료(feeTo/kLast) 제거 — 0.3% 전량 유동성 공급자
+                  프로토콜 수수료(feeTo/kLast) 제거 · 0.3% 전량 유동성 공급자
                   귀속, 수수료 정책은 메인넷 단계에서 별도 결정
                 </li>
                 <li>LP 토큰 permit 제거</li>
@@ -236,11 +236,11 @@ export default function DocsPage() {
                 <tbody>
                   {[
                     ["가격", "WETH 준비금 ÷ 토큰 준비금. 같은 tx에서 Sync가 Swap보다 먼저 발행되므로(V2 _update 순서) Sync가 가격을 갱신하고 Swap이 그 가격으로 체결·캔들을 기록"],
-                    ["캔들", "1분봉 원본 → 1h/1d 롤업을 같은 트랜잭션에서 upsert. 버킷 첫 체결의 open은 체결 직전 가격 — 체결 후 가격을 쓰면 저활동 페어 변동률이 0%로 뭉개진다. 일봉 경계 00:00 UTC = 09:00 KST (업비트 일봉과 동일)"],
-                    ["원화 환산", "업비트 KRW-ETH 시세(60초 캐시) × ETH 가격. 온체인에 원화 자산은 없으며 항상 '환산 참고값'으로 표기. 조회 실패 시 ETH 단위로 폴백 — 추정치를 확정값처럼 보여주지 않는다. 표시값은 항상 내림"],
+                    ["캔들", "1분봉 원본 → 1h/1d 롤업을 같은 트랜잭션에서 upsert. 버킷 첫 체결의 open은 체결 직전 가격. 체결 후 가격을 쓰면 저활동 페어 변동률이 0%로 뭉개진다. 일봉 경계 00:00 UTC = 09:00 KST (업비트 일봉과 동일)"],
+                    ["원화 환산", "업비트 KRW-ETH 시세(60초 캐시) × ETH 가격. 온체인에 원화 자산은 없으며 항상 '환산 참고값'으로 표기. 조회 실패 시 ETH 단위로 폴백. 추정치를 확정값처럼 보여주지 않는다. 표시값은 항상 내림"],
                     ["예치 규모", "풀 WETH 준비금 × 2 (V2 기준)"],
-                    ["거래대금", "윈도우 내 스왑의 WETH 체결액 합 — 요청 시점 원장 스캔 없이 캔들에서 읽는다"],
-                    ["참여 인원", "distinct tx.origin — msg.sender를 쓰면 라우터 주소 하나로 집계된다"],
+                    ["거래대금", "윈도우 내 스왑의 WETH 체결액 합. 요청 시점 원장 스캔 없이 캔들에서 읽는다"],
+                    ["참여 인원", "distinct tx.origin (msg.sender를 쓰면 라우터 주소 하나로 집계된다)"],
                     ["변동률", "당일(UTC) 일봉 open 대비 close. 데이터가 없으면 0%가 아니라 '데이터 없음'으로 응답"],
                   ].map(([k, v]) => (
                     <tr key={k} className="border-b border-black/25 last:border-0">
@@ -255,24 +255,24 @@ export default function DocsPage() {
             <Section id="identity" title="신원 검증">
               <p>
                 기와는 익명 퍼미션리스 체인이 아니라 신원 기반 규제 준수
-                체인입니다. 나루는 그 정체성을 발행 구조로 옮겼습니다 —{" "}
+                체인입니다. 나루는 그 정체성을 발행 구조로 옮겼습니다.{" "}
                 <Term>검증된 신원만 발행 게이트를 통과</Term>하고, 터미널에는
                 검증 자산만 표시됩니다.
               </p>
               <ul className="list-disc space-y-1 pl-5">
                 <li>
                   현행 신원 원장은 도장(Dojang) 어테스테이션 스키마를 준거한
-                  자체 IdentityRegistry입니다 — 정식 attester 등록은 기와팀과
+                  자체 IdentityRegistry입니다. 정식 attester 등록은 기와팀과
                   협의 중이며, 연동 시 같은 자리에 실검증이 기록됩니다
                 </li>
                 <li>
                   배지 주체는 <Term>&ldquo;나루 검증&rdquo;</Term>으로
-                  명시합니다 — GIWA 공식 인증이 아니며,{" "}
+                  명시합니다. GIWA 공식 인증이 아니며,{" "}
                   <Term>검증은 사기 필터이지 투자 보증이 아닙니다</Term>
                 </li>
                 <li>
                   나루 포인트의 참여 게이트는 기와의 실제 도장 컨트랙트를
-                  조회합니다(업비트 KYC Verified Address, 조회는 퍼미션리스) —
+                  조회합니다(업비트 KYC Verified Address, 조회는 퍼미션리스).
                   지갑을 아무리 만들어도 인증 없이는 적립되지 않는 시빌 방어
                   구조입니다
                 </li>
@@ -297,7 +297,7 @@ export default function DocsPage() {
                 </li>
                 <li>
                   라우터·페어·팩토리 같은 인프라 주소는 성분 계산에서
-                  제외합니다 — 거르지 않으면 모든 거래 지갑이 한 덩어리가 됩니다
+                  제외합니다. 거르지 않으면 모든 거래 지갑이 한 덩어리가 됩니다
                 </li>
                 <li>
                   인사이더·스나이퍼 비중은 취득 이력 산식 연결 후 제공하며, 그
@@ -309,12 +309,12 @@ export default function DocsPage() {
             <Section id="seed" title="데모 시드 데이터">
               <p>
                 테스트넷 화면의 거래 데이터는 데모 시드 봇이 생성하며, 이 사실을{" "}
-                <Term>숨기지 않습니다</Term> — 화면 상단 배너·목록·차트·푸터에
+                <Term>숨기지 않습니다</Term>. 화면 상단 배너·목록·차트·푸터에
                 고지하고, 온체인 메타데이터에도 시드 표식이 남습니다.
               </p>
               <ul className="list-disc space-y-1 pl-5">
                 <li>
-                  발행은 멱등합니다 — 로컬 상태가 아니라 온체인 레지스트리와
+                  발행은 멱등합니다. 로컬 상태가 아니라 온체인 레지스트리와
                   메타데이터 버전으로 기발행을 판별해 재기동·중간 실패에
                   안전합니다
                 </li>
@@ -332,7 +332,7 @@ export default function DocsPage() {
                   {[
                     ["인덱서", "Ponder (viem 기반, 리오그 처리 내장) + PostgreSQL"],
                     ["프론트", "Next.js App Router · TypeScript strict (any 금지)"],
-                    ["체인 연동", "viem — 지갑은 EIP-6963 멀티 프로바이더"],
+                    ["체인 연동", "viem (지갑은 EIP-6963 멀티 프로바이더)"],
                     ["시각화", "TanStack Table · TradingView Lightweight Charts · d3-force"],
                     ["컨트랙트", "Foundry (Solidity 0.8) · Blockscout verify"],
                     ["보조 데이터", "홀더 수·상위 홀더 Blockscout API / ETH-KRW 업비트 시세 API"],

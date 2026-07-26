@@ -39,7 +39,7 @@ export function GuideOverlay({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="처음 건너오는 길 — 온보딩 가이드"
+        aria-label="처음 건너오는 길 · 온보딩 가이드"
         className="absolute left-1/2 top-1/2 flex max-h-[85vh] w-[680px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-hairline bg-[#1d140c] shadow-[0_24px_80px_rgba(0,0,0,0.65)]"
       >
         <div className="flex items-start justify-between border-b border-black/40 px-6 py-5">
@@ -48,7 +48,7 @@ export function GuideOverlay({
               처음 건너오는 길
             </h2>
             <p className="mt-1 text-[12px] text-ink-3">
-              업비트에서 기와 온체인까지 네 걸음 — 비용과 기다림은 미리
+              업비트에서 기와 온체인까지 네 걸음. 비용과 기다림은 미리
               알려드립니다
             </p>
           </div>

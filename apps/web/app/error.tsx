@@ -18,7 +18,7 @@ export default function GlobalError({
         </p>
         <p className="mt-3 text-[13px] leading-relaxed text-ink-3">
           온체인 데이터를 불러오는 중 문제가 생겼습니다. 테스트넷 RPC가
-          일시적으로 응답하지 않을 수 있습니다 — 잠시 후 다시 시도해 주세요.
+          일시적으로 응답하지 않을 수 있습니다. 잠시 후 다시 시도해 주세요.
         </p>
         <button
           type="button"

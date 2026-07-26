@@ -40,7 +40,7 @@ export function DocsNav({ sections }: { sections: DocSection[] }) {
       aria-label="문서 목차"
       className="sticky top-24 hidden max-h-[calc(100vh-7rem)] self-start overflow-y-auto lg:block"
     >
-      <p className="px-3 text-[10.5px] font-medium tracking-[0.1em] text-ink-3">
+      <p className="px-3 text-[11.5px] font-medium tracking-[0.1em] text-ink-3">
         기술 문서
       </p>
       <ul className="mt-2 space-y-0.5">

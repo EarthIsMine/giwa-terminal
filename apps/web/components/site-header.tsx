@@ -27,7 +27,7 @@ export function SiteHeader() {
           <BrandLogo />
           <span className="flex items-baseline gap-1.5">
             <span className="text-[17px] font-bold tracking-tight">나루</span>
-            <span className="font-mono text-[10px] tracking-[0.14em] text-ink-3">
+            <span className="font-mono text-[11px] tracking-[0.14em] text-ink-3">
               NARU
             </span>
           </span>

@@ -246,7 +246,7 @@ export function TradePanel({
     } catch (e) {
       const code =
         typeof e === "object" && e !== null && "code" in e ? (e as { code: unknown }).code : null;
-      setError(code === 4001 ? "요청이 거절되었습니다" : "거래에 실패했습니다 — 다시 시도해 주세요");
+      setError(code === 4001 ? "요청이 거절되었습니다" : "거래에 실패했습니다. 다시 시도해 주세요");
     } finally {
       setPhase("idle");
     }
@@ -314,7 +314,7 @@ export function TradePanel({
         </span>
       </div>
       {side === "buy" ? (
-        <p className="mt-1.5 text-[10.5px] text-ink-3">
+        <p className="mt-1.5 text-[11.5px] text-ink-3">
           MAX는 네트워크 수수료(가스) 예약분 0.001 ETH를 빼고 채웁니다
         </p>
       ) : null}
@@ -427,7 +427,7 @@ export function TradePanel({
       {error ? <p className="mt-2.5 text-[12px] text-down">{error}</p> : null}
       {doneTx ? (
         <p className="mt-2.5 text-[12px] text-good">
-          체결 완료 —{" "}
+          체결 완료 ·{" "}
           <a
             href={`${giwaChain.explorerUrl}/tx/${doneTx}`}
             target="_blank"

@@ -40,7 +40,7 @@ export function Hero({
 
         <dl className="flex flex-wrap gap-2.5">
           <div className="min-w-[148px] rounded-xl carved px-5 py-4">
-            <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+            <dt className="text-[11.5px] font-medium tracking-[0.12em] text-ink-3">
               검증 자산
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
@@ -49,29 +49,29 @@ export function Hero({
                 종
               </span>
             </dd>
-            <p className="mt-2 text-[10px] text-ink-3">온체인 발행 게이트 기준</p>
+            <p className="mt-2 text-[11px] text-ink-3">온체인 발행 게이트 기준</p>
           </div>
 
           <div className="min-w-[172px] rounded-xl carved px-5 py-4">
-            <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+            <dt className="text-[11.5px] font-medium tracking-[0.12em] text-ink-3">
               총 예치 규모
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
               {depositDisplay}
             </dd>
-            <p className="mt-2 text-[10px] text-ink-3">
+            <p className="mt-2 text-[11px] text-ink-3">
               {depositIsKrw ? "업비트 시세 환산" : "환산 일시 불가 · ETH 표시"}
             </p>
           </div>
 
           <div className="min-w-[172px] rounded-xl carved px-5 py-4">
-            <dt className="text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+            <dt className="text-[11.5px] font-medium tracking-[0.12em] text-ink-3">
               환산 기준 시세
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
               {ethKrwLabel ?? "—"}
             </dd>
-            <p className="mt-2 text-[10px] text-ink-3">
+            <p className="mt-2 text-[11px] text-ink-3">
               {ethKrwLabel ? "업비트 KRW-ETH · 60초 갱신" : "업비트 시세 조회 불가"}
             </p>
           </div>

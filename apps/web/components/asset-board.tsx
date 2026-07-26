@@ -164,7 +164,7 @@ export function AssetBoard({
                 <span className="mr-px text-ink-2">₩</span>
                 {formatKrw(weiToDisplayKrw(row.original.priceWei, ethKrw))}
               </p>
-              <p className="mt-0.5 font-mono text-[10.5px] tabular-nums text-ink-3">
+              <p className="mt-0.5 font-mono text-[11.5px] tabular-nums text-ink-3">
                 {formatEth(row.original.priceWei, 8)} ETH
               </p>
             </div>
@@ -274,7 +274,7 @@ export function AssetBoard({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1080px] border-collapse text-left">
             <caption className="sr-only">
-              기와체인 검증 자산 목록 — 온체인 실데이터: 현재가, 예치 규모,
+              기와체인 검증 자산 목록. 온체인 실데이터: 현재가, 예치 규모,
               발행자
             </caption>
             <thead>
@@ -285,7 +285,7 @@ export function AssetBoard({
                 >
                   <th
                     scope="col"
-                    className="w-14 py-2.5 pl-8 pr-2 text-[10.5px] font-medium tracking-[0.1em] text-ink-3"
+                    className="w-14 py-2.5 pl-8 pr-2 text-[11.5px] font-medium tracking-[0.1em] text-ink-3"
                   >
                     #
                   </th>
@@ -303,7 +303,7 @@ export function AssetBoard({
                               ? "descending"
                               : undefined
                         }
-                        className={`px-4 py-2.5 text-[10.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
+                        className={`px-4 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
                       >
                         {header.column.getCanSort() ? (
                           <button

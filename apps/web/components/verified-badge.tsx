@@ -13,12 +13,12 @@ export function VerifiedBadge({
 }: {
   verification: AssetVerification;
 }) {
-  const disclosure = `${verification.label} — 검증은 사기 필터이며 투자 보증이 아닙니다`;
+  const disclosure = `${verification.label} · 검증은 사기 필터이며 투자 보증이 아닙니다`;
   return (
     <span
       title={disclosure}
       aria-label={disclosure}
-      className="inline-flex items-center gap-1 rounded border border-good/25 bg-good/10 px-1.5 py-[2.5px] text-[10.5px] font-medium leading-none text-good"
+      className="inline-flex items-center gap-1 rounded border border-good/25 bg-good/10 px-1.5 py-[2.5px] text-[11.5px] font-medium leading-none text-good"
     >
       <svg
         viewBox="0 0 12 12"

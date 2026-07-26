@@ -100,7 +100,7 @@ function AnalysisMetric({
           style={{ width: `${Math.min(100, pct)}%` }}
         />
       </div>
-      <p className="mt-2 text-[10.5px] leading-relaxed text-ink-3">{desc}</p>
+      <p className="mt-2 text-[11.5px] leading-relaxed text-ink-3">{desc}</p>
     </div>
   );
 }
@@ -128,7 +128,7 @@ function ExplorerLink({ address }: { address: `0x${string}` }) {
       className="inline-flex items-center gap-1 font-mono text-[12.5px] text-ink-2 transition-colors hover:text-accent"
     >
       {shortHex(address, 6, 4)}
-      <span aria-hidden className="text-[10px]">↗</span>
+      <span aria-hidden className="text-[11px]">↗</span>
     </a>
   );
 }
@@ -254,7 +254,7 @@ export function AssetDetailLive({
                     currency={ethKrw ? "krw" : "eth"}
                   />
                 </div>
-                <p className="mt-2 text-[10.5px] text-ink-3">
+                <p className="mt-2 text-[11.5px] text-ink-3">
                   차트:{" "}
                   <a
                     href="https://www.tradingview.com/"
@@ -353,7 +353,7 @@ export function AssetDetailLive({
               </InfoRow>
             </dl>
             <p className="mt-3 text-[11px] leading-relaxed text-ink-3">
-              테스트넷 데모 — 검증은 나루 운영자 어테스테이션이며,
+              테스트넷 데모입니다. 검증은 나루 운영자 어테스테이션이며,
               도장(Dojang) 정식 연동 시 같은 자리에 실검증이 기록됩니다.{" "}
               <b className="font-medium text-ink-2">
                 검증은 사기 필터이며 투자 보증이 아닙니다.
@@ -383,7 +383,7 @@ export function AssetDetailLive({
               <AnalysisMetric
                 label="상위 10 집중도"
                 permille={analysis.top10Permille}
-                desc="상위 10개 지갑 합산 ÷ 총공급 — 인프라 주소(유동성 페어)는 제외한 값"
+                desc="상위 10개 지갑 합산 ÷ 총공급. 인프라 주소(유동성 페어)는 제외한 값"
               />
               <div className="rounded-lg border border-hairline/60 bg-black/20 p-4">
                 <p className="text-[11.5px] text-ink-3">홀더</p>
@@ -393,7 +393,7 @@ export function AssetDetailLive({
                     지갑
                   </span>
                 </p>
-                <p className="mt-2 text-[10.5px] leading-relaxed text-ink-3">
+                <p className="mt-2 text-[11.5px] leading-relaxed text-ink-3">
                   토큰을 보유한 지갑 수. 테스트넷 데모라 시드 봇·운영 지갑이
                   포함됩니다
                 </p>
@@ -401,7 +401,7 @@ export function AssetDetailLive({
           </div>
         ) : (
           <p className="mt-3 text-[12.5px] leading-relaxed text-ink-3">
-            보유 분포를 불러오지 못했습니다 — 익스플로러(Blockscout) 응답이
+            보유 분포를 불러오지 못했습니다. 익스플로러(Blockscout) 응답이
             지연될 수 있습니다. 잠시 후 새로고침해 주세요.
           </p>
         )}
@@ -413,7 +413,7 @@ export function AssetDetailLive({
               <p className="text-[12.5px] font-medium text-ink-2">
                 홀더 관계도
               </p>
-              <span className="text-[10.5px] text-ink-3">
+              <span className="text-[11.5px] text-ink-3">
                 {graph && graph.nodes.length > 0
                   ? `상위 ${graph.nodes.length}개 지갑 · 서로 자금을 주고받은 지갑이 선으로 이어집니다`
                   : "전송 원장 기반"}
@@ -425,7 +425,7 @@ export function AssetDetailLive({
               </div>
             ) : (
               <p className="grid h-[220px] place-items-center text-[12.5px] text-ink-3">
-                전송 원장 인덱싱 후 표시됩니다 — 인덱서 백필이 진행 중일 수
+                전송 원장 인덱싱 후 표시됩니다. 인덱서 백필이 진행 중일 수
                 있습니다.
               </p>
             )}
@@ -436,7 +436,7 @@ export function AssetDetailLive({
               <p className="text-[12.5px] font-medium text-ink-2">상위 홀더</p>
               <table className="mt-2 w-full border-collapse text-[12px]">
                 <thead>
-                  <tr className="border-b border-black/40 text-[10.5px] tracking-[0.08em] text-ink-3">
+                  <tr className="border-b border-black/40 text-[11.5px] tracking-[0.08em] text-ink-3">
                     <th scope="col" className="py-1.5 text-left font-medium">
                       주소
                     </th>
@@ -460,7 +460,7 @@ export function AssetDetailLive({
                       <td className="py-1.5">
                         {h.label ? (
                           <span
-                            className={`rounded border px-1.5 py-[1.5px] text-[10px] font-medium ${HOLDER_LABEL[h.label].className}`}
+                            className={`rounded border px-1.5 py-[1.5px] text-[11px] font-medium ${HOLDER_LABEL[h.label].className}`}
                           >
                             {HOLDER_LABEL[h.label].text}
                           </span>
@@ -483,11 +483,11 @@ export function AssetDetailLive({
         </div>
 
         <p className="mt-4 border-t border-hairline/40 pt-3 text-[11px] leading-relaxed text-ink-3">
-          · 관계도의 클러스터는 직접 전송으로 이어진 연결 성분입니다 — 중간
+          · 관계도의 클러스터는 직접 전송으로 이어진 연결 성분입니다. 중간
           지갑을 거친 간접 연결도 같은 클러스터로 묶이며, 라우터·페어 같은
           인프라 주소 경유는 연결로 치지 않습니다.
           <br />· 인사이더 비중 · 스나이퍼 비중은 취득 이력 산식 연결 후
-          제공됩니다 — 추정치로 채우지 않습니다.
+          제공됩니다. 추정치로 채우지 않습니다.
           <br />· 수치는 산정 기준에 따라 달라지므로 각 지표에 기준을 함께
           표기합니다. 발행자·팀 지갑 라벨은 심사에서 등록된 주소 기준입니다.
         </p>

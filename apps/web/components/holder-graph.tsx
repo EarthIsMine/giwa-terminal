@@ -124,7 +124,7 @@ export function HolderGraph({ graph }: { graph: HolderGraphWire }) {
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         role="img"
-        aria-label="홀더 관계도 — 버블 크기는 보유 비중, 선은 두 지갑 간 직접 전송 이력"
+        aria-label="홀더 관계도: 버블 크기는 보유 비중, 선은 두 지갑 간 직접 전송 이력"
         className="h-auto w-full"
       >
         <g stroke="rgba(179, 166, 144, 0.3)" strokeWidth="1">
@@ -160,7 +160,7 @@ export function HolderGraph({ graph }: { graph: HolderGraphWire }) {
           </g>
         ))}
       </svg>
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10.5px] text-ink-3">
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-ink-3">
         <span className="flex items-center gap-1.5">
           <i className="size-2 rounded-full" style={{ background: "rgba(246,70,93,.65)" }} />
           발행자·연계 지갑

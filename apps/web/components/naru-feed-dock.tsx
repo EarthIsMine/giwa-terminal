@@ -152,7 +152,7 @@ export function NaruFeedDock() {
           >
             <div className="mx-auto w-full max-w-[1840px] px-8 py-2">
               <p className="border-b border-black/40 py-2 text-[11px] text-ink-3">
-                중대형 체결 · 유동성 변동 · 신규 상장 — 테스트넷 시드
+                중대형 체결 · 유동성 변동 · 신규 상장. 테스트넷 시드
                 데이터입니다. 사실 서술만 제공하며 투자 권유가 아닙니다.
               </p>
               <ul className="grid gap-x-6 md:grid-cols-2">
@@ -162,14 +162,14 @@ export function NaruFeedDock() {
                     className="flex items-start gap-2.5 border-b border-black/30 py-2.5 text-[12.5px] leading-relaxed last:border-0 md:[&:nth-last-child(2)]:border-0"
                   >
                     <span
-                      className={`mt-0.5 shrink-0 rounded px-1.5 py-[2px] text-[10px] font-semibold ${TAG[item.type].className}`}
+                      className={`mt-0.5 shrink-0 rounded px-1.5 py-[2px] text-[11px] font-semibold ${TAG[item.type].className}`}
                     >
                       {TAG[item.type].label(item.side)}
                     </span>
                     <span className="min-w-0 text-ink-2">
                       <ItemBody item={item} ethKrw={ethKrw} />
                     </span>
-                    <span className="ml-auto flex shrink-0 items-center gap-2 font-mono text-[10.5px] text-ink-3">
+                    <span className="ml-auto flex shrink-0 items-center gap-2 font-mono text-[11.5px] text-ink-3">
                       {item.txHash ? (
                         <a
                           href={`${giwaChain.explorerUrl}/tx/${item.txHash}`}
@@ -210,14 +210,14 @@ export function NaruFeedDock() {
               {!open && latest ? (
                 <span className="flex min-w-0 items-center gap-2 text-[12px] text-ink-3">
                   <span
-                    className={`shrink-0 rounded px-1.5 py-[1.5px] text-[10px] font-semibold ${TAG[latest.type].className}`}
+                    className={`shrink-0 rounded px-1.5 py-[1.5px] text-[11px] font-semibold ${TAG[latest.type].className}`}
                   >
                     {TAG[latest.type].label(latest.side)}
                   </span>
                   <span className="truncate">
                     {previewText(latest, ethKrw)}
                   </span>
-                  <span className="shrink-0 font-mono text-[10.5px]">
+                  <span className="shrink-0 font-mono text-[11.5px]">
                     {relativeTime(latest.timestamp)}
                   </span>
                 </span>
@@ -225,7 +225,7 @@ export function NaruFeedDock() {
               {items.length > 0 ? (
                 <span
                   aria-hidden
-                  className="ml-auto shrink-0 text-[10px] text-ink-3"
+                  className="ml-auto shrink-0 text-[11px] text-ink-3"
                 >
                   {open ? "▼ 접기" : "▲ 펼치기"}
                 </span>

@@ -19,7 +19,7 @@ export async function generateMetadata({
   const { address } = await params;
   const asset = await getLiveAsset(address);
   return {
-    title: asset ? `${asset.symbol} ${asset.nameKo} — 나루` : "자산 — 나루",
+    title: asset ? `${asset.symbol} ${asset.nameKo} · 나루` : "자산 · 나루",
   };
 }
 
