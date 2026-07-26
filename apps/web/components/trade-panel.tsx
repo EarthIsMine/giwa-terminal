@@ -147,6 +147,12 @@ export function TradePanel({
           : 0n
         : balance;
 
+  /**
+   * 영수증 대기 — status 까지 확인한다.
+   * revert 된 트랜잭션도 블록에 포함되어 영수증이 생기므로(EIP-658, status 0x0),
+   * 존재 여부만 보면 실패한 거래를 "체결 완료"로 표시하게 된다.
+   * status 를 못 읽는 응답은 성공으로 단정하지 않고 실패로 본다.
+   */
   async function waitReceipt(hash: string): Promise<void> {
     if (!provider) return;
     for (let i = 0; i < 60; i++) {
@@ -154,7 +160,19 @@ export function TradePanel({
         method: "eth_getTransactionReceipt",
         params: [hash],
       });
-      if (receipt !== null && receipt !== undefined) return;
+      if (receipt !== null && receipt !== undefined) {
+        const status =
+          typeof receipt === "object" && "status" in receipt
+            ? (receipt as { status: unknown }).status
+            : null;
+        if (
+          (typeof status === "string" || typeof status === "number") &&
+          BigInt(status) === 1n
+        ) {
+          return;
+        }
+        throw new Error("트랜잭션이 되돌려졌습니다");
+      }
       await new Promise((r) => setTimeout(r, 1000));
     }
     throw new Error("확인 시간 초과");
@@ -246,7 +264,16 @@ export function TradePanel({
     } catch (e) {
       const code =
         typeof e === "object" && e !== null && "code" in e ? (e as { code: unknown }).code : null;
-      setError(code === 4001 ? "요청이 거절되었습니다" : "거래에 실패했습니다. 다시 시도해 주세요");
+      const reverted = e instanceof Error && e.message.includes("되돌려");
+      if (code === 4001) {
+        setError("요청이 거절되었습니다");
+      } else if (reverted) {
+        // 되돌림의 주 원인은 체결 오차 초과다 — 시세가 움직인 뒤 재시도하도록 안내한다
+        setError("시세가 움직여 거래가 되돌려졌습니다. 금액을 확인하고 다시 시도해 주세요");
+        router.refresh(); // 최신 준비금으로 견적을 다시 잡는다
+      } else {
+        setError("거래에 실패했습니다. 다시 시도해 주세요");
+      }
     } finally {
       setPhase("idle");
     }

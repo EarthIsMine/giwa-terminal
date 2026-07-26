@@ -415,7 +415,9 @@ export function AssetDetailLive({
               </p>
               <span className="text-[11.5px] text-ink-3">
                 {graph && graph.nodes.length > 0
-                  ? `상위 ${graph.nodes.length}개 지갑 · 서로 자금을 주고받은 지갑이 선으로 이어집니다`
+                  ? graph.links.length > 0
+                    ? `상위 ${graph.nodes.length}개 지갑 · 서로 자금을 주고받은 지갑이 선으로 이어집니다`
+                    : `상위 ${graph.nodes.length}개 지갑 · 지갑끼리 직접 주고받은 기록이 없습니다`
                   : "전송 원장 기반"}
               </span>
             </div>

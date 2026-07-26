@@ -119,6 +119,8 @@ export function HolderGraph({ graph }: { graph: HolderGraphWire }) {
     );
   }
 
+  const hasLinks = layout.links.length > 0;
+
   return (
     <div>
       <svg
@@ -160,20 +162,28 @@ export function HolderGraph({ graph }: { graph: HolderGraphWire }) {
           </g>
         ))}
       </svg>
+      {/* 범례는 실제로 그려진 것만 설명한다 — 연결이 없는데 클러스터 색을 안내하면
+          "왜 저 색이 없지"를 유발한다 */}
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-ink-3">
         <span className="flex items-center gap-1.5">
           <i className="size-2 rounded-full" style={{ background: "rgba(246,70,93,.65)" }} />
           발행자·연계 지갑
         </span>
-        <span className="flex items-center gap-1.5">
-          <i className="size-2 rounded-full" style={{ background: "rgba(179,166,144,.75)" }} />
-          연결 클러스터
-        </span>
+        {hasLinks ? (
+          <span className="flex items-center gap-1.5">
+            <i className="size-2 rounded-full" style={{ background: "rgba(179,166,144,.75)" }} />
+            연결 클러스터
+          </span>
+        ) : null}
         <span className="flex items-center gap-1.5">
           <i className="size-2 rounded-full" style={{ background: "rgba(141,128,104,.45)" }} />
           단독(연결 없음)
         </span>
-        <span>선 = 두 지갑 간 직접 전송 이력 · 크기 = 보유 비중</span>
+        <span>
+          {hasLinks
+            ? "선 = 두 지갑 간 직접 전송 이력 · 크기 = 보유 비중"
+            : "크기 = 보유 비중 · 라우터·페어를 거친 매매는 지갑 간 연결로 치지 않습니다"}
+        </span>
       </div>
     </div>
   );

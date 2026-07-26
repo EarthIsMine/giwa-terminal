@@ -114,21 +114,26 @@ function TickerStrip({
   );
 }
 
+/** 색은 라벨과 같이 side 로 갈린다 — 매도를 상승색으로 칠하면 색만 보는 사람이 반대로 읽는다 */
 const TAG: Record<
   FeedItemWire["type"],
-  { label: (side?: "buy" | "sell") => string; className: string }
+  {
+    label: (side?: "buy" | "sell") => string;
+    className: (side?: "buy" | "sell") => string;
+  }
 > = {
   listed: {
     label: () => "신규 상장",
-    className: "bg-accent/15 text-accent",
+    className: () => "bg-accent/15 text-accent",
   },
   issuer_sell: {
     label: () => "발행자 매도",
-    className: "bg-down/15 text-down",
+    className: () => "bg-down/15 text-down",
   },
   large_trade: {
     label: (side) => (side === "buy" ? "대형 매수" : "대형 매도"),
-    className: "bg-up/15 text-up",
+    className: (side) =>
+      side === "buy" ? "bg-up/15 text-up" : "bg-down/15 text-down",
   },
 };
 
@@ -319,7 +324,7 @@ export function NaruFeedDock() {
               >
                 <div className="flex items-center gap-2">
                   <span
-                    className={`shrink-0 rounded px-1.5 py-[2px] text-[11px] font-semibold ${TAG[item.type].className}`}
+                    className={`shrink-0 rounded px-1.5 py-[2px] text-[11px] font-semibold ${TAG[item.type].className(item.side)}`}
                   >
                     {TAG[item.type].label(item.side)}
                   </span>
@@ -374,7 +379,7 @@ export function NaruFeedDock() {
               {!open && latest ? (
                 <span className="flex min-w-0 items-center gap-2 text-[12px] text-ink-3">
                   <span
-                    className={`shrink-0 rounded px-1.5 py-[1.5px] text-[11px] font-semibold ${TAG[latest.type].className}`}
+                    className={`shrink-0 rounded px-1.5 py-[1.5px] text-[11px] font-semibold ${TAG[latest.type].className(latest.side)}`}
                   >
                     {TAG[latest.type].label(latest.side)}
                   </span>

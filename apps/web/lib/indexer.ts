@@ -110,13 +110,11 @@ export interface WindowStatWire {
   changeBps: number;
   volumeWeth: string;
   trades: number;
-  /** distinct tx.origin (전체 윈도우는 30일 조회분 기준 근사) */
+  /** distinct tx.origin — 매수·매도·유동성 공급/회수 전부 포함 */
   traders: number;
 }
 
 export interface BoardPairWire {
-  /** 스파크라인용 종가 추이 (최근 14일봉, wei 문자열) */
-  trend: string[];
   windows: Partial<Record<BoardWindow, WindowStatWire>>;
 }
 

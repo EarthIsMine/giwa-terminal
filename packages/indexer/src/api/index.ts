@@ -121,14 +121,15 @@ app.get("/board", async (c) => {
       .orderBy(asc(schema.candles.bucket)),
     // 거래 수·참여 인원은 활동 원장에서 센다 — 매수·매도뿐 아니라
     // 유동성 공급·회수까지 포함해야 "이 자산에 몇 명이 무엇을 했나"가 맞는다.
+    // 시간 필터를 걸지 않는다: 30일로 자르면 "전체" 윈도우의 거래 수·참여 인원만
+    // 30일에 묶여 거래대금·변동률(전 기간)과 산술적으로 모순된 행이 나온다.
     db
       .select({
         pair: schema.activities.pair,
         origin: schema.activities.origin,
         timestamp: schema.activities.timestamp,
       })
-      .from(schema.activities)
-      .where(gte(schema.activities.timestamp, WINDOWS["30d"])),
+      .from(schema.activities),
   ]);
 
   const byPair = new Map<string, typeof rows>();
@@ -151,10 +152,7 @@ app.get("/board", async (c) => {
     trades: number;
     traders: number;
   }
-  const out: Record<
-    string,
-    { trend: string[]; windows: Record<string, WindowStat> }
-  > = {};
+  const out: Record<string, { windows: Record<string, WindowStat> }> = {};
 
   for (const [pair, candles] of byPair) {
     const latest = candles[candles.length - 1];
@@ -180,18 +178,14 @@ app.get("/board", async (c) => {
           .reduce((acc, r) => acc + r.volumeWeth, 0n)
           .toString(),
         // 거래 수·참여 인원은 매수·매도·유동성 공급·회수 전부.
-        // all 윈도우는 30일 조회분이라 그 이전 활동은 빠진다 (근사)
+        // 활동 원장을 전 기간 읽으므로 all 윈도우도 정확하다 (근사 아님)
         trades: actCount,
         traders: origins.size,
       };
     }
     if (Object.keys(windows).length === 0) continue;
 
-    out[pair] = {
-      // 스파크라인용 종가 추이 — 최근 14일봉
-      trend: candles.slice(-14).map((r) => r.close.toString()),
-      windows,
-    };
+    out[pair] = { windows };
   }
 
   return c.json({ pairs: out });
@@ -259,29 +253,33 @@ app.get("/feed", async (c) => {
   const limit = clampLimit(c.req.query("limit"), 12, 50);
   const since = Math.floor(Date.now() / 1_000) - 86_400;
 
-  const [listings, recentTrades] = await Promise.all([
+  const tradeColumns = {
+    id: schema.trades.id,
+    side: schema.trades.side,
+    wethAmount: schema.trades.wethAmount,
+    origin: schema.trades.origin,
+    txHash: schema.trades.txHash,
+    timestamp: schema.trades.timestamp,
+    token: schema.trades.token,
+    wethReserve: schema.pairs.wethReserve,
+    symbol: schema.tokens.symbol,
+    issuer: schema.tokens.issuer,
+  };
+  const joinedTrades = () =>
+    db
+      .select(tradeColumns)
+      .from(schema.trades)
+      .innerJoin(schema.pairs, eq(schema.trades.pair, schema.pairs.address))
+      .innerJoin(schema.tokens, eq(schema.trades.token, schema.tokens.address));
+
+  const [listings, recentTrades, issuerSells] = await Promise.all([
     db
       .select()
       .from(schema.tokens)
       .where(gte(schema.tokens.listedAt, 0))
       .orderBy(desc(schema.tokens.listedAt))
       .limit(10),
-    db
-      .select({
-        id: schema.trades.id,
-        side: schema.trades.side,
-        wethAmount: schema.trades.wethAmount,
-        origin: schema.trades.origin,
-        txHash: schema.trades.txHash,
-        timestamp: schema.trades.timestamp,
-        token: schema.trades.token,
-        wethReserve: schema.pairs.wethReserve,
-        symbol: schema.tokens.symbol,
-        issuer: schema.tokens.issuer,
-      })
-      .from(schema.trades)
-      .innerJoin(schema.pairs, eq(schema.trades.pair, schema.pairs.address))
-      .innerJoin(schema.tokens, eq(schema.trades.token, schema.tokens.address))
+    joinedTrades()
       .where(gte(schema.trades.timestamp, since))
       .orderBy(
         desc(schema.trades.timestamp),
@@ -289,6 +287,17 @@ app.get("/feed", async (c) => {
         desc(schema.trades.logIndex),
       )
       .limit(400),
+    // 발행자 매도는 별도 전수 조회 — 대형 체결 400건 컷 안에 들었는지에 기대면
+    // 거래가 활발할 때 조용히 누락된다. "금액 무관 무조건 노출"이 규칙이다.
+    joinedTrades()
+      .where(
+        and(
+          gte(schema.trades.timestamp, since),
+          eq(schema.trades.side, "sell"),
+          eq(schema.trades.origin, schema.tokens.issuer),
+        ),
+      )
+      .orderBy(desc(schema.trades.timestamp)),
   ]);
 
   interface FeedItem {
@@ -312,30 +321,42 @@ app.get("/feed", async (c) => {
     timestamp: t.listedAt ?? t.issuedAt,
   }));
 
-  for (const r of recentTrades) {
-    const isIssuerSell =
-      r.side === "sell" && r.origin.toLowerCase() === r.issuer.toLowerCase();
-    // 대형 판정: 풀 WETH 준비금의 3% 이상 (거래 시점이 아닌 현재 준비금 — v0 근사)
-    const threshold = (r.wethReserve * 3n) / 100n;
-    const isLarge = threshold > 0n && r.wethAmount >= threshold;
-    if (!isIssuerSell && !isLarge) continue;
-    items.push({
-      id: r.id,
-      type: isIssuerSell ? "issuer_sell" : "large_trade",
-      token: r.token,
-      symbol: r.symbol,
-      timestamp: r.timestamp,
-      side: r.side,
-      wethAmount: r.wethAmount.toString(),
-      poolPermille:
-        r.wethReserve > 0n
-          ? Number((r.wethAmount * 1_000n) / r.wethReserve)
-          : undefined,
-      txHash: r.txHash,
-    });
+  const toItem = (
+    r: (typeof recentTrades)[number],
+    type: "issuer_sell" | "large_trade",
+  ): FeedItem => ({
+    id: r.id,
+    type,
+    token: r.token,
+    symbol: r.symbol,
+    timestamp: r.timestamp,
+    side: r.side,
+    wethAmount: r.wethAmount.toString(),
+    poolPermille:
+      r.wethReserve > 0n
+        ? Number((r.wethAmount * 1_000n) / r.wethReserve)
+        : undefined,
+    txHash: r.txHash,
+  });
+
+  const issuerSellIds = new Set<string>();
+  for (const r of issuerSells) {
+    issuerSellIds.add(r.id);
+    items.push(toItem(r, "issuer_sell"));
   }
 
-  items.sort((a, b) => b.timestamp - a.timestamp);
+  for (const r of recentTrades) {
+    if (issuerSellIds.has(r.id)) continue; // 위에서 이미 담았다
+    // 대형 판정: 풀 WETH 준비금의 3% 이상 (거래 시점이 아닌 현재 준비금 — v0 근사)
+    const threshold = (r.wethReserve * 3n) / 100n;
+    if (threshold === 0n || r.wethAmount < threshold) continue;
+    items.push(toItem(r, "large_trade"));
+  }
+
+  // 발행자 매도는 시각과 무관하게 먼저 배치한다 — 대형 체결에 밀려 잘리면
+  // "금액 무관 무조건 노출"이 성립하지 않는다.
+  const rank = (t: FeedItem["type"]) => (t === "issuer_sell" ? 0 : 1);
+  items.sort((a, b) => rank(a.type) - rank(b.type) || b.timestamp - a.timestamp);
   return c.json({ items: items.slice(0, limit) });
 });
 

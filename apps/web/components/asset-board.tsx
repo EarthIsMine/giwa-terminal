@@ -59,12 +59,27 @@ interface LiveAsset {
   ageDays: number;
 }
 
+/**
+ * 윈도우 라벨 — "24h"는 rolling 24시간이 아니라 UTC 당일(09:00 KST 경계)이다.
+ * 업비트 일봉과 같은 경계를 쓰기로 한 결정이라(CLAUDE.md 지표 정의) 계산은 그대로 두고
+ * 이름을 "오늘"로 맞춘다. "24시간"이라 부르면 KST 오전에 창이 몇 분짜리가 된다.
+ */
 const WINDOW_LABEL: Record<BoardWindow, string> = {
-  "24h": "24시간",
+  "24h": "오늘",
   "7d": "7일",
   "30d": "30일",
   all: "전체",
 };
+
+/**
+ * 데이터 없는 값은 정렬에서 항상 맨 아래로 보낸다.
+ * `?? 0`(또는 `-1`)로 채우면 "데이터 없음"이 보합·0건으로 취급돼 하락 자산보다
+ * 위에 랭크된다 — 셀은 "—"로 그리는데 순서만 0%처럼 도는 모순이다(절대 규칙 1).
+ * TanStack 은 `sortUndefined: "last"` 를 desc 반전보다 먼저 처리하므로
+ * (table-core RowSorting: undefined 분기에서 즉시 return) 방향과 무관하게 아래로 간다.
+ * 조건은 accessorFn 이 null 이 아니라 undefined 를 내보내는 것.
+ */
+const NO_DATA_SORT = { sortUndefined: "last" } as const;
 
 function cmpBigint(a: bigint, b: bigint): number {
   return a < b ? -1 : a > b ? 1 : 0;
@@ -148,7 +163,8 @@ export function AssetBoard({
   const [sorting, setSorting] = useState<SortingState>([
     { id: "liquidity", desc: true },
   ]);
-  const [window_, setWindow] = useState<BoardWindow>("24h");
+  // 기본은 7일 — "오늘"은 UTC 자정(09:00 KST) 경계라 한국 오전에 열면 창이 몇 분짜리다
+  const [window_, setWindow] = useState<BoardWindow>("7d");
 
   const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
 
@@ -232,9 +248,10 @@ export function AssetBoard({
       },
       {
         id: "change",
-        accessorFn: (a) => a.changeBps,
+        accessorFn: (a) => a.changeBps ?? undefined,
         header: WINDOW_LABEL[window_],
         sortDescFirst: true,
+        ...NO_DATA_SORT,
         sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
           (a.original.changeBps ?? 0) - (b.original.changeBps ?? 0),
         cell: ({ row }) => {
@@ -271,9 +288,10 @@ export function AssetBoard({
       },
       {
         id: "volume",
-        accessorFn: (a) => a.volumeWei,
+        accessorFn: (a) => a.volumeWei ?? undefined,
         header: "거래대금",
         sortDescFirst: true,
+        ...NO_DATA_SORT,
         sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
           cmpBigint(
             a.original.volumeWei ?? wei(0n),
@@ -296,10 +314,11 @@ export function AssetBoard({
       },
       {
         id: "trades",
-        accessorFn: (a) => a.trades ?? -1,
+        accessorFn: (a) => a.trades ?? undefined,
         // 매수·매도에 유동성 공급/회수까지 포함하므로 "체결"이 아니라 "거래"다
         header: "거래",
         sortDescFirst: true,
+        ...NO_DATA_SORT,
         cell: ({ row }) => (
           <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
             {row.original.trades === null ? (
@@ -312,9 +331,10 @@ export function AssetBoard({
       },
       {
         id: "traders",
-        accessorFn: (a) => a.traders ?? -1,
+        accessorFn: (a) => a.traders ?? undefined,
         header: "참여 인원",
         sortDescFirst: true,
+        ...NO_DATA_SORT,
         cell: ({ row }) => (
           <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
             {row.original.traders === null ? (
@@ -409,7 +429,7 @@ export function AssetBoard({
                   : "text-ink-3 hover:text-ink-2"
               }`}
             >
-              {w === "all" ? "전체" : w}
+              {WINDOW_LABEL[w]}
             </button>
           ))}
         </div>
