@@ -102,6 +102,28 @@ export async function getFeed(): Promise<FeedItemWire[] | null> {
   return res?.items ?? null;
 }
 
+/** 보드 기간 윈도우 — 일 단위만 연다 (절대 규칙 3) */
+export const BOARD_WINDOWS = ["24h", "7d", "30d", "all"] as const;
+export type BoardWindow = (typeof BOARD_WINDOWS)[number];
+
+export interface WindowStatWire {
+  changeBps: number;
+  volumeWeth: string;
+  trades: number;
+}
+
+/** 페어 주소(소문자) → 윈도우별 통계. 데이터 없는 페어·윈도우는 키 자체가 없다 */
+export type BoardStatsWire = Record<
+  string,
+  Partial<Record<BoardWindow, WindowStatWire>>
+>;
+
+/** 보드 기간별 변동률·거래량 — 인덱서 미연결이면 null (보드는 지표 열을 감춘다) */
+export async function getBoardStats(): Promise<BoardStatsWire | null> {
+  const res = await fetchJson<{ pairs: BoardStatsWire }>("/board");
+  return res?.pairs ?? null;
+}
+
 /** 홀더 관계도 — 인덱서 미연결·미인덱싱이면 null (자리표시 폴백) */
 export async function getHolderGraph(
   token: `0x${string}`,

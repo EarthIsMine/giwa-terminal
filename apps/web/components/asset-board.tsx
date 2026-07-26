@@ -12,6 +12,7 @@ import {
 import type { ColumnDef, Row, SortingState } from "@tanstack/react-table";
 import { explorerAddressUrl } from "@giwa/config";
 import {
+  formatChangeBps,
   formatCount,
   formatEth,
   formatKrw,
@@ -21,6 +22,8 @@ import {
   weiToDisplayKrw,
 } from "@giwa/shared";
 import type { AssetVerification, WeiAmount } from "@giwa/shared";
+import { BOARD_WINDOWS } from "@/lib/indexer";
+import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
 import { AssetAvatar } from "./asset-avatar";
 import { CopyAddress } from "./copy-address";
@@ -42,7 +45,16 @@ interface LiveAsset {
   priceWei: WeiAmount;
   liquidityWei: WeiAmount;
   verification: AssetVerification;
+  /** 선택 윈도우의 변동률 (bps). 데이터 없으면 null — 0%로 채우지 않는다 */
+  changeBps: number | null;
 }
+
+const WINDOW_LABEL: Record<BoardWindow, string> = {
+  "24h": "24시간",
+  "7d": "7일",
+  "30d": "30일",
+  all: "전체",
+};
 
 function cmpBigint(a: bigint, b: bigint): number {
   return a < b ? -1 : a > b ? 1 : 0;
@@ -86,12 +98,13 @@ function AssetCell({ asset }: { asset: LiveAsset }) {
   );
 }
 
-const RIGHT_ALIGNED = new Set(["price", "liquidity", "onchain"]);
+const RIGHT_ALIGNED = new Set(["price", "change", "liquidity", "onchain"]);
 
 /** 컬럼별 고정 폭 — 나머지는 자산 컬럼이 흡수한다 */
 const COL_WIDTH: Record<string, string> = {
   issuer: "w-[200px]",
   price: "w-[220px]",
+  change: "w-[120px]",
   liquidity: "w-[180px]",
   onchain: "w-[170px]",
 };
@@ -99,15 +112,18 @@ const COL_WIDTH: Record<string, string> = {
 export function AssetBoard({
   assets,
   ethKrw: ethKrwRaw,
+  boardStats,
 }: {
   assets: LiveAssetWire[];
   ethKrw: string | null;
+  boardStats: BoardStatsWire | null;
 }) {
   const router = useRouter();
   const { query } = useSearch();
   const [sorting, setSorting] = useState<SortingState>([
     { id: "liquidity", desc: true },
   ]);
+  const [window_, setWindow] = useState<BoardWindow>("24h");
 
   const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
 
@@ -121,6 +137,8 @@ export function AssetBoard({
       priceWei: wei(BigInt(a.priceWei)),
       liquidityWei: wei(BigInt(a.liquidityWei)),
       verification: a.verification,
+      changeBps:
+        boardStats?.[a.pair.toLowerCase()]?.[window_]?.changeBps ?? null,
     }));
     const q = query.trim().toLowerCase();
     if (q === "") return parsed;
@@ -130,7 +148,7 @@ export function AssetBoard({
         a.nameKo.includes(q) ||
         a.address.toLowerCase().includes(q),
     );
-  }, [assets, query]);
+  }, [assets, query, boardStats, window_]);
 
   const columns = useMemo<ColumnDef<LiveAsset>[]>(
     () => [
@@ -176,6 +194,28 @@ export function AssetBoard({
           ),
       },
       {
+        id: "change",
+        accessorFn: (a) => a.changeBps,
+        header: WINDOW_LABEL[window_],
+        sortDescFirst: true,
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
+          (a.original.changeBps ?? 0) - (b.original.changeBps ?? 0),
+        cell: ({ row }) => {
+          const bps = row.original.changeBps;
+          // 데이터 없음과 0.00%는 다르다 — 없으면 자리표시로 둔다
+          if (bps === null) {
+            return <span className="font-mono text-[12px] text-ink-3">—</span>;
+          }
+          return (
+            <span
+              className={`font-mono text-[13px] font-medium tabular-nums ${bps >= 0 ? "text-up" : "text-down"}`}
+            >
+              {formatChangeBps(bps)}
+            </span>
+          );
+        },
+      },
+      {
         id: "liquidity",
         accessorFn: (a) => a.liquidityWei,
         header: "예치 규모",
@@ -212,7 +252,7 @@ export function AssetBoard({
         ),
       },
     ],
-    [ethKrw],
+    [ethKrw, window_],
   );
 
   const table = useReactTable({
@@ -228,12 +268,29 @@ export function AssetBoard({
 
   return (
     <div>
-      {/* 툴바 — 온체인 실시간 상태 + 새로고침 (기간 토글은 인덱서 연결 시 복원) */}
+      {/* 툴바 — 기간 토글 + 새로고침. 기간은 일 단위만 연다 (절대 규칙 3) */}
       <div className="flex flex-wrap items-center justify-end gap-2.5 px-8">
-        <span className="flex h-8 items-center gap-2 rounded-lg border border-hairline bg-panel px-2.5 text-[12px] text-ink-2">
-          <span aria-hidden className="size-1.5 rounded-full bg-good animate-pulse-dot" />
-          온체인 실시간
-        </span>
+        <div
+          role="group"
+          aria-label="변동률 기간"
+          className="flex h-8 items-center gap-0.5 rounded-lg border border-hairline bg-panel p-0.5"
+        >
+          {BOARD_WINDOWS.map((w) => (
+            <button
+              key={w}
+              type="button"
+              aria-pressed={window_ === w}
+              onClick={() => setWindow(w)}
+              className={`h-full rounded-md px-2.5 text-[12px] transition-colors ${
+                window_ === w
+                  ? "bg-accent/15 font-medium text-ink"
+                  : "text-ink-3 hover:text-ink-2"
+              }`}
+            >
+              {w === "all" ? "전체" : w}
+            </button>
+          ))}
+        </div>
 
         <button
           type="button"
@@ -339,7 +396,7 @@ export function AssetBoard({
               {rows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="py-14 text-center text-[13.5px] text-ink-3"
                   >
                     {query.trim() === ""

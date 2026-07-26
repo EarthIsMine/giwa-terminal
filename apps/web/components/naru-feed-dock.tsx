@@ -295,7 +295,8 @@ export function NaruFeedDock() {
       <div className="fixed inset-x-0 bottom-0 z-30">
         {/* 하단 바 — 좌측은 소식 토글, 우측은 온보딩 가이드 상주 링크 */}
         <div className="border-t border-hairline bg-base/90 backdrop-blur-md">
-          <div className="mx-auto flex h-10 w-full max-w-[1840px] items-center gap-3 px-8">
+          {/* 바는 뷰포트 전폭을 쓴다 — 우측 끝까지 시세를 붙이고 도움말은 딱 맞게 */}
+          <div className="flex h-10 w-full items-center gap-3 pl-8 pr-3">
             <button
               type="button"
               aria-expanded={open}
@@ -342,17 +343,15 @@ export function NaruFeedDock() {
             <TickerStrip tickers={tickers} />
 
             {/* 온보딩 가이드 — 물음표 아이콘 하나로 (문구 없이 직관적으로) */}
-            <div className="flex shrink-0 items-center border-l border-hairline pl-3">
-              <button
-                type="button"
-                onClick={() => setGuideOpen(true)}
-                aria-label="온보딩 가이드 열기"
-                title="처음이신가요? 온보딩 가이드"
-                className="grid size-6 place-items-center rounded-full border border-ink-3/50 text-[11px] font-semibold text-ink-3 transition-colors hover:border-accent hover:text-accent"
-              >
-                ?
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setGuideOpen(true)}
+              aria-label="온보딩 가이드 열기"
+              title="처음이신가요? 온보딩 가이드"
+              className="grid size-6 shrink-0 place-items-center rounded-full border border-ink-3/50 text-[11px] font-semibold leading-none text-ink-3 transition-colors hover:border-accent hover:text-accent"
+            >
+              ?
+            </button>
           </div>
         </div>
 

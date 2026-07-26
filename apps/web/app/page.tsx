@@ -3,6 +3,7 @@ import { AssetBoard } from "@/components/asset-board";
 import { Hero } from "@/components/hero";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { getBoardStats } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
 import { getLiveAssets } from "@/lib/onchain";
 
@@ -10,7 +11,11 @@ import { getLiveAssets } from "@/lib/onchain";
 export const revalidate = 15;
 
 export default async function Home() {
-  const [assets, ethKrw] = await Promise.all([getLiveAssets(), getEthKrw()]);
+  const [assets, ethKrw, boardStats] = await Promise.all([
+    getLiveAssets(),
+    getEthKrw(),
+    getBoardStats(),
+  ]);
 
   // 총 예치 규모 = 전 자산 유동성 합 (풀 WETH 잔고 × 2의 합)
   const totalLiquidity = wei(
@@ -32,7 +37,11 @@ export default async function Home() {
         />
         {/* 보드는 컨테이너 없이 뷰포트 전폭으로 펼친다 — 내부에서 여백을 관리한다 */}
         <section className="w-full pt-8">
-          <AssetBoard assets={assets} ethKrw={ethKrw?.toString() ?? null} />
+          <AssetBoard
+            assets={assets}
+            ethKrw={ethKrw?.toString() ?? null}
+            boardStats={boardStats}
+          />
         </section>
       </main>
       <SiteFooter />

@@ -93,6 +93,71 @@ app.get("/trades/:pair", async (c) => {
 });
 
 /**
+ * 보드 일괄 요약 — 전 페어의 기간별 변동률·거래량을 한 번에 준다.
+ * 윈도우는 일 단위(24h/7d/30d/전체)로만 연다 — 5분·1시간 변동률은 만들지 않는다
+ * (절대 규칙 3: 정보 밀도를 낮춘다).
+ *
+ * 산식: 윈도우 시작 이후 첫 1d 캔들의 open 대비 최신 캔들의 close.
+ * 데이터가 없는 페어는 응답에서 빠진다 — 0.00%로 채우지 않는다.
+ *
+ * 구현 메모: 1d 캔들 전량을 읽어 메모리에서 집계한다. 자산이 수십 종 이내이고
+ * 일봉이라 행 수가 작다는 전제이며, 규모가 커지면 SQL 윈도우 집계로 옮긴다.
+ */
+app.get("/board", async (c) => {
+  const rows = await db
+    .select()
+    .from(schema.candles)
+    .where(eq(schema.candles.interval, "1d"))
+    .orderBy(asc(schema.candles.bucket));
+
+  const now = Math.floor(Date.now() / 1_000);
+  const dayStart = now - (now % 86_400);
+  const WINDOWS = {
+    "24h": dayStart,
+    "7d": dayStart - 6 * 86_400,
+    "30d": dayStart - 29 * 86_400,
+    all: 0,
+  } as const;
+
+  const byPair = new Map<string, typeof rows>();
+  for (const r of rows) {
+    const list = byPair.get(r.pair);
+    if (list) list.push(r);
+    else byPair.set(r.pair, [r]);
+  }
+
+  const out: Record<
+    string,
+    Record<string, { changeBps: number; volumeWeth: string; trades: number }>
+  > = {};
+
+  for (const [pair, candles] of byPair) {
+    const latest = candles[candles.length - 1];
+    if (!latest) continue;
+    const stats: Record<
+      string,
+      { changeBps: number; volumeWeth: string; trades: number }
+    > = {};
+
+    for (const [key, from] of Object.entries(WINDOWS)) {
+      const inWindow = candles.filter((r) => r.bucket >= from);
+      const first = inWindow[0];
+      if (!first || first.open === 0n) continue;
+      stats[key] = {
+        changeBps: Number(((latest.close - first.open) * 10_000n) / first.open),
+        volumeWeth: inWindow
+          .reduce((acc, r) => acc + r.volumeWeth, 0n)
+          .toString(),
+        trades: inWindow.reduce((acc, r) => acc + r.trades, 0),
+      };
+    }
+    if (Object.keys(stats).length > 0) out[pair] = stats;
+  }
+
+  return c.json({ pairs: out });
+});
+
+/**
  * 일 단위 요약 — 보드/상세 공용.
  * 변동률 = 당일(UTC) 1d 캔들 open 대비 close (bps), 거래량 = 당일 캔들 volume,
  * 거래자 수 = 당일 distinct tx.origin (지표 정의 §거래자 수).
