@@ -28,7 +28,6 @@ import type { LiveAssetWire } from "@/lib/onchain";
 import { AssetAvatar } from "./asset-avatar";
 import { CopyAddress } from "./copy-address";
 import { useSearch } from "./search-context";
-import { Sparkline } from "./sparkline";
 import { VerifiedBadge } from "./verified-badge";
 
 /**
@@ -58,8 +57,6 @@ interface LiveAsset {
   traders: number | null;
   /** 상장 후 경과 일수 */
   ageDays: number;
-  /** 스파크라인 포인트 (표시용 상대값) */
-  trend: number[];
 }
 
 const WINDOW_LABEL: Record<BoardWindow, string> = {
@@ -125,7 +122,6 @@ const RIGHT_ALIGNED = new Set([
 
 /** 컬럼별 고정 폭 — 나머지는 자산 컬럼이 흡수한다 */
 const COL_WIDTH: Record<string, string> = {
-  trend: "w-[130px]",
   issuer: "w-[150px]",
   price: "w-[170px]",
   change: "w-[110px]",
@@ -179,8 +175,6 @@ export function AssetBoard({
         trades: w?.trades ?? null,
         traders: w?.traders ?? null,
         ageDays: Math.max(0, Math.floor((nowSec - a.issuedAt) / 86_400)),
-        // 스파크라인은 상대 모양만 쓰므로 표시용 float 변환이 안전하다
-        trend: (entry?.trend ?? []).map((v) => Number(BigInt(v) / 10n ** 6n)),
       };
     });
     const q = query.trim().toLowerCase();
@@ -200,22 +194,6 @@ export function AssetBoard({
         header: "자산",
         enableSorting: false,
         cell: ({ row }) => <AssetCell asset={row.original} />,
-      },
-      {
-        id: "trend",
-        header: "추이",
-        enableSorting: false,
-        cell: ({ row }) =>
-          row.original.trend.length >= 2 ? (
-            <Sparkline
-              points={row.original.trend}
-              changeBps={row.original.changeBps ?? 0}
-              label={`${row.original.symbol} 가격 추이`}
-              height={26}
-            />
-          ) : (
-            <span className="font-mono text-[12px] text-ink-3">—</span>
-          ),
       },
       {
         id: "issuer",
@@ -472,7 +450,7 @@ export function AssetBoard({
           영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */}
       <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1560px] border-collapse text-left">
+          <table className="w-full min-w-[1440px] border-collapse text-left">
             <caption className="sr-only">
               기와체인 검증 자산 목록. 온체인 실데이터: 현재가, 예치 규모,
               발행자
@@ -539,7 +517,7 @@ export function AssetBoard({
               {rows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={13}
+                    colSpan={12}
                     className="py-14 text-center text-[13.5px] text-ink-3"
                   >
                     {query.trim() === ""
