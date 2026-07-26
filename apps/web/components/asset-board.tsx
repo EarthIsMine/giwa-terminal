@@ -297,7 +297,8 @@ export function AssetBoard({
       {
         id: "trades",
         accessorFn: (a) => a.trades ?? -1,
-        header: "체결",
+        // 매수·매도에 유동성 공급/회수까지 포함하므로 "체결"이 아니라 "거래"다
+        header: "거래",
         sortDescFirst: true,
         cell: ({ row }) => (
           <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
