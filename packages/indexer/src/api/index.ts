@@ -1,7 +1,8 @@
 import { db } from "ponder:api";
 import schema from "ponder:schema";
 import { Hono } from "hono";
-import { and, asc, countDistinct, desc, eq, gte } from "ponder";
+import { and, asc, countDistinct, desc, eq, gt, gte } from "ponder";
+import { giwaChain } from "@giwa/config";
 
 /**
  * 가격 API — 웹(Next.js 서버)이 서버-투-서버로 소비한다.
@@ -24,13 +25,20 @@ function asHex(v: string): `0x${string}` | null {
     : null;
 }
 
+/** limit 쿼리 방어 — 숫자가 아니거나 음수면 기본값 (NaN 이 쿼리로 새면 500) */
+function clampLimit(raw: string | undefined, def: number, max: number): number {
+  const n = Number(raw ?? def);
+  if (!Number.isFinite(n) || n < 1) return def;
+  return Math.min(Math.floor(n), max);
+}
+
 /** 캔들 — 기본 1d, limit 개를 과거→현재 오름차순으로 */
 app.get("/candles/:pair", async (c) => {
   const pair = asHex(c.req.param("pair"));
   if (!pair) return c.json({ error: "invalid pair address" }, 400);
   const interval = c.req.query("interval") ?? "1d";
   if (!isInterval(interval)) return c.json({ error: "invalid interval" }, 400);
-  const limit = Math.min(Number(c.req.query("limit") ?? "400"), 1_000);
+  const limit = clampLimit(c.req.query("limit"), 400, 1_000);
 
   const rows = await db
     .select()
@@ -58,13 +66,17 @@ app.get("/candles/:pair", async (c) => {
 app.get("/trades/:pair", async (c) => {
   const pair = asHex(c.req.param("pair"));
   if (!pair) return c.json({ error: "invalid pair address" }, 400);
-  const limit = Math.min(Number(c.req.query("limit") ?? "30"), 200);
+  const limit = clampLimit(c.req.query("limit"), 30, 200);
 
   const rows = await db
     .select()
     .from(schema.trades)
     .where(eq(schema.trades.pair, pair))
-    .orderBy(desc(schema.trades.timestamp), desc(schema.trades.id))
+    .orderBy(
+      desc(schema.trades.timestamp),
+      desc(schema.trades.block),
+      desc(schema.trades.logIndex),
+    )
     .limit(limit);
 
   return c.json({
@@ -104,6 +116,13 @@ app.get("/stats/:pair", async (c) => {
     )
     .limit(1);
 
+  // 당일 캔들이 없으면(백필 중·인덱서 랙·신규 페어) "데이터 없음"을 그대로 알린다.
+  // 0.00%·거래 0 같은 확정값으로 답하면 실제 무거래와 구분이 안 된다
+  // ("추정치를 확정값처럼 보여주지 않는다" — 절대 규칙 1의 정신).
+  if (!candle || candle.open === 0n) {
+    return c.json({ error: "no data for today" }, 404);
+  }
+
   const [traderRow] = await db
     .select({ traders: countDistinct(schema.trades.origin) })
     .from(schema.trades)
@@ -111,16 +130,218 @@ app.get("/stats/:pair", async (c) => {
       and(eq(schema.trades.pair, pair), gte(schema.trades.timestamp, dayStart)),
     );
 
-  const changeBps =
-    candle && candle.open > 0n
-      ? Number(((candle.close - candle.open) * 10_000n) / candle.open)
-      : 0;
+  const changeBps = Number(
+    ((candle.close - candle.open) * 10_000n) / candle.open,
+  );
 
   return c.json({
     changeBps,
-    volumeWethToday: (candle?.volumeWeth ?? 0n).toString(),
-    tradesToday: candle?.trades ?? 0,
+    volumeWethToday: candle.volumeWeth.toString(),
+    tradesToday: candle.trades,
     tradersToday: traderRow?.traders ?? 0,
+  });
+});
+
+/**
+ * 나루터 소식 피드 v0 (개발 명세서 §2.1) — 최근 24시간에서 세 종류를 판정한다.
+ * 1) 신규 상장: TokenListed (시간 제한 없이 최근 순)
+ * 2) 발행자 매도: 발행자 라벨 지갑(tx.origin == issuer)의 매도 — 금액 무관 무조건 노출
+ * 3) 대형 체결: 체결액 ≥ 풀 유동성(현재 WETH 준비금)의 3% — % 기준이라 데모 규모에서도 판정된다
+ * 판정 단위는 단건(v0). 지갑·클러스터별 24h 누적 전환은 v1(P1) — 명세서 ★항목.
+ * 문구 생성은 웹 몫 — 여기는 사실 데이터만 준다 (해석·경고 표현 금지 원칙).
+ */
+app.get("/feed", async (c) => {
+  const limit = clampLimit(c.req.query("limit"), 12, 50);
+  const since = Math.floor(Date.now() / 1_000) - 86_400;
+
+  const [listings, recentTrades] = await Promise.all([
+    db
+      .select()
+      .from(schema.tokens)
+      .where(gte(schema.tokens.listedAt, 0))
+      .orderBy(desc(schema.tokens.listedAt))
+      .limit(10),
+    db
+      .select({
+        id: schema.trades.id,
+        side: schema.trades.side,
+        wethAmount: schema.trades.wethAmount,
+        origin: schema.trades.origin,
+        txHash: schema.trades.txHash,
+        timestamp: schema.trades.timestamp,
+        token: schema.trades.token,
+        wethReserve: schema.pairs.wethReserve,
+        symbol: schema.tokens.symbol,
+        issuer: schema.tokens.issuer,
+      })
+      .from(schema.trades)
+      .innerJoin(schema.pairs, eq(schema.trades.pair, schema.pairs.address))
+      .innerJoin(schema.tokens, eq(schema.trades.token, schema.tokens.address))
+      .where(gte(schema.trades.timestamp, since))
+      .orderBy(
+        desc(schema.trades.timestamp),
+        desc(schema.trades.block),
+        desc(schema.trades.logIndex),
+      )
+      .limit(400),
+  ]);
+
+  interface FeedItem {
+    id: string;
+    type: "listed" | "issuer_sell" | "large_trade";
+    token: `0x${string}`;
+    symbol: string;
+    timestamp: number;
+    side?: "buy" | "sell";
+    wethAmount?: string;
+    /** 풀 유동성 대비 체결 비율 ‰ (현재 준비금 기준 사후 근사) */
+    poolPermille?: number;
+    txHash?: `0x${string}`;
+  }
+
+  const items: FeedItem[] = listings.map((t) => ({
+    id: `listed-${t.address}`,
+    type: "listed" as const,
+    token: t.address,
+    symbol: t.symbol,
+    timestamp: t.listedAt ?? t.issuedAt,
+  }));
+
+  for (const r of recentTrades) {
+    const isIssuerSell =
+      r.side === "sell" && r.origin.toLowerCase() === r.issuer.toLowerCase();
+    // 대형 판정: 풀 WETH 준비금의 3% 이상 (거래 시점이 아닌 현재 준비금 — v0 근사)
+    const threshold = (r.wethReserve * 3n) / 100n;
+    const isLarge = threshold > 0n && r.wethAmount >= threshold;
+    if (!isIssuerSell && !isLarge) continue;
+    items.push({
+      id: r.id,
+      type: isIssuerSell ? "issuer_sell" : "large_trade",
+      token: r.token,
+      symbol: r.symbol,
+      timestamp: r.timestamp,
+      side: r.side,
+      wethAmount: r.wethAmount.toString(),
+      poolPermille:
+        r.wethReserve > 0n
+          ? Number((r.wethAmount * 1_000n) / r.wethReserve)
+          : undefined,
+      txHash: r.txHash,
+    });
+  }
+
+  items.sort((a, b) => b.timestamp - a.timestamp);
+  return c.json({ items: items.slice(0, limit) });
+});
+
+/**
+ * 홀더 관계도 (버블맵) — 명세서 §2.2 정의 그대로.
+ * 노드 = 잔고 상위 홀더(인프라 제외, 최대 120), 크기 = 보유량.
+ * 에지 = 두 지갑 간 직접 전송 이력 (민트·인프라 경유 제외).
+ * 클러스터 = 연결 성분(union-find) — 그래프를 전체 전송 참여자 위에서 만들고
+ * 홀더로 투영한다 (잔고 0 경유 지갑으로 이어진 간접 연결도 같은 클러스터로 묶인다).
+ * 인프라 주소(페어·팩토리·라우터)는 성분 계산에서 제외 — 안 거르면 라우터/페어를
+ * 경유한 모든 지갑이 한 덩어리로 뭉친다.
+ */
+app.get("/graph/:token", async (c) => {
+  const token = asHex(c.req.param("token"));
+  if (!token) return c.json({ error: "invalid token address" }, 400);
+
+  const meta = await db
+    .select()
+    .from(schema.tokens)
+    .where(eq(schema.tokens.address, token))
+    .limit(1);
+  const tokenRow = meta[0];
+  if (!tokenRow || tokenRow.totalSupply === 0n) {
+    return c.json({ error: "unknown token" }, 404);
+  }
+
+  const infra = new Set<string>(
+    [
+      tokenRow.pair,
+      giwaChain.tokenFactoryAddress,
+      giwaChain.routerAddress,
+      giwaChain.factoryAddress,
+    ]
+      .filter((a): a is `0x${string}` => a !== null && a !== undefined)
+      .map((a) => a.toLowerCase()),
+  );
+
+  const [holderRows, linkRows] = await Promise.all([
+    db
+      .select()
+      .from(schema.holders)
+      .where(and(eq(schema.holders.token, token), gt(schema.holders.balance, 0n)))
+      .orderBy(desc(schema.holders.balance))
+      .limit(200),
+    db
+      .select()
+      .from(schema.transferLinks)
+      .where(eq(schema.transferLinks.token, token)),
+  ]);
+
+  // union-find — 인프라를 제외한 전송 참여자 전체 위에서 성분을 만든다
+  const parent = new Map<string, string>();
+  const find = (x: string): string => {
+    let root = parent.get(x) ?? x;
+    if (root !== x) {
+      root = find(root);
+      parent.set(x, root);
+    }
+    return root;
+  };
+  const union = (a: string, b: string) => {
+    const ra = find(a);
+    const rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  };
+  const usableLinks = linkRows.filter(
+    (l) => !infra.has(l.from) && !infra.has(l.to),
+  );
+  for (const l of usableLinks) union(l.from, l.to);
+
+  const displayed = holderRows.filter((h) => !infra.has(h.address)).slice(0, 120);
+  const displayedSet = new Set(displayed.map((h) => h.address));
+  const issuerRoot = find(tokenRow.issuer.toLowerCase());
+  const permilleOf = (v: bigint) => Number((v * 1_000n) / tokenRow.totalSupply);
+
+  // 표시 대상 홀더 간의 직접 에지만 그린다 (성분 계산은 위에서 전체로 이미 끝났다)
+  const seen = new Set<string>();
+  const links: { source: string; target: string }[] = [];
+  for (const l of usableLinks) {
+    if (!displayedSet.has(l.from) || !displayedSet.has(l.to)) continue;
+    const key = l.from < l.to ? `${l.from}-${l.to}` : `${l.to}-${l.from}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    links.push({ source: l.from, target: l.to });
+  }
+
+  const clusterOf = (addr: string) => find(addr);
+  const clusterSizes = new Map<string, number>();
+  for (const h of displayed) {
+    const root = clusterOf(h.address);
+    clusterSizes.set(root, (clusterSizes.get(root) ?? 0) + 1);
+  }
+
+  return c.json({
+    totalSupply: tokenRow.totalSupply.toString(),
+    issuer: tokenRow.issuer,
+    nodes: displayed.map((h) => {
+      const root = clusterOf(h.address);
+      return {
+        address: h.address,
+        balance: h.balance.toString(),
+        permille: permilleOf(h.balance),
+        isIssuer: h.address === tokenRow.issuer.toLowerCase(),
+        /** 발행자와 같은 성분 = 발행자 연계 (1단계 이상 전송으로 이어짐) */
+        issuerLinked: root === issuerRoot,
+        /** 2인 이상 성분에 속하면 연결 클러스터 */
+        clustered: (clusterSizes.get(root) ?? 1) > 1,
+        clusterId: root,
+      };
+    }),
+    links,
   });
 });
 

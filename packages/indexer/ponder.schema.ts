@@ -8,6 +8,57 @@ import { index, onchainTable, primaryKey } from "ponder";
  * - quote 는 WETH 고정. WETH 가 끼지 않은 페어는 가격 정의가 없어 인덱싱하지 않는다.
  */
 
+/** 발행 게이트 통과 자산 — 발행자 라벨(피드 "발행자 매도" 판정)과 신규 상장 피드의 원천 */
+export const tokens = onchainTable("tokens", (t) => ({
+  /** 토큰 컨트랙트 주소 */
+  address: t.hex().primaryKey(),
+  /** 발행자 지갑 — 심사에서 등록되는 라벨. 이 지갑의 매도는 금액 무관 무조건 피드 노출 */
+  issuer: t.hex().notNull(),
+  name: t.text().notNull(),
+  symbol: t.text().notNull(),
+  identityRef: t.hex().notNull(),
+  totalSupply: t.bigint().notNull(),
+  issuedAt: t.integer().notNull(),
+  /** TokenListed(거래 개시) 시점 — 발행만 되고 미상장이면 null */
+  pair: t.hex(),
+  listedAt: t.integer(),
+}));
+
+/** 홀더 원장 — Transfer 델타 누적. 인프라 주소(페어·팩토리)도 쌓되 표시는 소비자가 거른다 */
+export const holders = onchainTable(
+  "holders",
+  (t) => ({
+    token: t.hex().notNull(),
+    address: t.hex().notNull(),
+    balance: t.bigint().notNull(),
+  }),
+  (table) => ({
+    pk: primaryKey({ columns: [table.token, table.address] }),
+    tokenBalanceIdx: index().on(table.token, table.balance),
+  }),
+);
+
+/**
+ * 전송 그래프 에지 — (token, from, to) 별 직접 전송 누적.
+ * 버블맵 정의(명세서 §2.2): 에지 = 두 지갑 간 직접 전송 이력.
+ * 인프라(페어·팩토리·라우터) 필터는 조회 시점에 한다 — 기록 시점엔 pair 미확정 전송이 있다.
+ */
+export const transferLinks = onchainTable(
+  "transfer_links",
+  (t) => ({
+    token: t.hex().notNull(),
+    from: t.hex().notNull(),
+    to: t.hex().notNull(),
+    count: t.integer().notNull(),
+    totalAmount: t.bigint().notNull(),
+    lastAt: t.integer().notNull(),
+  }),
+  (table) => ({
+    pk: primaryKey({ columns: [table.token, table.from, table.to] }),
+    tokenIdx: index().on(table.token),
+  }),
+);
+
 export const pairs = onchainTable("pairs", (t) => ({
   /** 페어 컨트랙트 주소 */
   address: t.hex().primaryKey(),
@@ -20,6 +71,10 @@ export const pairs = onchainTable("pairs", (t) => ({
   wethReserve: t.bigint().notNull(),
   /** 토큰 1개당 WETH wei = wethReserve / tokenReserve (지표 정의 §가격) */
   priceWei: t.bigint().notNull(),
+  /** 직전 Sync 이전 가격 — Swap 시점엔 "이 체결 직전 가격"이 된다.
+   *  캔들 버킷 첫 체결의 open 으로 써서 첫 체결의 가격 변동이 변동률에서
+   *  누락되는 편향을 막는다 (지표 정의 §가격) */
+  prevPriceWei: t.bigint().notNull(),
   createdAt: t.integer().notNull(),
   createdAtBlock: t.bigint().notNull(),
 }));
@@ -44,6 +99,8 @@ export const trades = onchainTable(
     txHash: t.hex().notNull(),
     timestamp: t.integer().notNull(),
     block: t.bigint().notNull(),
+    /** 정렬 안정성용 — id(txHash-logIndex)는 텍스트라 사전순 정렬이 틀린다 */
+    logIndex: t.integer().notNull(),
   }),
   (table) => ({
     pairTimeIdx: index().on(table.pair, table.timestamp),
