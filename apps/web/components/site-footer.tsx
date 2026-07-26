@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { giwaChain } from "@giwa/config";
 import { SITE_LINKS } from "@/lib/site";
 import { BrandLogo } from "./brand-logo";
@@ -52,9 +51,15 @@ export function SiteFooter() {
           </h2>
           <ul className="mt-3 space-y-1.5 text-ink-2">
             <li>
-              <Link href="/docs" className="transition-colors hover:text-ink">
-                기술 문서
-              </Link>
+              {/* 독립 문서 — 새 탭으로 띄운다 (터미널 세션을 끊지 않는다) */}
+              <a
+                href="/docs"
+                target="_blank"
+                rel="noreferrer"
+                className="transition-colors hover:text-ink"
+              >
+                기술 문서 ↗
+              </a>
             </li>
             <li>
               <a

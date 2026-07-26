@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { explorerAddressUrl, giwaChain } from "@giwa/config";
+import { BrandLogo } from "@/components/brand-logo";
 import { DocsNav } from "@/components/docs-nav";
 import type { DocSection } from "@/components/docs-nav";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 
 /**
  * 기술 문서 (가속 제출물) — 아키텍처·지표 정의·컨트랙트·검증 구조를 공개한다.
@@ -88,7 +88,31 @@ function Term({ children }: { children: React.ReactNode }) {
 export default function DocsPage() {
   return (
     <>
-      <SiteHeader />
+      {/* 독립 문서 헤더 — 터미널 네비·검색·로그인 없이 문서 전용 크롬 (레퍼런스 방식) */}
+      <header className="sticky top-0 z-40 border-b border-hairline bg-base/85 backdrop-blur-md">
+        <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center gap-2.5 px-8">
+          <Link
+            href="/"
+            aria-label="나루 터미널로 이동"
+            className="flex items-center gap-2.5"
+          >
+            <BrandLogo size={20} />
+            <span className="text-[15px] font-bold tracking-tight">나루</span>
+          </Link>
+          <span aria-hidden className="text-ink-3">
+            /
+          </span>
+          <span className="text-[13.5px] font-medium text-ink-2">
+            기술 문서
+          </span>
+          <Link
+            href="/"
+            className="ml-auto rounded-lg border border-hairline px-3 py-1.5 text-[12.5px] text-ink-2 transition-colors hover:border-accent/40 hover:text-accent"
+          >
+            터미널 열기
+          </Link>
+        </div>
+      </header>
       <main className="mx-auto w-full max-w-[1180px] px-8 pb-20 pt-12">
         <h1 className="font-serif text-[27px] font-bold tracking-tight">
           기술 문서
@@ -328,7 +352,20 @@ export default function DocsPage() {
           </div>
         </div>
       </main>
-      <SiteFooter />
+      {/* 문서 전용 미니 푸터 — 사이트 푸터 대신 한 줄 */}
+      <footer className="border-t border-black/50 bg-[#150d07]/85">
+        <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-8 py-5 text-[11.5px] text-ink-3">
+          <span>© 2026 나루 NARU · GIWA 가속 데모</span>
+          <a
+            href={giwaChain.explorerUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="transition-colors hover:text-ink-2"
+          >
+            블록 익스플로러 ↗
+          </a>
+        </div>
+      </footer>
     </>
   );
 }

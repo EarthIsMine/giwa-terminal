@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { giwaChain } from "@giwa/config";
 import { formatEth, formatKrwCompact, wei, weiToDisplayKrw } from "@giwa/shared";
 import type { FeedItemWire } from "@/lib/indexer";
@@ -102,6 +103,7 @@ function ItemBody({
 }
 
 export function NaruFeedDock() {
+  const pathname = usePathname();
   const [items, setItems] = useState<FeedItemWire[]>([]);
   const [ethKrwRaw, setEthKrwRaw] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -129,6 +131,9 @@ export function NaruFeedDock() {
       clearInterval(timer);
     };
   }, []);
+
+  // 기술 문서는 독립 문서 화면 — 터미널 도크를 얹지 않는다
+  if (pathname?.startsWith("/docs")) return null;
 
   const ethKrw = ethKrwRaw ? BigInt(ethKrwRaw) : null;
   const latest = items[0] ?? null;
