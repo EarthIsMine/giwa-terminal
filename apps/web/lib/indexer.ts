@@ -110,13 +110,18 @@ export interface WindowStatWire {
   changeBps: number;
   volumeWeth: string;
   trades: number;
+  /** distinct tx.origin (전체 윈도우는 30일 조회분 기준 근사) */
+  traders: number;
 }
 
-/** 페어 주소(소문자) → 윈도우별 통계. 데이터 없는 페어·윈도우는 키 자체가 없다 */
-export type BoardStatsWire = Record<
-  string,
-  Partial<Record<BoardWindow, WindowStatWire>>
->;
+export interface BoardPairWire {
+  /** 스파크라인용 종가 추이 (최근 14일봉, wei 문자열) */
+  trend: string[];
+  windows: Partial<Record<BoardWindow, WindowStatWire>>;
+}
+
+/** 페어 주소(소문자) → 추이·윈도우별 통계. 데이터 없는 페어·윈도우는 키 자체가 없다 */
+export type BoardStatsWire = Record<string, BoardPairWire>;
 
 /** 보드 기간별 변동률·거래량 — 인덱서 미연결이면 null (보드는 지표 열을 감춘다) */
 export async function getBoardStats(): Promise<BoardStatsWire | null> {

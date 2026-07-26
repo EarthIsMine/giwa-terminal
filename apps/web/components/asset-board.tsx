@@ -28,6 +28,7 @@ import type { LiveAssetWire } from "@/lib/onchain";
 import { AssetAvatar } from "./asset-avatar";
 import { CopyAddress } from "./copy-address";
 import { useSearch } from "./search-context";
+import { Sparkline } from "./sparkline";
 import { VerifiedBadge } from "./verified-badge";
 
 /**
@@ -47,6 +48,18 @@ interface LiveAsset {
   verification: AssetVerification;
   /** 선택 윈도우의 변동률 (bps). 데이터 없으면 null — 0%로 채우지 않는다 */
   changeBps: number | null;
+  /** 시가총액 = totalSupply × 현재가.
+   *  NaruToken 은 공급 고정이고 소각 기능이 없어 락업·소각 차감분이 없다
+   *  (CLAUDE.md 시가총액 정의: 제외 정책을 주석으로 남긴다) */
+  marketCapWei: WeiAmount;
+  /** 선택 윈도우의 거래대금(WETH wei) · 체결 건수 · 참여 인원 */
+  volumeWei: WeiAmount | null;
+  trades: number | null;
+  traders: number | null;
+  /** 상장 후 경과 일수 */
+  ageDays: number;
+  /** 스파크라인 포인트 (표시용 상대값) */
+  trend: number[];
 }
 
 const WINDOW_LABEL: Record<BoardWindow, string> = {
@@ -98,15 +111,31 @@ function AssetCell({ asset }: { asset: LiveAsset }) {
   );
 }
 
-const RIGHT_ALIGNED = new Set(["price", "change", "liquidity", "onchain"]);
+const RIGHT_ALIGNED = new Set([
+  "price",
+  "change",
+  "marketCap",
+  "volume",
+  "trades",
+  "traders",
+  "liquidity",
+  "age",
+  "onchain",
+]);
 
 /** 컬럼별 고정 폭 — 나머지는 자산 컬럼이 흡수한다 */
 const COL_WIDTH: Record<string, string> = {
-  issuer: "w-[200px]",
-  price: "w-[220px]",
-  change: "w-[120px]",
-  liquidity: "w-[180px]",
-  onchain: "w-[170px]",
+  trend: "w-[130px]",
+  issuer: "w-[150px]",
+  price: "w-[170px]",
+  change: "w-[110px]",
+  marketCap: "w-[120px]",
+  volume: "w-[120px]",
+  trades: "w-[90px]",
+  traders: "w-[100px]",
+  liquidity: "w-[120px]",
+  age: "w-[90px]",
+  onchain: "w-[150px]",
 };
 
 export function AssetBoard({
@@ -127,19 +156,33 @@ export function AssetBoard({
 
   const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
 
+  const nowSec = useMemo(() => Math.floor(Date.now() / 1_000), []);
+
   const data = useMemo<LiveAsset[]>(() => {
-    const parsed = assets.map((a) => ({
-      address: a.address,
-      pair: a.pair,
-      symbol: a.symbol,
-      nameKo: a.nameKo,
-      issuerName: a.issuerName,
-      priceWei: wei(BigInt(a.priceWei)),
-      liquidityWei: wei(BigInt(a.liquidityWei)),
-      verification: a.verification,
-      changeBps:
-        boardStats?.[a.pair.toLowerCase()]?.[window_]?.changeBps ?? null,
-    }));
+    const parsed = assets.map((a) => {
+      const entry = boardStats?.[a.pair.toLowerCase()];
+      // windows 옵셔널 체이닝 — 인덱서 응답 캐시가 구버전일 수 있다
+      const w = entry?.windows?.[window_];
+      const priceWei = BigInt(a.priceWei);
+      return {
+        address: a.address,
+        pair: a.pair,
+        symbol: a.symbol,
+        nameKo: a.nameKo,
+        issuerName: a.issuerName,
+        priceWei: wei(priceWei),
+        liquidityWei: wei(BigInt(a.liquidityWei)),
+        verification: a.verification,
+        changeBps: w?.changeBps ?? null,
+        marketCapWei: wei((BigInt(a.totalSupply) * priceWei) / 10n ** 18n),
+        volumeWei: w ? wei(BigInt(w.volumeWeth)) : null,
+        trades: w?.trades ?? null,
+        traders: w?.traders ?? null,
+        ageDays: Math.max(0, Math.floor((nowSec - a.issuedAt) / 86_400)),
+        // 스파크라인은 상대 모양만 쓰므로 표시용 float 변환이 안전하다
+        trend: (entry?.trend ?? []).map((v) => Number(BigInt(v) / 10n ** 6n)),
+      };
+    });
     const q = query.trim().toLowerCase();
     if (q === "") return parsed;
     return parsed.filter(
@@ -148,7 +191,7 @@ export function AssetBoard({
         a.nameKo.includes(q) ||
         a.address.toLowerCase().includes(q),
     );
-  }, [assets, query, boardStats, window_]);
+  }, [assets, query, boardStats, window_, nowSec]);
 
   const columns = useMemo<ColumnDef<LiveAsset>[]>(
     () => [
@@ -157,6 +200,22 @@ export function AssetBoard({
         header: "자산",
         enableSorting: false,
         cell: ({ row }) => <AssetCell asset={row.original} />,
+      },
+      {
+        id: "trend",
+        header: "추이",
+        enableSorting: false,
+        cell: ({ row }) =>
+          row.original.trend.length >= 2 ? (
+            <Sparkline
+              points={row.original.trend}
+              changeBps={row.original.changeBps ?? 0}
+              label={`${row.original.symbol} 가격 추이`}
+              height={26}
+            />
+          ) : (
+            <span className="font-mono text-[12px] text-ink-3">—</span>
+          ),
       },
       {
         id: "issuer",
@@ -216,6 +275,78 @@ export function AssetBoard({
         },
       },
       {
+        id: "marketCap",
+        accessorFn: (a) => a.marketCapWei,
+        header: "시가총액",
+        sortDescFirst: true,
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
+          cmpBigint(a.original.marketCapWei, b.original.marketCapWei),
+        cell: ({ row }) =>
+          ethKrw ? (
+            <KrwCompact v={row.original.marketCapWei} ethKrw={ethKrw} />
+          ) : (
+            <span className="font-mono text-[13px] tabular-nums">
+              {formatEth(row.original.marketCapWei, 4)}{" "}
+              <span className="text-[11px] text-ink-3">ETH</span>
+            </span>
+          ),
+      },
+      {
+        id: "volume",
+        accessorFn: (a) => a.volumeWei,
+        header: "거래대금",
+        sortDescFirst: true,
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
+          cmpBigint(
+            a.original.volumeWei ?? wei(0n),
+            b.original.volumeWei ?? wei(0n),
+          ),
+        cell: ({ row }) => {
+          const v = row.original.volumeWei;
+          if (v === null) {
+            return <span className="font-mono text-[12px] text-ink-3">—</span>;
+          }
+          return ethKrw ? (
+            <KrwCompact v={v} ethKrw={ethKrw} />
+          ) : (
+            <span className="font-mono text-[13px] tabular-nums">
+              {formatEth(v, 4)}{" "}
+              <span className="text-[11px] text-ink-3">ETH</span>
+            </span>
+          );
+        },
+      },
+      {
+        id: "trades",
+        accessorFn: (a) => a.trades ?? -1,
+        header: "체결",
+        sortDescFirst: true,
+        cell: ({ row }) => (
+          <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
+            {row.original.trades === null ? (
+              <span className="text-ink-3">—</span>
+            ) : (
+              formatCount(row.original.trades)
+            )}
+          </span>
+        ),
+      },
+      {
+        id: "traders",
+        accessorFn: (a) => a.traders ?? -1,
+        header: "참여 인원",
+        sortDescFirst: true,
+        cell: ({ row }) => (
+          <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
+            {row.original.traders === null ? (
+              <span className="text-ink-3">—</span>
+            ) : (
+              formatCount(row.original.traders)
+            )}
+          </span>
+        ),
+      },
+      {
         id: "liquidity",
         accessorFn: (a) => a.liquidityWei,
         header: "예치 규모",
@@ -231,6 +362,18 @@ export function AssetBoard({
               <span className="text-[11px] text-ink-3">ETH</span>
             </span>
           ),
+      },
+      {
+        id: "age",
+        accessorFn: (a) => a.ageDays,
+        header: "상장",
+        cell: ({ row }) => (
+          <span className="font-mono text-[12.5px] tabular-nums text-ink-3">
+            {row.original.ageDays === 0
+              ? "오늘"
+              : `${formatCount(row.original.ageDays)}일`}
+          </span>
+        ),
       },
       {
         id: "onchain",
@@ -329,7 +472,7 @@ export function AssetBoard({
           영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */}
       <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1080px] border-collapse text-left">
+          <table className="w-full min-w-[1560px] border-collapse text-left">
             <caption className="sr-only">
               기와체인 검증 자산 목록. 온체인 실데이터: 현재가, 예치 규모,
               발행자
@@ -396,7 +539,7 @@ export function AssetBoard({
               {rows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={13}
                     className="py-14 text-center text-[13.5px] text-ink-3"
                   >
                     {query.trim() === ""

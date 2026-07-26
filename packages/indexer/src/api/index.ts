@@ -104,12 +104,6 @@ app.get("/trades/:pair", async (c) => {
  * 일봉이라 행 수가 작다는 전제이며, 규모가 커지면 SQL 윈도우 집계로 옮긴다.
  */
 app.get("/board", async (c) => {
-  const rows = await db
-    .select()
-    .from(schema.candles)
-    .where(eq(schema.candles.interval, "1d"))
-    .orderBy(asc(schema.candles.bucket));
-
   const now = Math.floor(Date.now() / 1_000);
   const dayStart = now - (now % 86_400);
   const WINDOWS = {
@@ -119,6 +113,24 @@ app.get("/board", async (c) => {
     all: 0,
   } as const;
 
+  const [rows, traderRows] = await Promise.all([
+    db
+      .select()
+      .from(schema.candles)
+      .where(eq(schema.candles.interval, "1d"))
+      .orderBy(asc(schema.candles.bucket)),
+    // 참여 인원은 distinct tx.origin 이라 캔들로 집계할 수 없다 (지표 정의 §거래자 수).
+    // 30일치 체결의 (pair, origin, timestamp)만 읽어 윈도우별로 센다.
+    db
+      .select({
+        pair: schema.trades.pair,
+        origin: schema.trades.origin,
+        timestamp: schema.trades.timestamp,
+      })
+      .from(schema.trades)
+      .where(gte(schema.trades.timestamp, WINDOWS["30d"])),
+  ]);
+
   const byPair = new Map<string, typeof rows>();
   for (const r of rows) {
     const list = byPair.get(r.pair);
@@ -126,32 +138,55 @@ app.get("/board", async (c) => {
     else byPair.set(r.pair, [r]);
   }
 
+  const tradersByPair = new Map<string, typeof traderRows>();
+  for (const r of traderRows) {
+    const list = tradersByPair.get(r.pair);
+    if (list) list.push(r);
+    else tradersByPair.set(r.pair, [r]);
+  }
+
+  interface WindowStat {
+    changeBps: number;
+    volumeWeth: string;
+    trades: number;
+    traders: number;
+  }
   const out: Record<
     string,
-    Record<string, { changeBps: number; volumeWeth: string; trades: number }>
+    { trend: string[]; windows: Record<string, WindowStat> }
   > = {};
 
   for (const [pair, candles] of byPair) {
     const latest = candles[candles.length - 1];
     if (!latest) continue;
-    const stats: Record<
-      string,
-      { changeBps: number; volumeWeth: string; trades: number }
-    > = {};
+    const windows: Record<string, WindowStat> = {};
+    const pairTrades = tradersByPair.get(pair) ?? [];
 
     for (const [key, from] of Object.entries(WINDOWS)) {
       const inWindow = candles.filter((r) => r.bucket >= from);
       const first = inWindow[0];
       if (!first || first.open === 0n) continue;
-      stats[key] = {
+      const origins = new Set<string>();
+      for (const t of pairTrades) {
+        if (t.timestamp >= from) origins.add(t.origin);
+      }
+      windows[key] = {
         changeBps: Number(((latest.close - first.open) * 10_000n) / first.open),
         volumeWeth: inWindow
           .reduce((acc, r) => acc + r.volumeWeth, 0n)
           .toString(),
         trades: inWindow.reduce((acc, r) => acc + r.trades, 0),
+        // all 윈도우는 30일 조회분이라 그 이전 거래자는 빠진다 (근사임을 소비자가 안다)
+        traders: origins.size,
       };
     }
-    if (Object.keys(stats).length > 0) out[pair] = stats;
+    if (Object.keys(windows).length === 0) continue;
+
+    out[pair] = {
+      // 스파크라인용 종가 추이 — 최근 14일봉
+      trend: candles.slice(-14).map((r) => r.close.toString()),
+      windows,
+    };
   }
 
   return c.json({ pairs: out });

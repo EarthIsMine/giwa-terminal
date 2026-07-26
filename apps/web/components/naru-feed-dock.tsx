@@ -343,6 +343,7 @@ export function NaruFeedDock() {
             <TickerStrip tickers={tickers} />
 
             {/* 온보딩 가이드 — 물음표 아이콘 하나로 (문구 없이 직관적으로) */}
+            <span aria-hidden className="h-4 w-px shrink-0 bg-hairline" />
             <button
               type="button"
               onClick={() => setGuideOpen(true)}
