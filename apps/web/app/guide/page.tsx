@@ -23,7 +23,7 @@ export default function GuidePage() {
           처음 건너오는 길
         </h1>
         <p className="mb-8 mt-2 text-[13px] leading-relaxed text-ink-3">
-          업비트에서 기와 온체인까지 네 걸음입니다. 비용과 기다림은 겪기 전에
+          업비트에서 기와체인까지 네 걸음입니다. 비용과 기다림은 겪기 전에
           미리 알려드립니다.
         </p>
         <GuideContent />

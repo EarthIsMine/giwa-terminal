@@ -93,4 +93,29 @@ export const naruswapV2PairAbi = [
       { name: "reserve1", type: "uint112", indexed: false },
     ],
   },
+  // 유동성 공급·회수 — 체결과 함께 "거래 수·참여 인원"에 들어간다
+  // topic0 (cast keccak, 2026-07-27):
+  //   Mint(address,uint256,uint256)
+  //     0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f
+  //   Burn(address,uint256,uint256,address)
+  //     0xdccd412f0b1252819cb1fd330b93224ca42612892bb3f4f789976e6d81936496
+  {
+    type: "event",
+    name: "Mint",
+    inputs: [
+      { name: "sender", type: "address", indexed: true },
+      { name: "amount0", type: "uint256", indexed: false },
+      { name: "amount1", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "Burn",
+    inputs: [
+      { name: "sender", type: "address", indexed: true },
+      { name: "amount0", type: "uint256", indexed: false },
+      { name: "amount1", type: "uint256", indexed: false },
+      { name: "to", type: "address", indexed: true },
+    ],
+  },
 ] as const;

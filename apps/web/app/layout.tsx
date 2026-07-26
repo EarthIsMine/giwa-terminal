@@ -16,7 +16,7 @@ const notoSerifKr = Noto_Serif_KR({
 });
 
 export const metadata: Metadata = {
-  title: "나루 NARU · 업비트에서 기와 온체인으로 오는 나룻길",
+  title: "나루 NARU · 업비트에서 기와체인으로 오는 나룻길",
   description:
     "기와체인(GIWA)의 신원 검증 자산을 업비트 보던 방식 그대로. 원화 환산 시세, 일·월 단위 변동, 낮은 정보 밀도.",
 };

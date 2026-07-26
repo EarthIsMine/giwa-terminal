@@ -113,22 +113,22 @@ app.get("/board", async (c) => {
     all: 0,
   } as const;
 
-  const [rows, traderRows] = await Promise.all([
+  const [rows, activityRows] = await Promise.all([
     db
       .select()
       .from(schema.candles)
       .where(eq(schema.candles.interval, "1d"))
       .orderBy(asc(schema.candles.bucket)),
-    // 참여 인원은 distinct tx.origin 이라 캔들로 집계할 수 없다 (지표 정의 §거래자 수).
-    // 30일치 체결의 (pair, origin, timestamp)만 읽어 윈도우별로 센다.
+    // 거래 수·참여 인원은 활동 원장에서 센다 — 매수·매도뿐 아니라
+    // 유동성 공급·회수까지 포함해야 "이 자산에 몇 명이 무엇을 했나"가 맞는다.
     db
       .select({
-        pair: schema.trades.pair,
-        origin: schema.trades.origin,
-        timestamp: schema.trades.timestamp,
+        pair: schema.activities.pair,
+        origin: schema.activities.origin,
+        timestamp: schema.activities.timestamp,
       })
-      .from(schema.trades)
-      .where(gte(schema.trades.timestamp, WINDOWS["30d"])),
+      .from(schema.activities)
+      .where(gte(schema.activities.timestamp, WINDOWS["30d"])),
   ]);
 
   const byPair = new Map<string, typeof rows>();
@@ -138,11 +138,11 @@ app.get("/board", async (c) => {
     else byPair.set(r.pair, [r]);
   }
 
-  const tradersByPair = new Map<string, typeof traderRows>();
-  for (const r of traderRows) {
-    const list = tradersByPair.get(r.pair);
+  const actByPair = new Map<string, typeof activityRows>();
+  for (const r of activityRows) {
+    const list = actByPair.get(r.pair);
     if (list) list.push(r);
-    else tradersByPair.set(r.pair, [r]);
+    else actByPair.set(r.pair, [r]);
   }
 
   interface WindowStat {
@@ -160,23 +160,28 @@ app.get("/board", async (c) => {
     const latest = candles[candles.length - 1];
     if (!latest) continue;
     const windows: Record<string, WindowStat> = {};
-    const pairTrades = tradersByPair.get(pair) ?? [];
+    const pairActs = actByPair.get(pair) ?? [];
 
     for (const [key, from] of Object.entries(WINDOWS)) {
       const inWindow = candles.filter((r) => r.bucket >= from);
       const first = inWindow[0];
       if (!first || first.open === 0n) continue;
       const origins = new Set<string>();
-      for (const t of pairTrades) {
-        if (t.timestamp >= from) origins.add(t.origin);
+      let actCount = 0;
+      for (const a of pairActs) {
+        if (a.timestamp < from) continue;
+        actCount += 1;
+        origins.add(a.origin);
       }
       windows[key] = {
         changeBps: Number(((latest.close - first.open) * 10_000n) / first.open),
+        // 거래대금은 스왑 체결액만 — 유동성 공급은 거래가 아니다 (지표 정의 §거래량)
         volumeWeth: inWindow
           .reduce((acc, r) => acc + r.volumeWeth, 0n)
           .toString(),
-        trades: inWindow.reduce((acc, r) => acc + r.trades, 0),
-        // all 윈도우는 30일 조회분이라 그 이전 거래자는 빠진다 (근사임을 소비자가 안다)
+        // 거래 수·참여 인원은 매수·매도·유동성 공급·회수 전부.
+        // all 윈도우는 30일 조회분이라 그 이전 활동은 빠진다 (근사)
+        trades: actCount,
         traders: origins.size,
       };
     }

@@ -48,7 +48,7 @@ export function GuideOverlay({
               처음 건너오는 길
             </h2>
             <p className="mt-1 text-[12px] text-ink-3">
-              업비트에서 기와 온체인까지 네 걸음. 비용과 기다림은 미리
+              업비트에서 기와체인까지 네 걸음. 비용과 기다림은 미리
               알려드립니다
             </p>
           </div>

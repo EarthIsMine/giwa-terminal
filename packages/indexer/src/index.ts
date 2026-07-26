@@ -1,5 +1,6 @@
 import { ponder } from "ponder:registry";
 import {
+  activities,
   candles,
   holders,
   pairs,
@@ -153,6 +154,14 @@ ponder.on("NaruswapV2Pair:Swap", async ({ event, context }) => {
   const openPrice = pair.prevPriceWei === 0n ? price : pair.prevPriceWei;
   const ts = Number(event.block.timestamp);
 
+  await context.db.insert(activities).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    pair: pair.address,
+    kind: side,
+    origin: event.transaction.from,
+    timestamp: ts,
+  });
+
   await context.db.insert(trades).values({
     id: `${event.transaction.hash}-${event.log.logIndex}`,
     pair: pair.address,
@@ -192,4 +201,33 @@ ponder.on("NaruswapV2Pair:Swap", async ({ event, context }) => {
         trades: row.trades + 1,
       }));
   }
+});
+
+/**
+ * 유동성 공급·회수 — 활동 원장에만 기록한다.
+ * 가격·거래대금에는 넣지 않는다(스왑이 아니라 준비금 변경이고,
+ * 가격 갱신은 같은 tx 의 Sync 가 이미 처리한다).
+ */
+ponder.on("NaruswapV2Pair:Mint", async ({ event, context }) => {
+  const pair = await context.db.find(pairs, { address: event.log.address });
+  if (!pair) return;
+  await context.db.insert(activities).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    pair: pair.address,
+    kind: "add",
+    origin: event.transaction.from,
+    timestamp: Number(event.block.timestamp),
+  });
+});
+
+ponder.on("NaruswapV2Pair:Burn", async ({ event, context }) => {
+  const pair = await context.db.find(pairs, { address: event.log.address });
+  if (!pair) return;
+  await context.db.insert(activities).values({
+    id: `${event.transaction.hash}-${event.log.logIndex}`,
+    pair: pair.address,
+    kind: "remove",
+    origin: event.transaction.from,
+    timestamp: Number(event.block.timestamp),
+  });
 });

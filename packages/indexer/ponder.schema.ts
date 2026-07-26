@@ -107,6 +107,28 @@ export const trades = onchainTable(
   }),
 );
 
+/**
+ * 페어 활동 원장 — 매수·매도·유동성 공급·회수 전부.
+ * "거래 수"는 이 원장의 건수이고 "참여 인원"은 distinct tx.origin 이다
+ * (체결만 세면 유동성 공급자가 지표에서 빠진다).
+ */
+export const activities = onchainTable(
+  "activities",
+  (t) => ({
+    /** txHash-logIndex */
+    id: t.text().primaryKey(),
+    pair: t.hex().notNull(),
+    /** buy·sell = 스왑 방향, add·remove = 유동성 공급/회수 */
+    kind: t.text().notNull().$type<"buy" | "sell" | "add" | "remove">(),
+    /** tx.origin — 라우터 경유라 msg.sender 를 쓰면 안 된다 (지표 정의 §거래자 수) */
+    origin: t.hex().notNull(),
+    timestamp: t.integer().notNull(),
+  }),
+  (table) => ({
+    pairTimeIdx: index().on(table.pair, table.timestamp),
+  }),
+);
+
 /** 캔들 — interval: "1m"(원본) | "1h" | "1d". bucket 은 UTC 기준 버킷 시작 unix 초 */
 export const candles = onchainTable(
   "candles",

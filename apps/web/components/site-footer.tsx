@@ -19,7 +19,7 @@ export function SiteFooter() {
             </span>
           </div>
           <p className="mt-3 leading-relaxed text-ink-3">
-            업비트에서 기와 온체인으로 오는 나룻길.
+            업비트에서 기와체인으로 오는 나룻길.
             <br />
             기와체인 가격 데이터 레이어 위에 올린 온체인 터미널.
           </p>

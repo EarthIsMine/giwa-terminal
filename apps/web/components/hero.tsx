@@ -23,13 +23,14 @@ export function Hero({
       {/* 좌측 텍스트 가독용 스크림 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(19,13,7,0.55),rgba(19,13,7,0.18)_45%,transparent_60%)]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(19,13,7,0.68),rgba(19,13,7,0.26)_45%,transparent_60%)]"
       />
 
-      <div className="relative mx-auto flex min-h-[280px] w-full max-w-[1840px] flex-wrap items-end justify-between gap-x-10 gap-y-7 px-8 pb-10 pt-16">
-        <div className="max-w-[680px]">
+      <div className="relative mx-auto flex min-h-[280px] w-full max-w-[1840px] flex-wrap items-end justify-between gap-x-10 gap-y-7 px-8 pb-10 pt-12">
+        {/* 헤드라인은 위쪽에 둔다 — 아래로 내려오면 물결·배와 겹쳐 액센트가 묻힌다 */}
+        <div className="max-w-[680px] self-start">
           <h1 className="font-serif text-[36px] font-bold leading-[1.32] tracking-[-0.01em] text-ink">
-            업비트에서 기와 온체인으로
+            업비트에서 기와체인으로
             <br />
             오는 <span className="text-accent">나룻길</span>
           </h1>
