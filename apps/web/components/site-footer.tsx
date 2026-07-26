@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { giwaChain } from "@giwa/config";
 import { SITE_LINKS } from "@/lib/site";
 import { BrandLogo } from "./brand-logo";
@@ -50,6 +51,11 @@ export function SiteFooter() {
             네트워크
           </h2>
           <ul className="mt-3 space-y-1.5 text-ink-2">
+            <li>
+              <Link href="/docs" className="transition-colors hover:text-ink">
+                기술 문서
+              </Link>
+            </li>
             <li>
               <a
                 href={giwaChain.explorerUrl}
