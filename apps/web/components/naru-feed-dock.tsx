@@ -4,8 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { giwaChain } from "@giwa/config";
-import { formatEth, formatKrwCompact, wei, weiToDisplayKrw } from "@giwa/shared";
+import {
+  formatChangeBps,
+  formatEth,
+  formatKrw,
+  formatKrwCompact,
+  wei,
+  weiToDisplayKrw,
+} from "@giwa/shared";
+import type { DisplayKrw } from "@giwa/shared";
 import type { FeedItemWire } from "@/lib/indexer";
+import type { MarketTickerWire } from "@/lib/krw";
 import { GuideOverlay } from "./guide-overlay";
 
 /**
@@ -18,6 +27,35 @@ import { GuideOverlay } from "./guide-overlay";
 interface FeedResponse {
   items: FeedItemWire[] | null;
   ethKrw: string | null;
+  tickers: MarketTickerWire[];
+}
+
+/**
+ * 업비트 주요 원화 시세 — 업저씨의 기준점을 상시 띄운다.
+ * 나루 화면의 원화는 "환산 참고값"이지만 이건 거래소 실제 체결가라
+ * 출처(업비트)를 라벨로 붙여 구분한다.
+ */
+function TickerStrip({ tickers }: { tickers: MarketTickerWire[] }) {
+  if (tickers.length === 0) return null;
+  return (
+    <div className="hidden shrink-0 items-center gap-3 border-l border-hairline pl-3 text-[11.5px] xl:flex">
+      <span className="text-ink-3">업비트</span>
+      {tickers.map((t) => (
+        <span key={t.symbol} className="flex items-baseline gap-1.5">
+          <span className="font-medium text-ink-2">{t.symbol}</span>
+          {/* 실제 체결가라 축약하지 않는다 (업비트 표기와 같은 감각) */}
+          <span className="font-mono tabular-nums text-ink-2">
+            {formatKrw(BigInt(t.krw) as DisplayKrw)}
+          </span>
+          <span
+            className={`font-mono tabular-nums ${t.changeBps >= 0 ? "text-up" : "text-down"}`}
+          >
+            {formatChangeBps(t.changeBps)}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
 }
 
 const TAG: Record<
@@ -106,6 +144,7 @@ export function NaruFeedDock() {
   const pathname = usePathname();
   const [items, setItems] = useState<FeedItemWire[]>([]);
   const [ethKrwRaw, setEthKrwRaw] = useState<string | null>(null);
+  const [tickers, setTickers] = useState<MarketTickerWire[]>([]);
   const [open, setOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
 
@@ -116,12 +155,15 @@ export function NaruFeedDock() {
         const res = await fetch("/api/feed");
         if (!res.ok) return;
         const data = (await res.json()) as FeedResponse;
-        if (!cancelled && data.items && data.items.length > 0) {
+        if (cancelled) return;
+        if (data.items && data.items.length > 0) {
           setItems(data.items);
           setEthKrwRaw(data.ethKrw);
         }
+        // 시세는 인덱서와 무관한 외부 소스 — 소식이 없어도 표시한다
+        setTickers(data.tickers ?? []);
       } catch {
-        /* 인덱서 미연결 — 도크를 띄우지 않는 것으로 폴백 */
+        /* 소식·시세 모두 조용히 폴백 (바는 유지) */
       }
     };
     void load();
@@ -235,6 +277,9 @@ export function NaruFeedDock() {
                 </span>
               )}
             </button>
+            {/* 업비트 주요 시세 — 업저씨의 기준점 */}
+            <TickerStrip tickers={tickers} />
+
             {/* 온보딩 가이드 — 어디서든 이탈 없이 오버레이로 (X 닫기) */}
             <button
               type="button"
