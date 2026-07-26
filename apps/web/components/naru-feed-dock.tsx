@@ -174,6 +174,16 @@ export function NaruFeedDock() {
     };
   }, []);
 
+  // 드로어가 열려 있는 동안 ESC 로 닫는다 (오버레이 관례)
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   // 기술 문서는 독립 문서 화면 — 터미널 도크를 얹지 않는다
   if (pathname?.startsWith("/docs")) return null;
 
@@ -185,53 +195,104 @@ export function NaruFeedDock() {
       {/* 고정 바 높이만큼 본문 끝을 밀어 푸터 마지막 줄이 가려지지 않게 한다 */}
       <div aria-hidden className="h-10" />
 
-      <div className="fixed inset-x-0 bottom-0 z-30">
-        {/* 펼친 패널 */}
-        {open ? (
-          <section
-            aria-label="나루터 소식 목록"
-            className="max-h-[45vh] overflow-y-auto border-t border-hairline bg-[#160e07]/95 backdrop-blur-md"
-          >
-            <div className="mx-auto w-full max-w-[1840px] px-8 py-2">
-              <p className="border-b border-black/40 py-2 text-[11px] text-ink-3">
-                중대형 체결 · 유동성 변동 · 신규 상장. 테스트넷 시드
-                데이터입니다. 사실 서술만 제공하며 투자 권유가 아닙니다.
+      {/* 소식 드로어 — 우측에서 슬라이드해 들어온다. 닫힘 상태에서도 마운트를 유지해
+          transform 트랜지션이 살아 있게 하고, 대신 포인터 이벤트를 끈다 */}
+      <div
+        className={`fixed inset-0 z-40 ${open ? "" : "pointer-events-none"}`}
+        aria-hidden={!open}
+      >
+        <button
+          type="button"
+          tabIndex={open ? 0 : -1}
+          aria-label="나루터 소식 닫기"
+          onClick={() => setOpen(false)}
+          className={`absolute inset-0 cursor-default bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ${
+            open ? "opacity-100" : "opacity-0"
+          }`}
+        />
+        <aside
+          aria-label="나루터 소식 목록"
+          className={`absolute right-0 top-0 flex h-full w-[30%] min-w-[380px] max-w-[560px] flex-col border-l border-hairline bg-[#160e07]/97 shadow-[-24px_0_80px_rgba(0,0,0,0.5)] backdrop-blur-md transition-transform duration-300 ease-out ${
+            open ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex items-start justify-between border-b border-black/40 px-6 py-5">
+            <div>
+              <h2 className="flex items-center gap-2 text-[16px] font-semibold">
+                <span
+                  aria-hidden
+                  className="size-1.5 rounded-full bg-good animate-pulse-dot"
+                />
+                나루터 소식
+              </h2>
+              <p className="mt-1 text-[11.5px] leading-relaxed text-ink-3">
+                중대형 체결 · 유동성 변동 · 신규 상장
               </p>
-              <ul className="grid gap-x-6 md:grid-cols-2">
-                {items.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex items-start gap-2.5 border-b border-black/30 py-2.5 text-[12.5px] leading-relaxed last:border-0 md:[&:nth-last-child(2)]:border-0"
-                  >
-                    <span
-                      className={`mt-0.5 shrink-0 rounded px-1.5 py-[2px] text-[11px] font-semibold ${TAG[item.type].className}`}
-                    >
-                      {TAG[item.type].label(item.side)}
-                    </span>
-                    <span className="min-w-0 text-ink-2">
-                      <ItemBody item={item} ethKrw={ethKrw} />
-                    </span>
-                    <span className="ml-auto flex shrink-0 items-center gap-2 font-mono text-[11.5px] text-ink-3">
-                      {item.txHash ? (
-                        <a
-                          href={`${giwaChain.explorerUrl}/tx/${item.txHash}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="transition-colors hover:text-accent"
-                          title="익스플로러에서 트랜잭션 보기"
-                        >
-                          tx ↗
-                        </a>
-                      ) : null}
-                      {relativeTime(item.timestamp)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
             </div>
-          </section>
-        ) : null}
+            <button
+              type="button"
+              tabIndex={open ? 0 : -1}
+              aria-label="닫기"
+              onClick={() => setOpen(false)}
+              className="grid size-8 shrink-0 place-items-center rounded-lg border border-hairline text-ink-3 transition-colors hover:border-ink-3/40 hover:text-ink-2"
+            >
+              <svg
+                viewBox="0 0 12 12"
+                width={11}
+                height={11}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                aria-hidden
+              >
+                <path d="M2 2l8 8M10 2l-8 8" />
+              </svg>
+            </button>
+          </div>
 
+          <ul className="min-h-0 flex-1 overflow-y-auto px-6">
+            {items.map((item) => (
+              <li
+                key={item.id}
+                className="border-b border-black/30 py-3 text-[12.5px] leading-relaxed last:border-0"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`shrink-0 rounded px-1.5 py-[2px] text-[11px] font-semibold ${TAG[item.type].className}`}
+                  >
+                    {TAG[item.type].label(item.side)}
+                  </span>
+                  <span className="ml-auto flex shrink-0 items-center gap-2 font-mono text-[11.5px] text-ink-3">
+                    {item.txHash ? (
+                      <a
+                        href={`${giwaChain.explorerUrl}/tx/${item.txHash}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition-colors hover:text-accent"
+                        title="익스플로러에서 트랜잭션 보기"
+                      >
+                        tx ↗
+                      </a>
+                    ) : null}
+                    {relativeTime(item.timestamp)}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-ink-2">
+                  <ItemBody item={item} ethKrw={ethKrw} />
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <p className="border-t border-black/40 px-6 py-4 text-[11px] leading-relaxed text-ink-3">
+            테스트넷 시드 데이터입니다. 사실 서술만 제공하며 투자 권유가
+            아닙니다.
+          </p>
+        </aside>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-30">
         {/* 하단 바 — 좌측은 소식 토글, 우측은 온보딩 가이드 상주 링크 */}
         <div className="border-t border-hairline bg-base/90 backdrop-blur-md">
           <div className="mx-auto flex h-10 w-full max-w-[1840px] items-center gap-3 px-8">
@@ -269,7 +330,7 @@ export function NaruFeedDock() {
                   aria-hidden
                   className="ml-auto shrink-0 text-[11px] text-ink-3"
                 >
-                  {open ? "▼ 접기" : "▲ 펼치기"}
+                  전체 보기 ›
                 </span>
               ) : (
                 <span className="ml-auto shrink-0 text-[11px] text-ink-3">
@@ -280,14 +341,18 @@ export function NaruFeedDock() {
             {/* 업비트 주요 시세 — 업저씨의 기준점 */}
             <TickerStrip tickers={tickers} />
 
-            {/* 온보딩 가이드 — 어디서든 이탈 없이 오버레이로 (X 닫기) */}
-            <button
-              type="button"
-              onClick={() => setGuideOpen(true)}
-              className="shrink-0 border-l border-hairline pl-3 text-[12px] text-ink-3 transition-colors hover:text-accent"
-            >
-              처음이신가요? 가이드
-            </button>
+            {/* 온보딩 가이드 — 물음표 아이콘 하나로 (문구 없이 직관적으로) */}
+            <div className="flex shrink-0 items-center border-l border-hairline pl-3">
+              <button
+                type="button"
+                onClick={() => setGuideOpen(true)}
+                aria-label="온보딩 가이드 열기"
+                title="처음이신가요? 온보딩 가이드"
+                className="grid size-6 place-items-center rounded-full border border-ink-3/50 text-[11px] font-semibold text-ink-3 transition-colors hover:border-accent hover:text-accent"
+              >
+                ?
+              </button>
+            </div>
           </div>
         </div>
 
