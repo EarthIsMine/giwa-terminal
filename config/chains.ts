@@ -31,6 +31,11 @@ export interface ChainConfig {
   identityRegistryAddress: `0x${string}` | null;
   /** WETH 주소 — OP Stack 프리디플로이가 기본값 (체인 상수) */
   wethAddress: `0x${string}`;
+  /** 도장(Dojang) Verified Address 조회 컨트랙트 — 기본값은 GIWA Sepolia 공개 주소
+   *  (docs.giwa.io, 2026-07-26 온체인 실검증). 메인넷 주소는 미공개라 env 로 주입한다 */
+  dojangScrollAddress: `0x${string}` | null;
+  /** 업비트 KYC attesterId = keccak256("dojang.dojangattesterids.upbitkorea") */
+  upbitKycAttesterId: `0x${string}`;
   /** 인덱서 시작 블록 — 컨트랙트 배포 후 env로 주입 */
   startBlock: bigint | null;
   testnet: boolean;
@@ -58,11 +63,26 @@ export const giwaChain: ChainConfig = {
   wethAddress:
     asAddress(process.env.NEXT_PUBLIC_GIWA_WETH_ADDRESS) ??
     "0x4200000000000000000000000000000000000006",
+  dojangScrollAddress:
+    asAddress(process.env.NEXT_PUBLIC_GIWA_DOJANG_SCROLL_ADDRESS) ??
+    "0xd5077b67dcb56caC8b270C7788FC3E6ee03F17B9",
+  upbitKycAttesterId:
+    (process.env.NEXT_PUBLIC_GIWA_UPBIT_ATTESTER_ID as `0x${string}` | undefined) ??
+    "0xd99b42e778498aa3c9c1f6a012359130252780511687a35982e8e52735453034",
   startBlock: process.env.NEXT_PUBLIC_GIWA_START_BLOCK
     ? BigInt(process.env.NEXT_PUBLIC_GIWA_START_BLOCK)
     : null,
   testnet: (process.env.NEXT_PUBLIC_GIWA_TESTNET ?? "true") !== "false",
 };
+
+/**
+ * 서버 전용 RPC — Nodit 등 키 포함 엔드포인트를 여기로 주입한다.
+ * NEXT_PUBLIC 접두사를 절대 붙이지 않는다: 붙이는 순간 클라이언트 번들과
+ * 유저 지갑(wallet_addEthereumChain)에 키가 박제된다 (보안 규칙).
+ * 클라이언트에서 평가되면 env 부재로 공개 RPC 폴백 — 안전하다.
+ */
+export const serverRpcUrl: string =
+  process.env.GIWA_SERVER_RPC_URL ?? giwaChain.rpcUrl;
 
 /** 익스플로러 주소 상세 페이지 링크 */
 export function explorerAddressUrl(address: string): string {
