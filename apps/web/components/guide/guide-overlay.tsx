@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { GuideContent } from "./guide-content";
+import { useAutoFocus } from "@/hooks/use-auto-focus";
+import { useEscapeKey } from "@/hooks/use-escape-key";
+import { GuideContent } from "@/components/guide/guide-content";
 
 /**
  * 온보딩 가이드 오버레이 — 어느 화면에서든 이탈 없이 열어보는 X 닫기 방식.
@@ -15,17 +16,8 @@ export function GuideOverlay({
   open: boolean;
   onClose: () => void;
 }) {
-  const closeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  const closeRef = useAutoFocus<HTMLButtonElement>(open);
+  useEscapeKey(open, onClose);
 
   if (!open) return null;
   return createPortal(

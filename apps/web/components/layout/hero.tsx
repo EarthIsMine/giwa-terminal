@@ -1,4 +1,4 @@
-import { NaruScene } from "./naru-scene";
+import { NaruScene } from "@/components/layout/naru-scene";
 
 /**
  * 히어로 — 브랜드 워드마크를 반복하지 않는다(헤더에 이미 있음).

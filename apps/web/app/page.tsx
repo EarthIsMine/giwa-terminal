@@ -1,8 +1,8 @@
 import { formatEth, formatKrwCompact, wei, weiToDisplayKrw } from "@giwa/shared";
-import { AssetBoard } from "@/components/asset-board";
-import { Hero } from "@/components/hero";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { AssetBoard } from "@/components/asset/asset-board";
+import { Hero } from "@/components/layout/hero";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
 import { getBoardStats } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
 import { getLiveAssets } from "@/lib/onchain";

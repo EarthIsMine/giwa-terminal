@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { FeedResponse } from "@/lib/api-types";
 import { getFeed } from "@/lib/indexer";
 import { getEthKrw, getMarketBar } from "@/lib/krw";
 
@@ -13,11 +14,12 @@ export async function GET() {
     getEthKrw(),
     getMarketBar(),
   ]);
-  return NextResponse.json({
+  const body: FeedResponse = {
     items,
     ethKrw: ethKrw?.toString() ?? null,
     tickers: bar.tickers,
     usdKrwCents: bar.usdKrwCents,
     kimchiBps: bar.kimchiBps,
-  });
+  };
+  return NextResponse.json(body);
 }

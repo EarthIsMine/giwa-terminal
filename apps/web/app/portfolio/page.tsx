@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { PortfolioView } from "@/components/portfolio-view";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { PortfolioView } from "@/components/portfolio/portfolio-view";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
 
 export const metadata: Metadata = {
   title: "내 자산 · 나루",

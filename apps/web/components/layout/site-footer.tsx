@@ -1,7 +1,7 @@
 import { giwaChain } from "@giwa/config";
 import { SITE_LINKS } from "@/lib/site";
-import { BrandLogo } from "./brand-logo";
-import { TelegramIcon, XIcon } from "./social-icons";
+import { BrandLogo } from "@/components/ui/brand-logo";
+import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
 export function SiteFooter() {
   return (

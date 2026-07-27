@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { PointsView } from "@/components/points-view";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { PointsIntro } from "@/components/points/points-intro";
+import { PointsView } from "@/components/points/points-view";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
 
 /**
  * 나루 포인트 (기획서 §4.4) — 참여 루프의 입구.
@@ -20,14 +21,7 @@ export default function PointsPage() {
     <>
       <SiteHeader />
       <main className="mx-auto w-full max-w-[1280px] px-8 pb-20 pt-12">
-        <h1 className="font-serif text-[27px] font-bold tracking-tight">
-          나루 포인트
-        </h1>
-        <p className="mt-2 max-w-[640px] text-[13px] leading-relaxed text-ink-3">
-          예치와 거래로 포인트를 쌓고, 새 자산이 상장될 때 포인트를 소각해
-          배분에 참여합니다. 참여 자격은 업비트 KYC 인증 지갑입니다. 지갑을
-          아무리 만들어도 인증 없이는 적립되지 않습니다.
-        </p>
+        <PointsIntro />
         <PointsView />
       </main>
       <SiteFooter />

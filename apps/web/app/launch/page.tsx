@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { LaunchForm } from "@/components/launch-form";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { LaunchForm } from "@/components/launch/launch-form";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
 
 export const metadata: Metadata = {
   title: "자산 발행 · 나루",

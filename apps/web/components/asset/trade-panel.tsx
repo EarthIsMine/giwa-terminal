@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { encodeFunctionData, parseAbi } from "viem";
 import { explorerAddressUrl, giwaChain } from "@giwa/config";
 import { ethToWei, formatEth, formatKrw, shortHex, wei, weiToDisplayKrw } from "@giwa/shared";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
 import type { LiveAssetWire } from "@/lib/onchain";
-import { requestGiwaNetwork, useWallet } from "./wallet-context";
+import { requestGiwaNetwork, useWallet } from "@/contexts/wallet-context";
 
 /**
  * 매수/매도 패널 — 나루 라우터로 직접 스왑한다 (터미널의 핵심 동작).
@@ -100,11 +101,10 @@ export function TradePanel({
 
   /* 보유 잔고 — MAX 버튼과 라벨 표시용. 체결 완료(doneTx) 후 재조회 */
   const [balance, setBalance] = useState<bigint | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    setBalance(null);
-    if (!provider || !account) return;
-    const load = async () => {
+  useAsyncEffect(
+    async (isCancelled) => {
+      setBalance(null);
+      if (!provider || !account) return;
       try {
         const hex =
           side === "buy"
@@ -126,16 +126,13 @@ export function TradePanel({
                   "latest",
                 ],
               });
-        if (!cancelled && typeof hex === "string") setBalance(BigInt(hex));
+        if (!isCancelled() && typeof hex === "string") setBalance(BigInt(hex));
       } catch {
         /* 잔고 조회 실패 — MAX 버튼만 비활성으로 남긴다 */
       }
-    };
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [provider, account, side, asset.address, doneTx]);
+    },
+    [provider, account, side, asset.address, doneTx],
+  );
 
   /* MAX: 매수는 가스 예약분(0.001 ETH)을 차감, 매도는 보유 전량 */
   const maxAmount =
@@ -360,111 +357,34 @@ export function TradePanel({
         </p>
       ) : null}
 
-      {/* 견적 */}
-      <dl className="mt-3 rounded-lg border border-hairline/60 bg-black/20 px-3.5 py-1">
-        <div className="flex items-baseline justify-between py-2">
-          <dt className="text-[12px] text-ink-3">예상 수령</dt>
-          <dd className="font-mono text-[13px] tabular-nums">
-            {quote !== null && quote > 0n ? (
-              side === "buy" ? (
-                <>
-                  {formatEth(wei(quote), 2)}{" "}
-                  <span className="text-[11px] text-ink-3">{asset.symbol}</span>
-                </>
-              ) : (
-                <>
-                  {formatEth(wei(quote), 8)}{" "}
-                  <span className="text-[11px] text-ink-3">ETH</span>
-                  {ethKrw ? (
-                    <span className="ml-1.5 text-[11px] text-ink-3">
-                      ≈ ₩{formatKrw(weiToDisplayKrw(wei(quote), ethKrw))}
-                    </span>
-                  ) : null}
-                </>
-              )
-            ) : (
-              "—"
-            )}
-          </dd>
-        </div>
-        <div className="flex items-baseline justify-between border-t border-hairline/40 py-2">
-          <dt className="text-[12px] text-ink-3">최소 수령 (체결 오차 1%)</dt>
-          <dd className="font-mono text-[12px] tabular-nums text-ink-3">
-            {minOut !== null && minOut > 0n
-              ? `${formatEth(wei(minOut), side === "buy" ? 2 : 8)} ${side === "buy" ? asset.symbol : "ETH"}`
-              : "—"}
-          </dd>
-        </div>
-        <div className="flex items-baseline justify-between border-t border-hairline/40 py-2">
-          <dt className="text-[12px] text-ink-3">교환 수수료 (0.3%)</dt>
-          <dd className="font-mono text-[12px] tabular-nums text-ink-3">
-            {fee !== null && fee > 0n
-              ? ethKrw
-                ? `≈ ₩${formatKrw(weiToDisplayKrw(wei(fee), ethKrw))}`
-                : `${formatEth(wei(fee), 8)} ETH`
-              : "—"}
-          </dd>
-        </div>
-      </dl>
+      <QuoteSummary
+        side={side}
+        symbol={asset.symbol}
+        quote={quote}
+        minOut={minOut}
+        fee={fee}
+        ethKrw={ethKrw}
+      />
 
-      {/* 실행 버튼 — 연결 → 네트워크 → 주문 순으로 안내 */}
-      {!account ? (
-        <button
-          type="button"
-          onClick={() => setLoginOpen(true)}
-          className="mt-4 w-full rounded-lg bg-accent py-3 text-[13.5px] font-semibold text-accent-ink transition-[filter] hover:brightness-110"
-        >
-          지갑 연결하고 거래하기
-        </button>
-      ) : !onGiwa ? (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => {
-            if (!provider) return;
-            void requestGiwaNetwork(provider)
-              .then((hex) => hex && setChainHex(hex))
-              .catch(() => setError("네트워크 전환에 실패했습니다"));
-          }}
-          className="mt-4 w-full rounded-lg border border-accent/30 bg-accent/10 py-3 text-[13.5px] font-semibold text-accent transition-colors hover:bg-accent/20"
-        >
-          {giwaChain.name} 네트워크로 전환
-        </button>
-      ) : (
-        <button
-          type="button"
-          disabled={busy || quote === null || quote <= 0n}
-          onClick={() => void submit()}
-          className={`mt-4 w-full rounded-lg py-3 text-[13.5px] font-semibold transition-[filter] disabled:cursor-not-allowed disabled:opacity-50 ${
-            side === "buy" ? "bg-up/85 text-white hover:brightness-110" : "bg-down/85 text-white hover:brightness-110"
-          }`}
-        >
-          {phase === "approving"
-            ? "판매 승인 대기 중…"
-            : phase === "swapping"
-              ? "지갑에서 확인해 주세요…"
-              : phase === "mining"
-                ? "체결 확인 중…"
-                : side === "buy"
-                  ? `${asset.symbol} 매수`
-                  : `${asset.symbol} 매도`}
-        </button>
-      )}
+      <ExecuteButton
+        account={account}
+        onGiwa={onGiwa}
+        busy={busy}
+        phase={phase}
+        side={side}
+        symbol={asset.symbol}
+        quote={quote}
+        onConnect={() => setLoginOpen(true)}
+        onSwitchNetwork={() => {
+          if (!provider) return;
+          void requestGiwaNetwork(provider)
+            .then((hex) => hex && setChainHex(hex))
+            .catch(() => setError("네트워크 전환에 실패했습니다"));
+        }}
+        onSubmit={() => void submit()}
+      />
 
-      {error ? <p className="mt-2.5 text-[12px] text-down">{error}</p> : null}
-      {doneTx ? (
-        <p className="mt-2.5 text-[12px] text-good">
-          체결 완료 ·{" "}
-          <a
-            href={`${giwaChain.explorerUrl}/tx/${doneTx}`}
-            target="_blank"
-            rel="noreferrer"
-            className="font-mono underline"
-          >
-            {shortHex(doneTx, 8, 6)}
-          </a>
-        </p>
-      ) : null}
+      <TxResultNotice error={error} doneTx={doneTx} />
 
       <p className="mt-3 text-[11px] leading-relaxed text-ink-3">
         나루 라우터(
@@ -479,5 +399,163 @@ export function TradePanel({
         ) 직접 체결 · 수수료 0.3% 전량 유동성 공급자 귀속 · 테스트넷
       </p>
     </div>
+  );
+}
+
+/* ── 순수 렌더 서브컴포넌트 — 상태는 전부 TradePanel 이 쥐고 props 로 내린다 ── */
+
+/** 견적 표시 — 예상 수령 / 최소 수령 / 수수료 (계산값은 상위에서 받는다) */
+function QuoteSummary({
+  side,
+  symbol,
+  quote,
+  minOut,
+  fee,
+  ethKrw,
+}: {
+  side: "buy" | "sell";
+  symbol: string;
+  quote: bigint | null;
+  minOut: bigint | null;
+  fee: bigint | null;
+  ethKrw: bigint | null;
+}) {
+  return (
+    <dl className="mt-3 rounded-lg border border-hairline/60 bg-black/20 px-3.5 py-1">
+      <div className="flex items-baseline justify-between py-2">
+        <dt className="text-[12px] text-ink-3">예상 수령</dt>
+        <dd className="font-mono text-[13px] tabular-nums">
+          {quote !== null && quote > 0n ? (
+            side === "buy" ? (
+              <>
+                {formatEth(wei(quote), 2)}{" "}
+                <span className="text-[11px] text-ink-3">{symbol}</span>
+              </>
+            ) : (
+              <>
+                {formatEth(wei(quote), 8)}{" "}
+                <span className="text-[11px] text-ink-3">ETH</span>
+                {ethKrw ? (
+                  <span className="ml-1.5 text-[11px] text-ink-3">
+                    ≈ ₩{formatKrw(weiToDisplayKrw(wei(quote), ethKrw))}
+                  </span>
+                ) : null}
+              </>
+            )
+          ) : (
+            "—"
+          )}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between border-t border-hairline/40 py-2">
+        <dt className="text-[12px] text-ink-3">최소 수령 (체결 오차 1%)</dt>
+        <dd className="font-mono text-[12px] tabular-nums text-ink-3">
+          {minOut !== null && minOut > 0n
+            ? `${formatEth(wei(minOut), side === "buy" ? 2 : 8)} ${side === "buy" ? symbol : "ETH"}`
+            : "—"}
+        </dd>
+      </div>
+      <div className="flex items-baseline justify-between border-t border-hairline/40 py-2">
+        <dt className="text-[12px] text-ink-3">교환 수수료 (0.3%)</dt>
+        <dd className="font-mono text-[12px] tabular-nums text-ink-3">
+          {fee !== null && fee > 0n
+            ? ethKrw
+              ? `≈ ₩${formatKrw(weiToDisplayKrw(wei(fee), ethKrw))}`
+              : `${formatEth(wei(fee), 8)} ETH`
+            : "—"}
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+/** 실행 버튼 — 연결 → 네트워크 → 주문 순으로 안내 (동작은 콜백으로 위임) */
+function ExecuteButton({
+  account,
+  onGiwa,
+  busy,
+  phase,
+  side,
+  symbol,
+  quote,
+  onConnect,
+  onSwitchNetwork,
+  onSubmit,
+}: {
+  account: string | null;
+  onGiwa: boolean;
+  busy: boolean;
+  phase: Phase;
+  side: "buy" | "sell";
+  symbol: string;
+  quote: bigint | null;
+  onConnect: () => void;
+  onSwitchNetwork: () => void;
+  onSubmit: () => void;
+}) {
+  if (!account) {
+    return (
+      <button
+        type="button"
+        onClick={onConnect}
+        className="mt-4 w-full rounded-lg bg-accent py-3 text-[13.5px] font-semibold text-accent-ink transition-[filter] hover:brightness-110"
+      >
+        지갑 연결하고 거래하기
+      </button>
+    );
+  }
+  if (!onGiwa) {
+    return (
+      <button
+        type="button"
+        disabled={busy}
+        onClick={onSwitchNetwork}
+        className="mt-4 w-full rounded-lg border border-accent/30 bg-accent/10 py-3 text-[13.5px] font-semibold text-accent transition-colors hover:bg-accent/20"
+      >
+        {giwaChain.name} 네트워크로 전환
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      disabled={busy || quote === null || quote <= 0n}
+      onClick={onSubmit}
+      className={`mt-4 w-full rounded-lg py-3 text-[13.5px] font-semibold transition-[filter] disabled:cursor-not-allowed disabled:opacity-50 ${
+        side === "buy" ? "bg-up/85 text-white hover:brightness-110" : "bg-down/85 text-white hover:brightness-110"
+      }`}
+    >
+      {phase === "approving"
+        ? "판매 승인 대기 중…"
+        : phase === "swapping"
+          ? "지갑에서 확인해 주세요…"
+          : phase === "mining"
+            ? "체결 확인 중…"
+            : side === "buy"
+              ? `${symbol} 매수`
+              : `${symbol} 매도`}
+    </button>
+  );
+}
+
+/** 거래 결과 안내 — 에러 문구와 체결 완료 링크 */
+function TxResultNotice({ error, doneTx }: { error: string | null; doneTx: string | null }) {
+  return (
+    <>
+      {error ? <p className="mt-2.5 text-[12px] text-down">{error}</p> : null}
+      {doneTx ? (
+        <p className="mt-2.5 text-[12px] text-good">
+          체결 완료 ·{" "}
+          <a
+            href={`${giwaChain.explorerUrl}/tx/${doneTx}`}
+            target="_blank"
+            rel="noreferrer"
+            className="font-mono underline"
+          >
+            {shortHex(doneTx, 8, 6)}
+          </a>
+        </p>
+      ) : null}
+    </>
   );
 }

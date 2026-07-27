@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AssetDetailLive } from "@/components/asset-detail-live";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { AssetDetailLive } from "@/components/asset/asset-detail-live";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
 import { getHolderAnalysis } from "@/lib/analysis";
 import { getAssetMarket, getHolderGraph } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
