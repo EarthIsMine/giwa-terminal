@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { giwaChain } from "@giwa/config";
 import { shortHex } from "@giwa/shared";
+import { useAutoFocus } from "@/hooks/use-auto-focus";
+import { useEscapeKey } from "@/hooks/use-escape-key";
 
 /**
  * 로그인 진입점 — 버튼 하나, 방식 선택은 모달에서.
@@ -15,8 +17,10 @@ import { shortHex } from "@giwa/shared";
  * config 주입(절대 규칙 4). 세션은 React state에만 둔다(스토리지 금지 컨벤션).
  */
 
-import { useWallet } from "./wallet-context";
-import type { Eip6963ProviderDetail } from "./wallet-context";
+import { useWallet } from "@/contexts/wallet-context";
+import type { Eip6963ProviderDetail } from "@/contexts/wallet-context";
+import { NetworkRow } from "@/components/wallet/login-network-row";
+import { LoginWalletList } from "@/components/wallet/login-wallet-list";
 
 function errorCode(e: unknown): number | null {
   if (typeof e === "object" && e !== null && "code" in e) {
@@ -43,41 +47,28 @@ function utf8ToHex(s: string): string {
 
 type ReqStatus = "idle" | "pending" | "error";
 
-/* 네트워크 상태 행 — 연결 전/후 패널이 공유 */
-function NetworkRow({
-  onGiwa,
-  pending,
-  onSwitch,
-}: {
-  onGiwa: boolean;
-  pending: boolean;
-  onSwitch: () => void;
-}) {
-  return (
-    <div className="mt-3.5 flex min-h-[42px] items-center justify-between rounded-lg border border-hairline bg-black/20 px-3 py-2">
-      <span className="text-[12px] text-ink-3">네트워크</span>
-      {onGiwa ? (
-        <span className="flex items-center gap-1.5 text-[12px] font-medium text-good">
-          <span aria-hidden className="size-1.5 rounded-full bg-good" />
-          {giwaChain.name} 연결됨
-        </span>
-      ) : pending ? (
-        <span className="text-[12px] text-ink-3">지갑에서 확인해 주세요…</span>
-      ) : (
-        <button
-          type="button"
-          onClick={onSwitch}
-          className="rounded-md border border-accent/30 bg-accent/10 px-2.5 py-1 text-[11.5px] font-medium text-accent transition-colors hover:bg-accent/20"
-        >
-          {giwaChain.name} 추가·전환
-        </button>
-      )}
-    </div>
-  );
+/* 모달이 열릴 때 EIP-6963 프로바이더 수집 */
+function useEip6963Wallets(open: boolean): readonly Eip6963ProviderDetail[] {
+  const [wallets, setWallets] = useState<readonly Eip6963ProviderDetail[]>([]);
+  useEffect(() => {
+    if (!open) return;
+    const found = new Map<string, Eip6963ProviderDetail>();
+    const onAnnounce = (e: Event) => {
+      const detail = (e as CustomEvent<Eip6963ProviderDetail>).detail;
+      if (detail?.info?.rdns) {
+        found.set(detail.info.rdns, detail);
+        setWallets([...found.values()]);
+      }
+    };
+    window.addEventListener("eip6963:announceProvider", onAnnounce);
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+    return () =>
+      window.removeEventListener("eip6963:announceProvider", onAnnounce);
+  }, [open]);
+  return wallets;
 }
 
 export function LoginButton() {
-  const [wallets, setWallets] = useState<readonly Eip6963ProviderDetail[]>([]);
   /* 연결 상태·모달 개폐는 컨텍스트 공유 — 내 자산·거래 패널이 같은 세션을 쓴다 */
   const {
     connectedWallet,
@@ -95,43 +86,24 @@ export function LoginButton() {
   const [netStatus, setNetStatus] = useState<ReqStatus>("idle");
   const [signStatus, setSignStatus] = useState<ReqStatus>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
 
   /* 서명까지 마친 주소가 현재 계정과 일치해야 로그인 상태다 */
   const loggedIn = account !== null && signedAccount === account;
   const onGiwa =
     chainHex !== null && Number.parseInt(chainHex, 16) === giwaChain.chainId;
 
-  /* 모달이 열릴 때 EIP-6963 프로바이더 수집 */
-  useEffect(() => {
-    if (!open) return;
-    const found = new Map<string, Eip6963ProviderDetail>();
-    const onAnnounce = (e: Event) => {
-      const detail = (e as CustomEvent<Eip6963ProviderDetail>).detail;
-      if (detail?.info?.rdns) {
-        found.set(detail.info.rdns, detail);
-        setWallets([...found.values()]);
-      }
-    };
-    window.addEventListener("eip6963:announceProvider", onAnnounce);
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
-    return () =>
-      window.removeEventListener("eip6963:announceProvider", onAnnounce);
-  }, [open]);
+  const wallets = useEip6963Wallets(open);
 
+  /* 모달 공통 관례 — ESC 닫기 · 배경 스크롤 잠금 · 닫기 버튼 포커스 */
+  useEscapeKey(open, () => setOpen(false));
   useEffect(() => {
     if (!open) return;
-    closeRef.current?.focus();
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
     };
   }, [open]);
+  const closeRef = useAutoFocus<HTMLButtonElement>(open);
 
   /* 연결된 지갑의 체인/계정 변경을 구독 — 네트워크 표기를 실시간으로 맞춘다 */
   useEffect(() => {
@@ -584,53 +556,12 @@ export function LoginButton() {
                           수수료가 들지 않습니다
                         </p>
                       </div>
-                    ) : wallets.length > 0 ? (
-                      /* 설치된 지갑 목록 (EIP-6963) */
-                      <div className="mt-4 space-y-2">
-                        {wallets.map((w) => (
-                          <button
-                            key={w.info.rdns}
-                            type="button"
-                            disabled={connectingRdns !== null}
-                            onClick={() => void connect(w)}
-                            className="w-full rounded-xl border border-hairline bg-panel px-4 py-3 text-left transition-colors hover:bg-panel-2 disabled:opacity-60"
-                          >
-                            <span className="flex items-center gap-3.5">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={w.info.icon}
-                                alt=""
-                                width={24}
-                                height={24}
-                                className="rounded-md"
-                              />
-                              <span className="flex-1 text-[14px] font-semibold">
-                                {w.info.name}
-                              </span>
-                              <span className="text-[12px] text-ink-3">
-                                {connectingRdns === w.info.rdns
-                                  ? "지갑에서 확인 중…"
-                                  : "연결"}
-                              </span>
-                            </span>
-                          </button>
-                        ))}
-                      </div>
                     ) : (
-                      /* 설치된 지갑 없음 */
-                      <div className="mt-4 rounded-xl border border-hairline bg-panel px-4 py-4 text-center">
-                        <p className="text-[13px] text-ink-2">
-                          설치된 지갑이 없습니다
-                        </p>
-                        <a
-                          href="https://metamask.io/download"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-1.5 inline-block text-[12.5px] text-accent transition-[filter] hover:brightness-110"
-                        >
-                          메타마스크 설치 ↗
-                        </a>
-                      </div>
+                      <LoginWalletList
+                        wallets={wallets}
+                        connectingRdns={connectingRdns}
+                        onConnect={(w) => void connect(w)}
+                      />
                     )}
                   </>
                 )}

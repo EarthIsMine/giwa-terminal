@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { PortfolioResponse } from "@/lib/api-types";
 import { getEthKrw } from "@/lib/krw";
 import { getPortfolio } from "@/lib/onchain";
 
@@ -14,9 +15,10 @@ export async function GET(request: Request) {
     getPortfolio(address as `0x${string}`),
     getEthKrw(),
   ]);
-  return NextResponse.json({
+  const body: PortfolioResponse = {
     ...portfolio,
     ethKrw: ethKrw?.toString() ?? null,
     updatedAt: Date.now(),
-  });
+  };
+  return NextResponse.json(body);
 }

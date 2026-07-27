@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useSearch } from "./search-context";
+import { useSearch } from "@/contexts/search-context";
 
 /**
  * 헤더 전역 검색.

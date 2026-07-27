@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { giwaChain } from "@giwa/config";
 import { SITE_LINKS } from "@/lib/site";
-import { BrandLogo } from "./brand-logo";
-import { HeaderSearch } from "./header-search";
-import { MainNav } from "./main-nav";
-import { LoginButton } from "./login-button";
-import { TelegramIcon, XIcon } from "./social-icons";
+import { BrandLogo } from "@/components/ui/brand-logo";
+import { HeaderSearch } from "@/components/layout/header-search";
+import { MainNav } from "@/components/layout/main-nav";
+import { LoginButton } from "@/components/wallet/login-button";
+import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
 const ICON_BUTTON_CLASS =
   "grid size-9 place-items-center rounded-lg border border-hairline text-ink-3 transition-colors hover:border-ink-3/40 hover:text-ink-2";

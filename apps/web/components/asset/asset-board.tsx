@@ -25,10 +25,10 @@ import type { AssetVerification, WeiAmount } from "@giwa/shared";
 import { BOARD_WINDOWS } from "@/lib/indexer";
 import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
-import { AssetAvatar } from "./asset-avatar";
-import { CopyAddress } from "./copy-address";
-import { useSearch } from "./search-context";
-import { VerifiedBadge } from "./verified-badge";
+import { AssetAvatar } from "@/components/ui/asset-avatar";
+import { CopyAddress } from "@/components/ui/copy-address";
+import { useSearch } from "@/contexts/search-context";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 
 /**
  * 자산 보드 — GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
