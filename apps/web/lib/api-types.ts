@@ -1,6 +1,6 @@
 import type { FeedItemWire } from "@/lib/indexer";
 import type { MarketTickerWire } from "@/lib/krw";
-import type { LiveAssetWire } from "@/lib/onchain";
+import type { PortfolioWire } from "@/lib/onchain";
 
 /**
  * 내부 API 라우트의 응답 계약 — 단일 소스.
@@ -9,10 +9,13 @@ import type { LiveAssetWire } from "@/lib/onchain";
  * 따로 선언하지 않는다 (과거 PortfolioResponse 2중 정의 드리프트 방지).
  */
 
-/** GET /api/portfolio?address=0x… */
-export interface PortfolioResponse {
-  ethBalance: string;
-  holdings: (LiveAssetWire & { balance: string })[];
+/**
+ * GET /api/portfolio?address=0x…
+ * 생산자(PortfolioWire)를 그대로 확장한다 — 필드를 베껴 적으면 라우트의
+ * `{ ...portfolio, … }` 스프레드에는 초과 프로퍼티 검사가 걸리지 않아서
+ * 생산자에 필드가 늘어도 타입 에러 없이 응답에서 조용히 누락된다.
+ */
+export interface PortfolioResponse extends PortfolioWire {
   ethKrw: string | null;
   updatedAt: number;
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { wei, weiToDisplayKrw } from "@giwa/shared";
+import { getAmountOut, wei, weiToDisplayKrw } from "@giwa/shared";
+import type { DisplayKrw } from "@giwa/shared";
 import type { PortfolioResponse } from "@/lib/api-types";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { useWallet } from "@/contexts/wallet-context";
@@ -18,13 +19,6 @@ import { PointsGuide } from "@/components/points/points-guide";
  * 렌더 분리: 좌 카드 = PointsEligibilityCard, 우 설명 = PointsGuide — 상태·조회는 여기서만.
  */
 
-/** V2 매도 시뮬레이션 — 스팟가 아닌 "실제로 팔 때 받는 ETH" (조작 방어, 명세서 §2.5) */
-function saleEth(amountIn: bigint, reserveIn: bigint, reserveOut: bigint): bigint {
-  if (amountIn <= 0n || reserveIn <= 0n || reserveOut <= 0n) return 0n;
-  const withFee = amountIn * 997n;
-  return (withFee * reserveOut) / (reserveIn * 1000n + withFee);
-}
-
 /** 잔고 구간표 (명세서 §2.5) — DisplayKrw(0.001원 단위)로 비교 */
 const TIERS = [
   { minKrwMilli: 100_000_000_000n, points: 4, label: "1억원 이상" },
@@ -37,7 +31,7 @@ const TIERS = [
 export function PointsView() {
   const { account, setLoginOpen } = useWallet();
   const [kyc, setKyc] = useState<KycState>("idle");
-  const [valueKrwMilli, setValueKrwMilli] = useState<bigint | null>(null);
+  const [valueKrwMilli, setValueKrwMilli] = useState<DisplayKrw | null>(null);
   const [valueLoaded, setValueLoaded] = useState(false);
 
   useAsyncEffect(
@@ -66,18 +60,17 @@ export function PointsView() {
           const p = (await portfolioRes.json()) as PortfolioResponse;
           if (p.ethKrw) {
             const ethKrw = BigInt(p.ethKrw);
-            // 평가액 = ETH 잔고 + Σ(검증 자산을 풀에 전량 매도했을 때 받는 ETH)
+            /* 평가액 = ETH 잔고 + Σ(검증 자산을 풀에 전량 매도했을 때 받는 ETH).
+               스팟가가 아니라 매도 시뮬레이션인 건 조작 방어 (명세서 §2.5) */
             let totalWei = BigInt(p.ethBalance);
             for (const h of p.holdings) {
-              totalWei += saleEth(
+              totalWei += getAmountOut(
                 BigInt(h.balance),
                 BigInt(h.tokenReserveWei),
                 BigInt(h.wethReserveWei),
               );
             }
-            setValueKrwMilli(
-              weiToDisplayKrw(wei(totalWei), ethKrw) as bigint,
-            );
+            setValueKrwMilli(weiToDisplayKrw(wei(totalWei), ethKrw));
           }
           setValueLoaded(true);
         }

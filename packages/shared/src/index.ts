@@ -16,6 +16,13 @@ export type {
   WeiAmount,
   WindowStats,
 } from "./types.ts";
+export {
+  SWAP_FEE_DENOMINATOR,
+  SWAP_FEE_NUMERATOR,
+  feeFromAmountIn,
+  feeFromAmountOut,
+  getAmountOut,
+} from "./amm.ts";
 export { WEI_PER_ETH, ethToWei, weiToDisplayKrw } from "./convert.ts";
 export {
   formatChangeBps,

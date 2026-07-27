@@ -17,7 +17,9 @@ interface PointsEligibilityCardProps {
   onConnect: () => void;
   kyc: KycState;
   tier: PointsTier | null;
-  valueKrwMilli: bigint | null;
+  /* DisplayKrw 로 받는다 — 언브랜드 bigint 면 WeiAmount 가 그대로 통과해
+     wei 수량이 원화로 렌더된다 (절대 규칙 1: 온체인 값과 환산 값은 타입 레벨 분리) */
+  valueKrwMilli: DisplayKrw | null;
   valueLoaded: boolean;
 }
 
@@ -91,7 +93,7 @@ export function PointsEligibilityCard({
                 </p>
                 <p className="mt-1 text-[11px] text-ink-3">
                   평가액{" "}
-                  {formatKrwCompact(valueKrwMilli as DisplayKrw)}원 ·{" "}
+                  {formatKrwCompact(valueKrwMilli)}원 ·{" "}
                   {tier.label} 구간
                 </p>
               </>

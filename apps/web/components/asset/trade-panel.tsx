@@ -4,7 +4,17 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { encodeFunctionData, parseAbi } from "viem";
 import { explorerAddressUrl, giwaChain } from "@giwa/config";
-import { ethToWei, formatEth, formatKrw, shortHex, wei, weiToDisplayKrw } from "@giwa/shared";
+import {
+  ethToWei,
+  feeFromAmountIn,
+  feeFromAmountOut,
+  formatEth,
+  formatKrw,
+  getAmountOut,
+  shortHex,
+  wei,
+  weiToDisplayKrw,
+} from "@giwa/shared";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 import type { LiveAssetWire } from "@/lib/onchain";
 import { requestGiwaNetwork, useWallet } from "@/contexts/wallet-context";
@@ -33,13 +43,6 @@ function weiToInput(v: bigint): string {
   const int = v / 10n ** 18n;
   const frac = (v % 10n ** 18n).toString().padStart(18, "0").replace(/0+$/, "");
   return frac ? `${int}.${frac}` : int.toString();
-}
-
-/** V2 스왑 견적 — 컨트랙트 getAmountOut과 동일식 (수수료 0.3%) */
-function getAmountOut(amountIn: bigint, reserveIn: bigint, reserveOut: bigint): bigint {
-  if (amountIn <= 0n || reserveIn <= 0n || reserveOut <= 0n) return 0n;
-  const withFee = amountIn * 997n;
-  return (withFee * reserveOut) / (reserveIn * 1000n + withFee);
 }
 
 /** 소수 입력 → wei. 잘못된 입력은 null (shared ethToWei는 throw 하므로 감싼다) */
@@ -85,15 +88,15 @@ export function TradePanel({
   /* 슬리피지(체결 오차) 허용 1% — 최소 수령량 미만이면 컨트랙트가 되돌린다 */
   const minOut = quote !== null ? (quote * 99n) / 100n : null;
 
-  /* 수수료 절대액 — ETH 레그 기준 0.3% (명세서 §2.1: 원화로 체감시킨다).
-     매수는 지불 ETH의 0.3%, 매도는 수령 ETH가 수수료 차감 후 값이라 역산한다 */
+  /* 수수료 절대액 — ETH 레그 기준 (명세서 §2.1: 원화로 체감시킨다).
+     매수는 지불 ETH에서 떼이고, 매도는 수령 ETH가 차감 후 값이라 역산한다. 산식은 shared/amm */
   const fee =
     amountIn === null || amountIn <= 0n
       ? null
       : side === "buy"
-        ? (amountIn * 3n) / 1_000n
+        ? feeFromAmountIn(amountIn)
         : quote !== null
-          ? (quote * 3n) / 997n
+          ? feeFromAmountOut(quote)
           : null;
 
   const provider = connectedWallet?.provider ?? null;
