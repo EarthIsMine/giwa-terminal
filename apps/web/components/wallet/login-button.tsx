@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { giwaChain } from "@giwa/config";
 import { shortHex } from "@giwa/shared";
 import { useAutoFocus } from "@/hooks/use-auto-focus";
-import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 import { useEscapeKey } from "@/hooks/use-escape-key";
 
 /**
@@ -97,7 +96,13 @@ export function LoginButton() {
 
   /* 모달 공통 관례 — ESC 닫기 · 배경 스크롤 잠금 · 닫기 버튼 포커스 */
   useEscapeKey(open, () => setOpen(false));
-  useBodyScrollLock(open);
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
   const closeRef = useAutoFocus<HTMLButtonElement>(open);
 
   /* 연결된 지갑의 체인/계정 변경을 구독 — 네트워크 표기를 실시간으로 맞춘다 */

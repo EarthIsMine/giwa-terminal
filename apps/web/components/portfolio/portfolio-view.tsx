@@ -46,8 +46,11 @@ export function PortfolioView() {
     if (account) void refresh();
   }, [account, refresh]);
 
-  /* "N초 전 업데이트" 표시 — 1초 틱은 state, 경과 초는 렌더 시점 파생 */
-  usePoll(() => setNowMs(Date.now()), 1000);
+  /* "N초 전 업데이트" 표시 — 1초 틱은 state, 경과 초는 렌더 시점 파생. data 없으면 틱 스킵(불필요한 재렌더 방지) */
+  usePoll(() => {
+    if (!data) return;
+    setNowMs(Date.now());
+  }, 1000);
   const agoSec = data ? Math.max(0, Math.floor((nowMs - data.updatedAt) / 1000)) : 0;
 
   const ethKrw = useMemo(
