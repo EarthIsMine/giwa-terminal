@@ -38,10 +38,12 @@ export interface StatsWire {
   tradersToday: number;
 }
 
+/** 캔들 간격 — 인덱서 candles_1m 원본과 1h/1d 롤업 */
+export type ChartInterval = "1m" | "1h" | "1d";
+
 export interface AssetMarketWire {
-  candles: CandleWire[];
-  /** 일봉이 충분히 쌓이기 전에는 시간봉으로 내려간다 */
-  interval: "1h" | "1d";
+  /** 간격별 캔들 전량. 어느 기간을 보여줄지는 화면(기간 버튼)이 고른다 */
+  series: Record<ChartInterval, CandleWire[]>;
   trades: TradeWire[];
   stats: StatsWire | null;
 }
@@ -134,27 +136,29 @@ export async function getHolderGraph(
   return fetchJson<HolderGraphWire>(`/graph/${token}`);
 }
 
-/** 일봉이 이만큼 쌓이기 전에는 시간봉을 보여준다 (테스트넷 초기 구간) */
-const DAILY_MIN = 5;
-
+/**
+ * 상세 화면 시장 데이터 — 간격 세 벌을 한 번에 받는다.
+ * 기간 버튼(1일·7일·30일·전체)이 클라이언트에서 즉시 전환되려면 왕복이 없어야 한다.
+ * 캔들은 체결이 있는 버킷에만 생기므로 테스트넷 규모에서는 세 벌 합쳐도 가볍다.
+ */
 export async function getAssetMarket(
   pair: `0x${string}`,
 ): Promise<AssetMarketWire | null> {
-  const [daily, hourly, tradesRes, stats] = await Promise.all([
-    fetchJson<{ candles: CandleWire[] }>(`/candles/${pair}?interval=1d&limit=120`),
+  const [minute, hourly, daily, tradesRes, stats] = await Promise.all([
+    fetchJson<{ candles: CandleWire[] }>(`/candles/${pair}?interval=1m&limit=1000`),
     fetchJson<{ candles: CandleWire[] }>(`/candles/${pair}?interval=1h&limit=336`),
+    fetchJson<{ candles: CandleWire[] }>(`/candles/${pair}?interval=1d&limit=400`),
     fetchJson<{ trades: TradeWire[] }>(`/trades/${pair}?limit=30`),
     fetchJson<StatsWire>(`/stats/${pair}`),
   ]);
 
-  const useDaily = (daily?.candles.length ?? 0) >= DAILY_MIN;
-  const candles = (useDaily ? daily?.candles : hourly?.candles) ?? [];
-  if (candles.length === 0) return null;
-
-  return {
-    candles,
-    interval: useDaily ? "1d" : "1h",
-    trades: tradesRes?.trades ?? [],
-    stats,
+  const series: Record<ChartInterval, CandleWire[]> = {
+    "1m": minute?.candles ?? [],
+    "1h": hourly?.candles ?? [],
+    "1d": daily?.candles ?? [],
   };
+  // 어느 간격에도 캔들이 없으면 인덱서 미연결·미체결 — 자리표시로 폴백한다
+  if (Object.values(series).every((c) => c.length === 0)) return null;
+
+  return { series, trades: tradesRes?.trades ?? [], stats };
 }
