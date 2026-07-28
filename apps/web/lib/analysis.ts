@@ -12,6 +12,14 @@
 import { giwaChain } from "@giwa/config";
 import { getTokenBalance } from "./onchain";
 
+/**
+ * 익스플로러 응답 상한. 분석 화면은 자산 수만큼(현 19종) 이 함수를 병렬 호출하고
+ * Promise.all 로 묶으므로, 타임아웃이 없으면 느린 토큰 하나가 페이지 전체를
+ * 붙잡는다 (홀더가 많은 토큰의 /holders 는 실제로 20초를 넘긴다).
+ * 초과분은 catch 로 떨어져 해당 행만 "—"가 된다.
+ */
+const EXPLORER_TIMEOUT_MS = 8_000;
+
 interface BlockscoutHolder {
   address: { hash: string };
   value: string;
@@ -46,8 +54,11 @@ export async function getHolderAnalysis(args: {
   try {
     const base = `${giwaChain.explorerUrl}/api/v2/tokens/${args.token}`;
     const [infoRes, holdersRes, issuerBalance] = await Promise.all([
-      fetch(base, { next: { revalidate: 60 } }),
-      fetch(`${base}/holders`, { next: { revalidate: 60 } }),
+      fetch(base, { next: { revalidate: 60 }, signal: AbortSignal.timeout(EXPLORER_TIMEOUT_MS) }),
+      fetch(`${base}/holders`, {
+        next: { revalidate: 60 },
+        signal: AbortSignal.timeout(EXPLORER_TIMEOUT_MS),
+      }),
       getTokenBalance(args.token, args.issuer),
     ]);
     if (!infoRes.ok || !holdersRes.ok) return null;

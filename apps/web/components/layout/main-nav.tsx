@@ -5,13 +5,18 @@ import { usePathname } from "next/navigation";
 
 /**
  * 상단 주 메뉴 — 항목은 실제 있는 화면만 (절대 규칙 3: 밀도를 낮춘다).
- * 토큰(목록·상세) / 발행(신원 게이트 전제) / 내 자산(보유 포트폴리오)
+ * 순서는 5면 구성을 따른다: 토큰 | 분석 | 발행 | 나루 포인트 | 내 자산
  */
 const ITEMS = [
   {
     href: "/",
     label: "토큰",
     match: (p: string) => p === "/" || p.startsWith("/asset"),
+  },
+  {
+    href: "/analysis",
+    label: "분석",
+    match: (p: string) => p.startsWith("/analysis"),
   },
   {
     href: "/launch",
