@@ -19,15 +19,12 @@ import { ChainActivityChart } from "@/components/analysis/chain-activity-chart";
  */
 
 /**
- * 최근 7일 하루 평균 — 오늘은 뺀다.
- * 반나절치를 하루로 세면 흐름이 실제보다 꺾여 보인다. 날짜 문자열이 YYYY-MM-DD
- * 고정 폭이라 사전순 비교가 곧 시간순 비교다 (Blockscout 은 UTC 로 준다).
+ * 최근 7일 하루 평균. 진행 중인 오늘은 getDaily 가 이미 잘라내므로
+ * 여기 들어오는 것은 전부 완결된 하루다 (차트와 같은 모집단).
  */
 function recentDailyAverage(daily: ChainOverview["daily"]): number | null {
-  const todayUtc = new Date().toISOString().slice(0, 10);
-  const complete = daily.filter((d) => d.date < todayUtc);
-  if (complete.length === 0) return null;
-  const window = complete.slice(-7);
+  if (daily.length === 0) return null;
+  const window = daily.slice(-7);
   const sum = window.reduce((acc, d) => acc + d.count, 0);
   return Math.trunc(sum / window.length);
 }
@@ -116,7 +113,7 @@ export function ChainPulse({
             label="하루 거래"
             value={formatCountCompact(dailyAvg)}
             unit="건"
-            note="최근 7일 평균 · 오늘 제외"
+            note="최근 7일 평균 · 진행 중인 오늘 제외"
           />
         ) : null}
 

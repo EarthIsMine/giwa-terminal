@@ -85,11 +85,20 @@ export interface HolderGraphWire {
 
 const INDEXER_URL = process.env.INDEXER_URL ?? null;
 
+/**
+ * 인덱서 응답 상한. 인덱서는 죽는 것보다 "살아 있는데 안 답하는" 상태가 흔하다
+ * (콜드 스타트·DB 락·인덱스 없는 스캔). 타임아웃이 없으면 fetch 가 reject 하지
+ * 않아 아래 catch 도 안 걸리고, 이 모듈을 Promise.all 로 묶는 라우트가 통째로
+ * 멈춘다 — 화면은 에러조차 못 띄우고 무한 로딩이 된다 (lib/analysis.ts 와 같은 방어).
+ */
+const INDEXER_TIMEOUT_MS = 8_000;
+
 async function fetchJson<T>(path: string): Promise<T | null> {
   if (!INDEXER_URL) return null;
   try {
     const res = await fetch(`${INDEXER_URL}${path}`, {
       next: { revalidate: 15 },
+      signal: AbortSignal.timeout(INDEXER_TIMEOUT_MS),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -189,6 +198,7 @@ export async function getWalletTrades(
   try {
     const res = await fetch(`${INDEXER_URL}/wallet/${address}/trades`, {
       cache: "no-store",
+      signal: AbortSignal.timeout(INDEXER_TIMEOUT_MS),
     });
     if (!res.ok) return null;
     return (await res.json()) as WalletTradesWire;

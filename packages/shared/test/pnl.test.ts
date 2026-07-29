@@ -83,3 +83,37 @@ test("roiBps: 손익 ÷ 총매수", () => {
   assert.equal(roiBps(1n * ETH, 4n * ETH), 2500); // +25.00%
   assert.equal(roiBps(-1n * ETH, 4n * ETH), -2500);
 });
+
+/* 아래 둘은 화면(portfolio-view)에서 실제로 났던 버그의 회귀 방어다.
+   summarizeTrades 는 원래 맞게 계산하고 있었고, 뷰가 그 결과를 잘못 걸렀다. */
+
+test("전송으로 내보낸 물량: 원장 수량이 잔고보다 많다 (없는 손실 방지 조건)", () => {
+  // 100개를 1 ETH 에 사고 40개를 다른 지갑으로 전송 → 잔고 60, 원장 100
+  const l = summarizeTrades([buy(100n * ETH, 1n * ETH)]);
+  const onChainBalance = 60n * ETH;
+  assert.equal(l.ledgerQty, 100n * ETH);
+  assert.notEqual(
+    l.ledgerQty,
+    onChainBalance,
+    "원장과 잔고가 어긋나면 손익을 내면 안 된다",
+  );
+  // 그대로 계산하면 남은 60개 평가(0.6)에 100개 투입(1)이 얹혀 -40% 가 찍힌다
+  const valueOf60 = 6n * 10n ** 17n;
+  assert.equal(
+    totalPnlWei(valueOf60, l.netInvestedWei as bigint) as bigint,
+    -4n * 10n ** 17n,
+    "이 값을 화면에 띄우면 안 된다 — 잃은 돈이 없다",
+  );
+});
+
+test("전량 매도한 자산도 실현 손익을 갖는다 (합계에서 빠지면 안 되는 조건)", () => {
+  const l = summarizeTrades([buy(100n * ETH, 1n * ETH), sell(100n * ETH, 2n * ETH)]);
+  const onChainBalance = 0n;
+  assert.equal(l.ledgerQty, onChainBalance, "원장과 잔고가 맞으므로 손익 대상이다");
+  assert.equal(
+    totalPnlWei(0n, l.netInvestedWei as bigint) as bigint,
+    1n * ETH,
+    "잔고 0 이어도 +1 ETH 실현 이익이 남는다",
+  );
+  assert.equal(roiBps(1n * ETH, l.grossBoughtWei as bigint), 10_000);
+});

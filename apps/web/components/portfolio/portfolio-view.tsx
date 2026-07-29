@@ -14,7 +14,7 @@ import {
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
-import type { PnlTrade } from "@giwa/shared";
+import type { BasisPoints, PnlTrade } from "@giwa/shared";
 import type { PortfolioResponse } from "@/lib/api-types";
 import { usePoll } from "@/hooks/use-poll";
 import { CopyAddress } from "@/components/ui/copy-address";
@@ -24,8 +24,8 @@ import { useWallet } from "@/contexts/wallet-context";
 
 /**
  * 내 자산 — 지갑 보유 자산 포트폴리오 (레퍼런스: 지갑 앱 포트폴리오 탭).
- * 지갑·체인 칩 + 총 평가액(숨김 토글) + 자산/현재가/보유/평가금액/비중 테이블.
- * 손익(PnL)·활동 내역은 체결 이력이 필요해 인덱서 연결 후 추가한다.
+ * 지갑·체인 칩 + 총 평가액·총손익(숨김 토글) + 자산/현재가/보유/평가금액/총손익/비중 테이블.
+ * 활동 내역(거래 목록)은 이어서 붙인다.
  */
 
 const WEI = 10n ** 18n;
@@ -89,6 +89,44 @@ export function PortfolioView() {
     return new Map([...byToken].map(([k, v]) => [k, summarizeTrades(v)]));
   }, [data]);
 
+  /*
+   * 자산별 손익 — 표에 뜨는 행이 아니라 **보유 목록 전체**를 훑는다.
+   * 전량 매도해 잔고가 0인 자산도 실현 손익을 갖고 있어서(평가 0 − 음수 순투입),
+   * 표시용으로 걸러낸 행에서 합계를 내면 그 이익이 조용히 사라진다.
+   *
+   * 원장 수량과 잔고가 정확히 같을 때만 손익을 낸다. 적으면 전송으로 받은 물량이
+   * 섞인 것이고, 많으면 전송으로 내보낸 것이다 — 어느 쪽이든 투입액과 평가액의
+   * 대상이 어긋나 손익이 틀린다 (지표 정의 §손익: 추정 금지).
+   */
+  const assetPnl = useMemo(() => {
+    if (!data) return null;
+    const out = new Map<
+      string,
+      { boughtWei: bigint; pnlWei: bigint; roi: BasisPoints | null } | null
+    >();
+    for (const h of data.holdings) {
+      const key = h.address.toLowerCase();
+      const ledger = pnlByToken?.get(key) ?? null;
+      const balance = BigInt(h.balance);
+      // 잔고도 거래 이력도 없으면 이 지갑과 무관한 자산 — 제외 집계에도 넣지 않는다
+      if (balance === 0n && ledger === null) continue;
+      if (ledger === null || ledger.ledgerQty !== balance) {
+        out.set(key, null);
+        continue;
+      }
+      // 잔고 0 이면 getAmountOut 도 0 — 실현 손익만 남는다
+      const valueWei = getAmountOut(
+        balance,
+        BigInt(h.tokenReserveWei),
+        BigInt(h.wethReserveWei),
+      );
+      const boughtWei = ledger.grossBoughtWei as bigint;
+      const pnlWei = totalPnlWei(valueWei, ledger.netInvestedWei as bigint) as bigint;
+      out.set(key, { boughtWei, pnlWei, roi: roiBps(pnlWei, boughtWei) });
+    }
+    return out;
+  }, [data, pnlByToken]);
+
   const holdings = useMemo<Holding[]>(() => {
     if (!data) return [];
     const rows: Holding[] = [];
@@ -106,7 +144,6 @@ export function PortfolioView() {
       valueWei: wei(ethBalance),
       spotWei: wei(ethBalance),
       // 기축 자산은 손익의 기준이라 자기 자신에 대한 손익이 없다
-      boughtWei: null,
       pnlWei: null,
       roi: null,
     });
@@ -119,16 +156,7 @@ export function PortfolioView() {
         BigInt(h.tokenReserveWei),
         BigInt(h.wethReserveWei),
       );
-
-      /* 순투입은 매수·매도 이력에서만 나온다. 전송으로 받은 물량(원장 수량 <
-         실제 잔고)이 섞이면 투입 없이 평가금액만 늘어 손익이 과대 계상된다
-         → 그 자산은 손익을 표시하지 않는다 (지표 정의 §손익: 추정 금지) */
-      const ledger = pnlByToken?.get(h.address.toLowerCase()) ?? null;
-      const ledgerCovers = ledger !== null && ledger.ledgerQty >= balance;
-      const boughtWei = ledgerCovers ? (ledger.grossBoughtWei as bigint) : null;
-      const pnlWei = ledgerCovers
-        ? (totalPnlWei(valueWei, ledger.netInvestedWei as bigint) as bigint)
-        : null;
+      const pnl = assetPnl?.get(h.address.toLowerCase()) ?? null;
 
       rows.push({
         key: h.address,
@@ -143,13 +171,12 @@ export function PortfolioView() {
            이미 이 기준을 쓴다 — 같은 보유분에 두 숫자가 나오지 않게 통일한다 */
         valueWei: wei(valueWei),
         spotWei: wei((balance * price) / WEI),
-        boughtWei: boughtWei === null ? null : wei(boughtWei),
-        pnlWei: pnlWei === null ? null : wei(pnlWei),
-        roi: pnlWei === null || boughtWei === null ? null : roiBps(pnlWei, boughtWei),
+        pnlWei: pnl === null ? null : wei(pnl.pnlWei),
+        roi: pnl?.roi ?? null,
       });
     }
     return rows;
-  }, [data, pnlByToken]);
+  }, [data, assetPnl]);
 
   const totalWei = useMemo(
     () => wei(holdings.reduce((acc, h) => acc + (h.valueWei as bigint), 0n)),
@@ -157,29 +184,29 @@ export function PortfolioView() {
   );
 
   /*
-   * 총손익 — 원가를 아는 자산만 더한다.
-   * 원가 불명 자산(전송 수령분 등)을 0원가로 끼우면 합계가 통째로 부풀므로
-   * 빼고 세되, 몇 종을 뺐는지 화면에 밝힌다 (지표 정의 §손익: 추정 금지).
+   * 총손익 — 투입액을 아는 자산만 더한다. assetPnl 을 훑으므로 전량 매도해
+   * 표에서 사라진 자산의 실현 손익도 합계에 남는다.
+   * 투입액 불명 자산을 0원가로 끼우면 합계가 부풀므로 빼되, 몇 종을 뺐는지
+   * 화면에 밝힌다 (지표 정의 §손익: 추정 금지).
    */
   const totalPnl = useMemo(() => {
+    if (!assetPnl) return null;
     let pnl = 0n;
     let cost = 0n;
     let counted = 0;
     let skipped = 0;
-    for (const h of holdings) {
-      // 기축 ETH 는 손익 대상이 아니라 제외 대상에도 넣지 않는다
-      if (h.address === null) continue;
-      if (h.pnlWei === null || h.boughtWei === null) {
+    for (const entry of assetPnl.values()) {
+      if (entry === null) {
         skipped += 1;
         continue;
       }
-      pnl += h.pnlWei as bigint;
-      cost += h.boughtWei as bigint;
+      pnl += entry.pnlWei;
+      cost += entry.boughtWei;
       counted += 1;
     }
     if (counted === 0) return null;
     return { pnlWei: wei(pnl), roi: roiBps(pnl, cost), skipped };
-  }, [holdings]);
+  }, [assetPnl]);
 
   /* ---------- 미연결 상태 ---------- */
   if (!account) {
@@ -388,9 +415,11 @@ export function PortfolioView() {
           원화 표시가 변합니다. 수익률은 총매수 대비입니다.
         </p>
         <p>
-          · 매수 이력이 없는 물량(전송 수령 등)이 섞인 자산은 투입액을 알 수 없어
-          손익을 <b className="font-medium text-ink-2">—</b>로 비워 둡니다.
-          거래 내역은 이어서 제공합니다.
+          · 거래 이력과 잔고가 맞지 않는 자산은 손익을{" "}
+          <b className="font-medium text-ink-2">—</b>로 비워 둡니다. 다른 지갑에서
+          받아왔거나 다른 지갑으로 보낸 물량이 섞이면 투입한 금액과 남은 수량의
+          대상이 달라져 손익이 실제와 어긋나기 때문입니다. 거래 내역은 이어서
+          제공합니다.
         </p>
       </div>
     </div>

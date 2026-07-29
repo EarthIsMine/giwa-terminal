@@ -26,11 +26,19 @@ function EventCard({ event }: { event: ListingEventPreview }) {
    * 커뮤니티 스프레드시트가 하던 계산을 화면이 대신 한다:
    * 한 지갑 몫 = 배분 물량 ÷ 지금 문턱 넘은 지갑 수 (균등·확정형이라 나눗셈 하나).
    * 원화는 상장가 기준 환산 참고값 — "수익"이라는 말은 쓰지 않는다 (§4.4).
+   *
+   * 문턱을 넘은 지갑이 아직 0인 상태는 상장 직후의 정상 상태다. 나눗셈을 그대로
+   * 두면 Infinity 가 BigInt() 에 들어가 RangeError 로 화면 전체가 죽으므로,
+   * 몫을 낼 수 없는 구간으로 보고 계산을 건너뛴다.
    */
-  const shareTokens = Math.floor(event.allocationTokens / event.qualified);
-  const shareKrw = displayKrw(
-    BigInt(shareTokens) * BigInt(event.listPriceKrwMilli),
-  );
+  const shareTokens =
+    event.qualified > 0
+      ? Math.floor(event.allocationTokens / event.qualified)
+      : null;
+  const shareKrw =
+    shareTokens === null
+      ? null
+      : displayKrw(BigInt(shareTokens) * BigInt(event.listPriceKrwMilli));
   const listPrice = displayKrw(BigInt(event.listPriceKrwMilli));
 
   return (
@@ -93,16 +101,24 @@ function EventCard({ event }: { event: ListingEventPreview }) {
           </span>
         </div>
         <p className="mt-1.5 font-mono text-[19px] font-semibold tabular-nums leading-none">
-          {formatCount(shareTokens)}
-          <span className="ml-1 font-sans text-[11.5px] font-normal text-ink-3">
-            {event.symbol}
-          </span>
-          <span className="ml-3 text-[14px] font-medium text-ink-2">
-            ≈ ₩{formatKrw(shareKrw)}
-          </span>
-          <span className="ml-1.5 font-sans text-[11px] font-normal text-ink-3">
-            상장가 ₩{formatKrw(listPrice)} 환산 참고
-          </span>
+          {shareTokens === null || shareKrw === null ? (
+            <span className="text-[14px] font-normal text-ink-3">
+              아직 문턱을 넘은 지갑이 없습니다
+            </span>
+          ) : (
+            <>
+              {formatCount(shareTokens)}
+              <span className="ml-1 font-sans text-[11.5px] font-normal text-ink-3">
+                {event.symbol}
+              </span>
+              <span className="ml-3 text-[14px] font-medium text-ink-2">
+                ≈ ₩{formatKrw(shareKrw)}
+              </span>
+              <span className="ml-1.5 font-sans text-[11px] font-normal text-ink-3">
+                상장가 ₩{formatKrw(listPrice)} 환산 참고
+              </span>
+            </>
+          )}
         </p>
       </div>
     </li>

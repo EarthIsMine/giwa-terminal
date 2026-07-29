@@ -15,6 +15,13 @@ import { giwaChain } from "@giwa/config";
 
 const BLOCKSCOUT = `${giwaChain.explorerUrl}/api/v2`;
 
+/**
+ * 익스플로러 응답 상한. 공개 Blockscout 은 연결만 받고 응답을 멈추는 실패가 잦은데,
+ * 타임아웃이 없으면 getJson 이 null 을 못 내고 블록돼 아래 "보드만 숨기고 페이지는
+ * 산다" 폴백이 통째로 무력화된다 (서버 컴포넌트라 로딩 상태조차 없다).
+ */
+const EXPLORER_TIMEOUT_MS = 8_000;
+
 /** 일별 거래 수 한 점 — 날짜는 UTC 기준(Blockscout 원본) */
 export interface DailyTxPoint {
   /** YYYY-MM-DD */
@@ -50,7 +57,10 @@ function num(v: unknown): number | null {
 
 async function getJson(path: string, revalidate: number): Promise<unknown> {
   try {
-    const res = await fetch(`${BLOCKSCOUT}/${path}`, { next: { revalidate } });
+    const res = await fetch(`${BLOCKSCOUT}/${path}`, {
+      next: { revalidate },
+      signal: AbortSignal.timeout(EXPLORER_TIMEOUT_MS),
+    });
     if (!res.ok) return null;
     return (await res.json()) as unknown;
   } catch {
@@ -81,7 +91,12 @@ async function getStats(): Promise<Omit<ChainOverview, "daily" | "medianFeeWei">
   };
 }
 
-/** 일별 거래 추이 — 하루 한 번 바뀌는 값이라 10분 캐시 */
+/**
+ * 일별 거래 추이 — 하루 한 번 바뀌는 값이라 10분 캐시.
+ * 진행 중인 오늘(UTC)은 잘라낸다: 반나절치가 완결된 하루 옆에 서면 막대가 뚝
+ * 떨어져 "체인이 죽었다"로 읽힌다. 평균과 차트가 같은 모집단을 보도록 자르는
+ * 지점을 여기 한 곳으로 둔다 (날짜가 YYYY-MM-DD 고정 폭이라 사전순 = 시간순).
+ */
 async function getDaily(): Promise<DailyTxPoint[]> {
   const body = await getJson("stats/charts/transactions", 600);
   if (typeof body !== "object" || body === null || !("chart_data" in body)) return [];
@@ -97,7 +112,11 @@ async function getDaily(): Promise<DailyTxPoint[]> {
     out.push({ date: r.date, count });
   }
   // Blockscout 는 최신순으로 준다 — 차트는 시간순이라 뒤집고 30일로 자른다
-  return out.slice(0, 30).reverse();
+  const todayUtc = new Date().toISOString().slice(0, 10);
+  return out
+    .filter((d) => d.date < todayUtc)
+    .slice(0, 30)
+    .reverse();
 }
 
 /**
