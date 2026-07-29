@@ -83,7 +83,7 @@ export function ItemBody({
   ) : null;
   const pct =
     item.poolPermille !== undefined
-      ? ` · 풀 유동성의 ${(item.poolPermille / 10).toFixed(1)}%`
+      ? ` · 예치 풀의 ${(item.poolPermille / 10).toFixed(1)}%`
       : "";
   if (item.type === "issuer_sell") {
     return (

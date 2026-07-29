@@ -50,7 +50,7 @@ export function NaruFeedDrawer({
               나루터 소식
             </h2>
             <p className="mt-1 text-[11.5px] leading-relaxed text-ink-3">
-              중대형 체결 · 유동성 변동 · 신규 상장
+              중대형 체결 · 예치 변동 · 신규 상장
             </p>
           </div>
           <button
@@ -94,7 +94,7 @@ export function NaruFeedDrawer({
                       target="_blank"
                       rel="noreferrer"
                       className="transition-colors hover:text-accent"
-                      title="익스플로러에서 트랜잭션 보기"
+                      title="이 거래의 원본 기록 보기"
                     >
                       tx ↗
                     </a>

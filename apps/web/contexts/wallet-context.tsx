@@ -1,11 +1,20 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { giwaChain } from "@giwa/config";
 
 /**
  * 지갑 세션 컨텍스트 — 로그인 버튼과 내 자산 페이지가 공유하는 연결 상태.
- * 세션은 React state에만 둔다 (컨벤션: 브라우저 스토리지 금지) — 새로고침 시 재연결.
+ *
+ * 세션은 React state에만 둔다 (컨벤션: 브라우저 스토리지 금지). 그래도 새로고침에
+ * 연결이 풀리지는 않는다: 승인 기록은 우리가 아니라 지갑 확장이 쥐고 있어서,
+ * 마운트 때 `eth_accounts` 로 조용히 되물으면 이미 승인된 계정이 그대로 돌아온다
+ * (창을 띄우는 `eth_requestAccounts` 와 다르다). 스토리지를 쓰지 않으면서도
+ * 세션이 이어지는 이유다.
+ *
+ * 다만 서명 로그인(signedAccount)은 복구하지 않는다 — 그건 서버 세션 토큰이
+ * 있어야 이어지고, 지금 없는 걸 있는 척하면 소유 확인의 의미가 사라진다.
+ * 새로고침 후에는 "조회 전용" 상태로 떨어지고 서명은 다시 받는다.
  */
 
 /* ---------- EIP-1193 / EIP-6963 최소 타입 (단일 소스) ---------- */
@@ -82,6 +91,14 @@ export async function requestGiwaNetwork(
 
 const WalletContext = createContext<WalletSession | null>(null);
 
+/** EIP-1193 계정 배열에서 첫 주소만 — 형태가 어긋난 응답은 걸러낸다 */
+function firstString(v: unknown): string | null {
+  const arr = Array.isArray(v)
+    ? v.filter((x): x is string => typeof x === "string")
+    : [];
+  return arr[0] ?? null;
+}
+
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [connectedWallet, setConnectedWallet] =
     useState<Eip6963ProviderDetail | null>(null);
@@ -89,6 +106,54 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [chainHex, setChainHex] = useState<string | null>(null);
   const [signedAccount, setSignedAccount] = useState<string | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
+
+  /* 복구가 끝나기 전에 사용자가 직접 연결했으면 그 선택을 덮어쓰지 않는다 */
+  const accountRef = useRef<string | null>(null);
+  accountRef.current = account;
+
+  /*
+   * 마운트 시 세션 복구 — EIP-6963 으로 지갑을 훑고 이미 승인된 계정만 되받는다.
+   * `eth_accounts` 는 권한이 없으면 빈 배열을 줄 뿐 창을 띄우지 않으므로,
+   * 지갑을 깔았지만 연결한 적 없는 방문자를 귀찮게 하지 않는다.
+   */
+  useEffect(() => {
+    let cancelled = false;
+    const probed = new Set<string>();
+
+    const probe = async (detail: Eip6963ProviderDetail) => {
+      if (cancelled || probed.has(detail.info.rdns)) return;
+      probed.add(detail.info.rdns);
+      try {
+        const accounts = await detail.provider.request({ method: "eth_accounts" });
+        const first = firstString(accounts);
+        // 먼저 응답한 지갑 하나만 복구한다 — 둘을 동시에 붙이면 어느 쪽이 세션인지 모호해진다
+        if (cancelled || first === null || accountRef.current !== null) return;
+        accountRef.current = first;
+        setAccount(first);
+        setConnectedWallet(detail);
+        try {
+          const chain = await detail.provider.request({ method: "eth_chainId" });
+          if (!cancelled && typeof chain === "string") setChainHex(chain);
+        } catch {
+          /* 체인 조회 실패는 연결 자체를 무르지 않는다 — 네트워크 행이 알아서 표기한다 */
+        }
+      } catch {
+        /* 잠긴 지갑·거부는 조용히 넘긴다 (복구는 best-effort) */
+      }
+    };
+
+    const onAnnounce = (e: Event) => {
+      const detail = (e as CustomEvent<Eip6963ProviderDetail>).detail;
+      if (detail?.info?.rdns) void probe(detail);
+    };
+
+    window.addEventListener("eip6963:announceProvider", onAnnounce);
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+    return () => {
+      cancelled = true;
+      window.removeEventListener("eip6963:announceProvider", onAnnounce);
+    };
+  }, []);
 
   const value = useMemo(
     () => ({

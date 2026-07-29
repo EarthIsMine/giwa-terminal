@@ -96,7 +96,7 @@ export function TradeHistory({
                     href={explorerTxUrl(t.txHash)}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label="익스플로러에서 트랜잭션 보기"
+                    aria-label="이 거래의 원본 기록 보기"
                     className="text-[11px] text-ink-3 transition-colors hover:text-accent"
                   >
                     ↗

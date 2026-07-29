@@ -26,15 +26,46 @@ export interface AnalysisTokenRow {
   traders30d: number | null;
 }
 
-/** ‰ → % 표시. null 은 "—" (집계 실패·미연결을 0 과 구분한다) */
-function PermilleCell({ permille }: { permille: number | null }) {
+/**
+ * 지분 셀 — 숫자 아래에 음각 홈이 찬 만큼의 막대.
+ *
+ * 등급 라벨(안전·주의·위험)이나 경고색은 붙이지 않는다. 나루는 이 자산들을
+ * 검증해 상장시킨 주체라 자기가 통과시킨 자산에 위험 딱지를 다는 건 자기모순이고,
+ * 발행자가 실명 단체여서 해석을 앞세우면 사실 서술의 선을 넘는다.
+ * 게다가 상장 초기의 높은 발행자 물량은 이상 징후가 아니라 런치패드의 정상 상태다.
+ * 길이와 농도로 정도만 보이고 판단은 독자 몫으로 남긴다.
+ *
+ * 색은 한지빛 한 계열만 쓴다 — 액센트(골든 오크)는 하락 빨강과 색각이상 축이
+ * 가까워 데이터 인코딩에 쓰지 않고, 초록/빨강은 등락 전용 축이다.
+ *
+ * null 은 "—" (집계 실패·미연결을 0 과 구분한다).
+ */
+function ShareCell({ permille }: { permille: number | null }) {
   if (permille === null) {
     return <span className="text-ink-3">—</span>;
   }
+  const ratio = Math.min(1, Math.max(0, permille / 1_000));
   return (
-    <span className="font-mono tabular-nums">
-      {(permille / 10).toFixed(1)}
-      <span className="ml-0.5 text-[11px] text-ink-3">%</span>
+    <span className="inline-flex flex-col items-end gap-1.5">
+      <span className="font-mono tabular-nums">
+        {(permille / 10).toFixed(1)}
+        <span className="ml-0.5 text-[11px] text-ink-3">%</span>
+      </span>
+      {/*
+        눈금은 0~100% 고정이다. 값이 60~95% 에 몰려 있다고 축을 잘라 확대하면
+        차이가 실제보다 커 보인다 — 비슷한 것은 비슷하게 보여야 한다.
+        농도는 값에 따라 바꾸지 않는다: 길이가 이미 값을 말하고, 이 구간에서
+        알파 차이는 눈에 잡히지 않아 이중 인코딩이 낭비다.
+      */}
+      <span
+        aria-hidden
+        className="block h-[4px] w-[86px] overflow-hidden rounded-full bg-black/55"
+      >
+        <span
+          className="block h-full rounded-full bg-[rgba(199,186,163,0.72)]"
+          style={{ width: `${ratio * 100}%` }}
+        />
+      </span>
     </span>
   );
 }
@@ -60,7 +91,7 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="text-[15px] font-semibold">토큰</h2>
         <span className="text-[11px] text-ink-3">
-          보유 구조 비교 · Blockscout 온체인 집계 + 인덱서 · 60초 갱신
+          보유 구조 비교 · 기와체인 공개 기록 + 나루 집계 · 60초 갱신
         </span>
       </div>
 
@@ -92,7 +123,7 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
                     colSpan={HEADERS.length}
                     className="py-14 text-center text-[13.5px] text-ink-3"
                   >
-                    온체인 자산을 불러오는 중이거나 아직 발행된 자산이 없습니다
+                    자산을 불러오는 중이거나 아직 발행된 자산이 없습니다
                   </td>
                 </tr>
               ) : (
@@ -122,10 +153,10 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
                       <CountCell count={row.holderCount} />
                     </td>
                     <td className="px-4 py-2.5 text-right text-[12.5px]">
-                      <PermilleCell permille={row.issuerPermille} />
+                      <ShareCell permille={row.issuerPermille} />
                     </td>
                     <td className="px-4 py-2.5 text-right text-[12.5px]">
-                      <PermilleCell permille={row.top10Permille} />
+                      <ShareCell permille={row.top10Permille} />
                     </td>
                     <td className="px-4 py-2.5 text-right text-[12.5px] last:pr-6">
                       <CountCell count={row.traders30d} />
@@ -142,11 +173,12 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
       <div className="mt-3 space-y-1 text-[11.5px] leading-relaxed text-ink-3">
         <p>
           · 발행자 물량 = 발행자 지갑 보유량 ÷ 총공급. 상위 10 집중도 = 상위
-          10개 지갑 합산 ÷ 총공급이며 유동성 페어 등 인프라 주소는 제외한
-          값입니다.
+          10개 지갑 합산 ÷ 총공급이며 예치 풀 등 기반 주소는 제외한
+          값입니다. 막대는 그 비율을 길이로 옮긴 것일 뿐, 등급이나 경고가
+          아닙니다. 상장 초기에는 발행자 물량이 높은 것이 일반적입니다.
         </p>
         <p>
-          · 참여 인원은 최근 30일 매수 · 매도 · 유동성 공급 · 회수에 참여한
+          · 참여 인원은 최근 30일 매수 · 매도 · 예치 · 회수에 참여한
           지갑 수입니다. 테스트넷 데모라 시드 봇 · 운영 지갑이 포함됩니다.
         </p>
         <p>
@@ -158,7 +190,7 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
           <b className="font-medium text-ink-2">
             검증은 사기 필터이지 투자 보증이 아닙니다.
           </b>{" "}
-          발행 시점의 신원과 온체인 안전장치를 확인한 것입니다.
+          발행 시점의 신원과 기와체인에 기록된 안전장치를 확인한 것입니다.
         </p>
       </div>
     </section>

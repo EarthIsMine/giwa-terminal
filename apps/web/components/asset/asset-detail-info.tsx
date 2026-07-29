@@ -53,7 +53,7 @@ export function AssetDetailInfo({
   return (
     <>
       <div className="rounded-xl carved p-6">
-        <h2 className="text-[15px] font-semibold">온체인 정보</h2>
+        <h2 className="text-[15px] font-semibold">원본 기록</h2>
         <dl className="mt-3">
           <InfoRow label="예치 규모">
             {ethKrw ? (
@@ -81,10 +81,10 @@ export function AssetDetailInfo({
               {issuedDate.toISOString().slice(0, 10)}
             </span>
           </InfoRow>
-          <InfoRow label="토큰 컨트랙트">
+          <InfoRow label="자산 원본">
             <ExplorerLink address={asset.address} />
           </InfoRow>
-          <InfoRow label="유동성 페어">
+          <InfoRow label="예치 풀">
             <ExplorerLink address={asset.pair} />
           </InfoRow>
         </dl>
@@ -96,7 +96,7 @@ export function AssetDetailInfo({
           <span className="font-medium text-good">
             발행 시점에 검증된 자산입니다.
           </span>{" "}
-          발행 게이트가 검증 근거의 지문을 온체인에 영구 기록했습니다.
+          발행 게이트가 검증 근거의 지문을 기와체인에 영구 기록했습니다.
         </p>
         <dl className="mt-3">
           <InfoRow label="검증 방식">

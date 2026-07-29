@@ -165,7 +165,10 @@ export function LoginButton() {
 
   const disconnect = useCallback(() => {
     /* 지갑 쪽 사이트 권한도 회수해야 진짜 해제다 — 안 하면 재연결 때 계정 선택 창
-       없이 같은 계정이 즉시 돌아온다. 미지원 지갑도 있으니 실패는 무시(best-effort) */
+       없이 같은 계정이 즉시 돌아온다. 미지원 지갑도 있으니 실패는 무시(best-effort).
+       회수가 실패하면 새로고침 시 세션이 되살아난다: 스토리지를 쓰지 않으므로
+       "사용자가 해제를 눌렀다"를 새로고침 너머로 기억할 방법이 없고, 유일한
+       진실은 지갑이 쥔 승인 상태뿐이다 (wallet-context 의 복구 로직 참고) */
     connectedWallet?.provider
       .request({
         method: "wallet_revokePermissions",
@@ -246,7 +249,7 @@ export function LoginButton() {
         `시각: ${new Date().toISOString()}`,
         "",
         "이 서명은 지갑 소유 확인용입니다.",
-        "온체인 트랜잭션이 아니며 수수료가 발생하지 않습니다.",
+        "기와체인에 기록되지 않으며 수수료도 들지 않습니다.",
       ].join("\n");
       const sig = await connectedWallet.provider.request({
         method: "personal_sign",
@@ -552,7 +555,7 @@ export function LoginButton() {
                               : "서명하고 로그인"}
                         </button>
                         <p className="mt-2 text-[11.5px] leading-relaxed text-ink-3">
-                          서명은 지갑 소유 확인용입니다 · 온체인 전송이 아니며
+                          서명은 계정 소유 확인용입니다 · 자산 전송이 아니며
                           수수료가 들지 않습니다
                         </p>
                       </div>

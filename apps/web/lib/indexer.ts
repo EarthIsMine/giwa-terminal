@@ -162,3 +162,37 @@ export async function getAssetMarket(
 
   return { series, trades: tradesRes?.trades ?? [], stats };
 }
+
+/** 지갑 체결 한 건 — 손익 계산 재료 (지표 정의 §손익) */
+export interface WalletTradeWire {
+  token: `0x${string}`;
+  side: "buy" | "sell";
+  tokenAmount: string;
+  wethAmount: string;
+  timestamp: number;
+}
+
+export interface WalletTradesWire {
+  /** limit 을 넘겨 앞부분이 잘렸는지 — 잘렸으면 이동평균 원가를 신뢰할 수 없다 */
+  truncated: boolean;
+  trades: WalletTradeWire[];
+}
+
+/**
+ * 지갑의 전체 체결 원장 (오름차순). 인덱서 미연결이면 null → 화면은 손익 열을 감춘다.
+ * 개인 지갑 데이터라 캐시하지 않는다 — 잔고와 같은 신선도 기준.
+ */
+export async function getWalletTrades(
+  address: `0x${string}`,
+): Promise<WalletTradesWire | null> {
+  if (!INDEXER_URL) return null;
+  try {
+    const res = await fetch(`${INDEXER_URL}/wallet/${address}/trades`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as WalletTradesWire;
+  } catch {
+    return null;
+  }
+}

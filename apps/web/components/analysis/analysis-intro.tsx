@@ -7,11 +7,10 @@ export function AnalysisIntro() {
   return (
     <>
       <h1 className="font-serif text-[27px] font-bold tracking-tight">분석</h1>
-      <p className="mt-2 max-w-[640px] text-[13px] leading-relaxed text-ink-3">
-        상장 자산의 보유 구조를 한 자리에서 견줘 봅니다. 홀더 수, 발행자 물량,
-        상위 지갑 집중도, 참여 인원 — 가격 아래에 있는 구조를 보는 화면입니다.
-        발행자 지갑은 심사에서 등록되고 보유 · 전송은 전수 수집됩니다 —
-        추정이 아니라 기록입니다.
+      <p className="mt-2 max-w-[660px] text-[13px] leading-relaxed text-ink-3">
+        기와체인이라는 판 전체를 먼저 보고, 그 위에 올라온 자산으로 내려갑니다.
+        체인이 얼마나 돌아가는지, 한 번 거래에 얼마가 드는지, 그 안에서 나루가
+        무엇을 검증했는지. 가격 아래에 있는 구조를 보는 화면입니다.
       </p>
     </>
   );

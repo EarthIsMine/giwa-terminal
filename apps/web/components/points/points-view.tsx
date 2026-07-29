@@ -8,7 +8,9 @@ import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { useWallet } from "@/contexts/wallet-context";
 import { PointsEligibilityCard } from "@/components/points/points-eligibility-card";
 import type { KycState } from "@/components/points/points-eligibility-card";
-import { PointsGuide } from "@/components/points/points-guide";
+import { PointsLoop } from "@/components/points/points-loop";
+import { PointsSeasonPreview } from "@/components/points/points-season-preview";
+import { PointsTierCard } from "@/components/points/points-tier-card";
 
 /**
  * 나루 포인트 (기획서 §4.4 · 명세서 §2.5) — 시즌 0 이전의 정직한 화면.
@@ -87,24 +89,41 @@ export function PointsView() {
       ? null
       : (TIERS.find((t) => valueKrwMilli >= t.minKrwMilli) ?? TIERS[0]);
 
+  /*
+   * 위에서 아래로 이야기 하나: ① 어떻게 도는가(행로) → ② 나는 지금 어디인가
+   * + 얼마나 쌓이는가 → ③ 무엇에 쓰는가(상장 이벤트). 예전의 좌카드/우문서
+   * 2단은 설명서처럼 읽혀서 걷어냈다 — 행로가 전폭 첫 줄에 온다.
+   */
   return (
-    <div className="mt-8 flex flex-col gap-5 xl:flex-row">
-      {/* 좌: 내 자격·미리보기 */}
-      <div className="w-full shrink-0 xl:w-[420px]">
-        <PointsEligibilityCard
-          account={account}
-          onConnect={() => setLoginOpen(true)}
-          kyc={kyc}
-          tier={tier}
-          valueKrwMilli={valueKrwMilli}
-          valueLoaded={valueLoaded}
-        />
+    <div className="mt-8 space-y-5">
+      <PointsLoop />
+
+      <div className="flex flex-col gap-5 xl:flex-row">
+        <div className="w-full shrink-0 xl:w-[420px]">
+          <PointsEligibilityCard
+            account={account}
+            onConnect={() => setLoginOpen(true)}
+            kyc={kyc}
+            tier={tier}
+            valueKrwMilli={valueKrwMilli}
+            valueLoaded={valueLoaded}
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <PointsTierCard tiers={TIERS} />
+        </div>
       </div>
 
-      {/* 우: 루프·산식 공개 */}
-      <div className="min-w-0 flex-1 space-y-5">
-        <PointsGuide tiers={TIERS} />
-      </div>
+      <PointsSeasonPreview />
+
+      <p className="text-[11px] leading-relaxed text-ink-3">
+        · 포인트는 양도·환금할 수 없고 기와체인 토큰이 아닙니다. 배분은 추첨
+        없는 확정형이며 확률형 요소를 도입하지 않습니다.
+        <br />· 인증 지갑 하나에 나루 계정 하나만 연결됩니다. 로그인 자체는
+        누구나 가능하고, 시세·분석 조회에는 제한이 없습니다.
+        <br />· 배분 참여는 투자 권유가 아니며, 배분 자산의 가치는 변동할 수
+        있습니다.
+      </p>
     </div>
   );
 }
