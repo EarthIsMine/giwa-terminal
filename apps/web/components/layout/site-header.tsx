@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { giwaChain } from "@giwa/config";
-import { SITE_LINKS } from "@/lib/site";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { HeaderSearch } from "@/components/layout/header-search";
 import { MainNav } from "@/components/layout/main-nav";
 import { LoginButton } from "@/components/wallet/login-button";
-import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
 const ICON_BUTTON_CLASS =
   "grid size-9 place-items-center rounded-lg border border-hairline text-ink-3 transition-colors hover:border-ink-3/40 hover:text-ink-2";
@@ -40,47 +38,25 @@ export function SiteHeader() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2.5">
-          {/* 소셜 클러스터 — 데모 가정 링크 (lib/site.ts) */}
-          <div className="flex items-center gap-1.5">
-            <a
-              href={SITE_LINKS.x}
-              target="_blank"
-              rel="noreferrer"
-              title="X (트위터)"
-              aria-label="나루 X 계정"
-              className={ICON_BUTTON_CLASS}
-            >
-              <XIcon size={13} />
-            </a>
-            <a
-              href={SITE_LINKS.telegram}
-              target="_blank"
-              rel="noreferrer"
-              title="텔레그램"
-              aria-label="나루 텔레그램 채널"
-              className={ICON_BUTTON_CLASS}
-            >
-              <TelegramIcon size={14} />
-            </a>
-            <a
-              href={giwaChain.explorerUrl}
-              target="_blank"
-              rel="noreferrer"
-              title="GIWA 익스플로러"
-              aria-label="GIWA 익스플로러 열기"
-              className={`group ${ICON_BUTTON_CLASS}`}
-            >
-              {/* 기와 공식 마크(누끼 PNG) — 검정 원화라 다크 배경에선 invert로 밝힌다 */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/giwa-mark.png"
-                alt=""
-                width={17}
-                height={17}
-                className="opacity-65 invert transition-opacity group-hover:opacity-95"
-              />
-            </a>
-          </div>
+          {/* 소셜(X·텔레그램)은 푸터에만 둔다 — 헤더는 터미널 동선만 남긴다 */}
+          <a
+            href={giwaChain.explorerUrl}
+            target="_blank"
+            rel="noreferrer"
+            title="기와체인 원본 기록"
+            aria-label="기와체인 원본 기록 열기"
+            className={`group ${ICON_BUTTON_CLASS}`}
+          >
+            {/* 기와 공식 마크(누끼 PNG) — 검정 원화라 다크 배경에선 invert로 밝힌다 */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/giwa-mark.png"
+              alt=""
+              width={17}
+              height={17}
+              className="opacity-65 invert transition-opacity group-hover:opacity-95"
+            />
+          </a>
           <LoginButton />
         </div>
       </div>

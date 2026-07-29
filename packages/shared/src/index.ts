@@ -27,8 +27,11 @@ export { WEI_PER_ETH, ethToWei, weiToDisplayKrw } from "./convert.ts";
 export {
   formatChangeBps,
   formatCount,
+  formatCountCompact,
   formatEth,
   formatKrw,
   formatKrwCompact,
   shortHex,
 } from "./format.ts";
+export { roiBps, summarizeTrades, totalPnlWei } from "./pnl.ts";
+export type { PnlLedger, PnlTrade } from "./pnl.ts";

@@ -355,7 +355,7 @@ export function TradePanel({
             rel="noreferrer"
             className="font-medium text-accent hover:underline"
           >
-            공식 브릿지에서 가져오기 ↗
+            기와체인으로 옮겨오기 ↗
           </a>
         </p>
       ) : null}
@@ -399,7 +399,7 @@ export function TradePanel({
         >
           {routerAddress ? shortHex(routerAddress) : "—"}
         </a>
-        ) 직접 체결 · 수수료 0.3% 전량 유동성 공급자 귀속 · 테스트넷
+        ) 직접 체결 · 수수료 0.3% 전량 예치 참여자 귀속 · 테스트넷
       </p>
     </div>
   );
@@ -503,7 +503,7 @@ function ExecuteButton({
         onClick={onConnect}
         className="mt-4 w-full rounded-lg bg-accent py-3 text-[13.5px] font-semibold text-accent-ink transition-[filter] hover:brightness-110"
       >
-        지갑 연결하고 거래하기
+        로그인하고 거래하기
       </button>
     );
   }

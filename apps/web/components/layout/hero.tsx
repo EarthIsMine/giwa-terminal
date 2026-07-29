@@ -50,7 +50,7 @@ export function Hero({
                 종
               </span>
             </dd>
-            <p className="mt-2 text-[11px] text-ink-3">온체인 발행 게이트 기준</p>
+            <p className="mt-2 text-[11px] text-ink-3">발행 심사를 통과한 자산</p>
           </div>
 
           <div className="min-w-[172px] rounded-xl carved px-5 py-4">

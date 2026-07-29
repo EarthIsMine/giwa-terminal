@@ -93,6 +93,46 @@ app.get("/trades/:pair", async (c) => {
 });
 
 /**
+ * 지갑의 체결 원장 — 내 자산 손익(지표 정의 §손익)의 재료.
+ *
+ * `origin`(tx.origin)으로 거른다. 라우터 경유라 `msg.sender`를 쓰면 라우터
+ * 주소 하나로 뭉친다(§거래 수 / 참여 인원과 같은 이유).
+ *
+ * 이동평균 원가는 첫 매수부터 순서대로 재생해야 맞으므로 **오름차순**으로 준다
+ * (다른 /trades 는 최신순이다 — 여기만 다른 이유가 그것이다). limit 을 넘겨
+ * 앞부분이 잘리면 원가가 틀리므로, 잘렸음을 `truncated` 로 알린다. 호출부는
+ * 이 경우 손익을 표시하지 않는다 — 조용히 틀린 원가를 보여주지 않는다.
+ */
+app.get("/wallet/:address/trades", async (c) => {
+  const origin = asHex(c.req.param("address"));
+  if (!origin) return c.json({ error: "invalid wallet address" }, 400);
+  const limit = clampLimit(c.req.query("limit"), 1_000, 5_000);
+
+  const rows = await db
+    .select()
+    .from(schema.trades)
+    .where(eq(schema.trades.origin, origin))
+    .orderBy(
+      asc(schema.trades.timestamp),
+      asc(schema.trades.block),
+      asc(schema.trades.logIndex),
+    )
+    .limit(limit + 1); // 한 건 더 읽어 잘림 여부를 판정한다
+
+  const truncated = rows.length > limit;
+  return c.json({
+    truncated,
+    trades: rows.slice(0, limit).map((r) => ({
+      token: r.token,
+      side: r.side,
+      tokenAmount: r.tokenAmount.toString(),
+      wethAmount: r.wethAmount.toString(),
+      timestamp: r.timestamp,
+    })),
+  });
+});
+
+/**
  * 보드 일괄 요약 — 전 페어의 기간별 변동률·거래량을 한 번에 준다.
  * 윈도우는 일 단위(24h/7d/30d/전체)로만 연다 — 5분·1시간 변동률은 만들지 않는다
  * (절대 규칙 3: 정보 밀도를 낮춘다).

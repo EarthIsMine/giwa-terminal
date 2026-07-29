@@ -30,7 +30,7 @@ export function AssetDetailChart({
           </p>
           <p className="mx-auto mt-2 max-w-[420px] text-[12.5px] leading-relaxed text-ink-3">
             인덱서 연결 후 제공됩니다. 지금 이 순간에도 데모 시드 봇이
-            온체인 거래 데이터를 쌓는 중이라, 연결 시점에 실제 캔들이
+            거래 데이터를 쌓는 중이라, 연결 시점에 실제 캔들이
             그려집니다.
           </p>
         </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { PortfolioResponse } from "@/lib/api-types";
+import { getWalletTrades } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
 import { getPortfolio } from "@/lib/onchain";
 
@@ -11,13 +12,17 @@ export async function GET(request: Request) {
   if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
     return NextResponse.json({ error: "invalid address" }, { status: 400 });
   }
-  const [portfolio, ethKrw] = await Promise.all([
+  const [portfolio, ethKrw, walletTrades] = await Promise.all([
     getPortfolio(address as `0x${string}`),
     getEthKrw(),
+    // 인덱서 미연결이면 null — 손익 열만 빠지고 잔고 화면은 그대로 뜬다
+    getWalletTrades(address as `0x${string}`),
   ]);
   const body: PortfolioResponse = {
     ...portfolio,
     ethKrw: ethKrw?.toString() ?? null,
+    trades: walletTrades?.trades ?? null,
+    tradesTruncated: walletTrades?.truncated ?? false,
     updatedAt: Date.now(),
   };
   return NextResponse.json(body);

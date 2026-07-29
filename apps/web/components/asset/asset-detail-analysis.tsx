@@ -42,7 +42,7 @@ const HOLDER_LABEL: Record<
     className: "border-down/25 bg-down/10 text-down",
   },
   pair: {
-    text: "유동성 페어",
+    text: "예치 풀",
     className: "border-hairline bg-white/5 text-ink-3",
   },
 };
@@ -146,9 +146,9 @@ export function AssetDetailAnalysis({
   return (
     <section className="mt-5 rounded-xl carved p-5">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="text-[15px] font-semibold">온체인 분석</h2>
+        <h2 className="text-[15px] font-semibold">보유 분석</h2>
         <span className="text-[11px] text-ink-3">
-          보유 분포 · Blockscout 온체인 집계 · 60초 갱신
+          보유 분포 · 기와체인 공개 기록 · 60초 갱신
         </span>
       </div>
 
@@ -162,7 +162,7 @@ export function AssetDetailAnalysis({
             <AnalysisMetric
               label="상위 10 집중도"
               permille={analysis.top10Permille}
-              desc="상위 10개 지갑 합산 ÷ 총공급. 인프라 주소(유동성 페어)는 제외한 값"
+              desc="상위 10개 지갑 합산 ÷ 총공급. 기반 주소(예치 풀)는 제외한 값"
             />
             <div className="rounded-lg border border-hairline/60 bg-black/20 p-4">
               <p className="text-[11.5px] text-ink-3">홀더</p>
@@ -180,7 +180,7 @@ export function AssetDetailAnalysis({
         </div>
       ) : (
         <p className="mt-3 text-[12.5px] leading-relaxed text-ink-3">
-          보유 분포를 불러오지 못했습니다. 익스플로러(Blockscout) 응답이
+          보유 분포를 불러오지 못했습니다. 공개 기록(Blockscout) 응답이
           지연될 수 있습니다. 잠시 후 새로고침해 주세요.
         </p>
       )}

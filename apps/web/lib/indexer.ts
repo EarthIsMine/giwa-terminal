@@ -85,11 +85,20 @@ export interface HolderGraphWire {
 
 const INDEXER_URL = process.env.INDEXER_URL ?? null;
 
+/**
+ * 인덱서 응답 상한. 인덱서는 죽는 것보다 "살아 있는데 안 답하는" 상태가 흔하다
+ * (콜드 스타트·DB 락·인덱스 없는 스캔). 타임아웃이 없으면 fetch 가 reject 하지
+ * 않아 아래 catch 도 안 걸리고, 이 모듈을 Promise.all 로 묶는 라우트가 통째로
+ * 멈춘다 — 화면은 에러조차 못 띄우고 무한 로딩이 된다 (lib/analysis.ts 와 같은 방어).
+ */
+const INDEXER_TIMEOUT_MS = 8_000;
+
 async function fetchJson<T>(path: string): Promise<T | null> {
   if (!INDEXER_URL) return null;
   try {
     const res = await fetch(`${INDEXER_URL}${path}`, {
       next: { revalidate: 15 },
+      signal: AbortSignal.timeout(INDEXER_TIMEOUT_MS),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -161,4 +170,39 @@ export async function getAssetMarket(
   if (Object.values(series).every((c) => c.length === 0)) return null;
 
   return { series, trades: tradesRes?.trades ?? [], stats };
+}
+
+/** 지갑 체결 한 건 — 손익 계산 재료 (지표 정의 §손익) */
+export interface WalletTradeWire {
+  token: `0x${string}`;
+  side: "buy" | "sell";
+  tokenAmount: string;
+  wethAmount: string;
+  timestamp: number;
+}
+
+export interface WalletTradesWire {
+  /** limit 을 넘겨 앞부분이 잘렸는지 — 잘렸으면 이동평균 원가를 신뢰할 수 없다 */
+  truncated: boolean;
+  trades: WalletTradeWire[];
+}
+
+/**
+ * 지갑의 전체 체결 원장 (오름차순). 인덱서 미연결이면 null → 화면은 손익 열을 감춘다.
+ * 개인 지갑 데이터라 캐시하지 않는다 — 잔고와 같은 신선도 기준.
+ */
+export async function getWalletTrades(
+  address: `0x${string}`,
+): Promise<WalletTradesWire | null> {
+  if (!INDEXER_URL) return null;
+  try {
+    const res = await fetch(`${INDEXER_URL}/wallet/${address}/trades`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(INDEXER_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as WalletTradesWire;
+  } catch {
+    return null;
+  }
 }

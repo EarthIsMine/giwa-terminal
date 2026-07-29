@@ -21,7 +21,7 @@ export function SiteFooter() {
           <p className="mt-3 leading-relaxed text-ink-3">
             업비트에서 기와체인으로 오는 나룻길.
             <br />
-            기와체인 가격 데이터 레이어 위에 올린 온체인 터미널.
+            기와체인 가격 데이터 레이어 위에 올린 터미널.
           </p>
           <div className="mt-4 flex items-center gap-3 text-ink-3">
             <a
@@ -68,7 +68,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 className="transition-colors hover:text-ink"
               >
-                블록 익스플로러 ↗
+                기와체인 기록 보기 ↗
               </a>
             </li>
             <li>
@@ -78,7 +78,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 className="transition-colors hover:text-ink"
               >
-                공식 브릿지 ↗
+                자산 옮기기 ↗
               </a>
             </li>
             {giwaChain.tokenFactoryAddress ? (
@@ -109,12 +109,12 @@ export function SiteFooter() {
             </li>
             <li>
               원화 금액은 업비트 KRW-ETH 시세로 환산한 참고값입니다. 원화
-              자산이 온체인에 존재하는 것은 아닙니다.
+              자산이 기와체인에 존재하는 것은 아닙니다.
             </li>
             <li>표시 자산은 신원 검증을 통과한 자산으로 한정됩니다.</li>
             <li>
               검증은 사기 필터이지 투자 보증이 아닙니다. 발행 시점의 신원과
-              온체인 안전장치를 확인한 것입니다.
+              기와체인에 기록된 안전장치를 확인한 것입니다.
             </li>
             <li>
               나루는 두나무가 만든 GIWA 체인 위에서 동작하는 독립 서비스이며,

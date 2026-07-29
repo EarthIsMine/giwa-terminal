@@ -10,14 +10,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import type { ColumnDef, Row, SortingState } from "@tanstack/react-table";
-import { explorerAddressUrl } from "@giwa/config";
 import {
   formatChangeBps,
   formatCount,
   formatEth,
   formatKrw,
   formatKrwCompact,
-  shortHex,
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
@@ -26,7 +24,6 @@ import { BOARD_WINDOWS } from "@/lib/indexer";
 import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
 import { AssetAvatar } from "@/components/ui/asset-avatar";
-import { CopyAddress } from "@/components/ui/copy-address";
 import { useSearch } from "@/contexts/search-context";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 
@@ -115,7 +112,7 @@ function AssetCell({ asset }: { asset: LiveAsset }) {
             {asset.symbol}
           </Link>
           <VerifiedBadge verification={asset.verification} />
-          <CopyAddress address={asset.address} />
+          {/* 주소 복사 버튼은 상세로 옮겼다 — 목록에서 주소를 다룰 일이 없다 */}
         </div>
         <p className="mt-0.5 text-[11.5px] text-ink-3">{asset.nameKo}</p>
       </div>
@@ -132,7 +129,6 @@ const RIGHT_ALIGNED = new Set([
   "traders",
   "liquidity",
   "age",
-  "onchain",
 ]);
 
 /** 컬럼별 고정 폭 — 나머지는 자산 컬럼이 흡수한다 */
@@ -146,7 +142,6 @@ const COL_WIDTH: Record<string, string> = {
   traders: "w-[100px]",
   liquidity: "w-[120px]",
   age: "w-[90px]",
-  onchain: "w-[150px]",
 };
 
 export function AssetBoard({
@@ -230,15 +225,12 @@ export function AssetBoard({
           cmpBigint(a.original.priceWei, b.original.priceWei),
         cell: ({ row }) =>
           ethKrw ? (
-            <div>
-              <p className="font-mono text-[13.5px] font-medium tabular-nums">
-                <span className="mr-px text-ink-2">₩</span>
-                {formatKrw(weiToDisplayKrw(row.original.priceWei, ethKrw))}
-              </p>
-              <p className="mt-0.5 font-mono text-[11.5px] tabular-nums text-ink-3">
-                {formatEth(row.original.priceWei, 8)} ETH
-              </p>
-            </div>
+            // 원화가 보이면 ETH 병기는 뺀다 — 업저씨에게 wei 단위 소수는 잡음이다
+            // (절대 규칙 3). 환산 실패 시에만 ETH 단위로 폴백한다
+            <p className="font-mono text-[13.5px] font-medium tabular-nums">
+              <span className="mr-px text-ink-2">₩</span>
+              {formatKrw(weiToDisplayKrw(row.original.priceWei, ethKrw))}
+            </p>
           ) : (
             <p className="font-mono text-[13.5px] font-medium tabular-nums">
               {formatEth(row.original.priceWei, 8)}{" "}
@@ -374,25 +366,9 @@ export function AssetBoard({
           </span>
         ),
       },
-      {
-        id: "onchain",
-        header: "온체인",
-        enableSorting: false,
-        cell: ({ row }) => (
-          <span className="inline-flex items-center gap-2.5 font-mono text-[11.5px]">
-            <a
-              href={explorerAddressUrl(row.original.address)}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="text-ink-3 transition-colors hover:text-accent"
-              title="토큰 컨트랙트"
-            >
-              {shortHex(row.original.address, 6, 4)} ↗
-            </a>
-          </span>
-        ),
-      },
+      // 컨트랙트 주소 열은 뺐다. 목록 19행에 0x… 를 깔면 화면이 가장 크게
+      // "여기는 크립토다"라고 외치는데, 타겟 유저가 그 열을 볼 일은 없다.
+      // 원본 기록은 자산 상세에 남아 있다 (감추는 건 배관이지 고지가 아니다).
     ],
     [ethKrw, window_],
   );
@@ -473,7 +449,7 @@ export function AssetBoard({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1440px] border-collapse text-left">
             <caption className="sr-only">
-              기와체인 검증 자산 목록. 온체인 실데이터: 현재가, 예치 규모,
+              기와체인 검증 자산 목록. 실데이터: 현재가, 예치 규모,
               발행자
             </caption>
             <thead>
@@ -542,7 +518,7 @@ export function AssetBoard({
                     className="py-14 text-center text-[13.5px] text-ink-3"
                   >
                     {query.trim() === ""
-                      ? "온체인 자산을 불러오는 중이거나 아직 발행된 자산이 없습니다"
+                      ? "자산을 불러오는 중이거나 아직 발행된 자산이 없습니다"
                       : `"${query}" 검색 결과가 없습니다`}
                   </td>
                 </tr>
@@ -578,18 +554,18 @@ export function AssetBoard({
       <div className="mt-3 space-y-1 px-8 text-[11.5px] leading-relaxed text-ink-3">
         <p>
           {ethKrw
-            ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다. 원화 자산이 온체인에 존재하는 것은 아닙니다.`
+            ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다. 원화 자산이 기와체인에 존재하는 것은 아닙니다.`
             : "· 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다."}
         </p>
         <p>
-          · 목록·가격·예치 규모는 GIWA Sepolia 온체인 실데이터입니다. 변동률 ·
+          · 목록·가격·예치 규모는 기와체인에 기록된 실데이터입니다. 변동률 ·
           거래대금 · 참여 인원은 인덱서 연결 후 제공되며, 거래 데이터는 데모
           시드 봇이 생성합니다.
         </p>
         <p>
           · <b className="font-medium text-ink-2">검증은 사기 필터이지 투자
           보증이 아닙니다.</b>{" "}
-          발행 시점의 신원과 온체인 안전장치를 확인한 것입니다.
+          발행 시점의 신원과 기와체인에 기록된 안전장치를 확인한 것입니다.
         </p>
       </div>
     </div>

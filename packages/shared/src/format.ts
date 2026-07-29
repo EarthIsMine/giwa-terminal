@@ -78,3 +78,23 @@ export function formatChangeBps(bps: BasisPoints): string {
 export function formatCount(n: number): string {
   return groupDigits(Math.trunc(n).toString());
 }
+
+/**
+ * 정수 카운트 축약 — 만/억 단위 (formatKrwCompact 와 같은 감각).
+ *  ≥ 1억 → "1.3억", ≥ 1만 → "92만", 그 외 → "1,234"
+ * 체인 누적 거래처럼 자릿수가 큰 수를 업저씨가 한눈에 읽게 한다.
+ * 내림 — 실제보다 크게 보이지 않게 한다.
+ */
+export function formatCountCompact(n: number): string {
+  const v = Math.trunc(n);
+  if (v < 10_000) return formatCount(v);
+
+  const EOK = 100_000_000;
+  const MAN = 10_000;
+  if (v >= EOK) {
+    const int = Math.trunc(v / EOK);
+    const frac = Math.trunc(((v % EOK) * 10) / EOK); // 소수 1자리, 내림
+    return `${groupDigits(int.toString())}.${frac}억`;
+  }
+  return `${groupDigits(Math.trunc(v / MAN).toString())}만`;
+}

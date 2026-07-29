@@ -1,4 +1,4 @@
-import type { FeedItemWire } from "@/lib/indexer";
+import type { FeedItemWire, WalletTradeWire } from "@/lib/indexer";
 import type { MarketTickerWire } from "@/lib/krw";
 import type { PortfolioWire } from "@/lib/onchain";
 
@@ -17,6 +17,10 @@ import type { PortfolioWire } from "@/lib/onchain";
  */
 export interface PortfolioResponse extends PortfolioWire {
   ethKrw: string | null;
+  /** 손익 계산용 체결 원장 (오름차순). 인덱서 미연결이면 null → 화면이 손익 열을 감춘다 */
+  trades: WalletTradeWire[] | null;
+  /** 원장이 잘렸으면 이동평균 원가를 신뢰할 수 없다 → 손익을 표시하지 않는다 */
+  tradesTruncated: boolean;
   updatedAt: number;
 }
 
@@ -25,6 +29,4 @@ export interface FeedResponse {
   items: FeedItemWire[] | null;
   ethKrw: string | null;
   tickers: MarketTickerWire[];
-  usdKrwCents: number | null;
-  kimchiBps: number | null;
 }
