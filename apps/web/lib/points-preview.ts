@@ -36,14 +36,11 @@ export interface ListingEventPreview {
   /**
    * 이 상장에서 포인트 참여자에게 배분되는 총 수량 (토큰 단위).
    * 한 지갑 몫 = 이 값 ÷ 참여 확정 지갑 수 — 균등 배분이라 나눗셈 하나다.
+   *
+   * 상장 시작가는 여기 두지 않는다. 상장 전에는 정해지지도 않고, 몫을 원화로
+   * 환산하는 순간 "미래 배분의 예상 금액"이 되어 금지선을 넘는다 (기획서 §4.4).
    */
   allocationTokens: number;
-  /**
-   * 상장 시작 가격 (0.001원 단위) — 초기 예치 비율로 정해지는 시작가.
-   * 몫의 원화 환산 참고값에만 쓴다. "수익"이라는 말은 어떤 화면에서도 쓰지
-   * 않는다 (기획서 §4.4 기대이익 암시 금지) — 수량과 환산 참고값까지가 사실이다.
-   */
-  listPriceKrwMilli: number;
 }
 
 export const PREVIEW_SNAPSHOT: PointsSnapshotPreview = {
@@ -62,7 +59,6 @@ export const PREVIEW_EVENTS: ListingEventPreview[] = [
     closesIn: "3일 뒤 마감",
     qualified: 412,
     allocationTokens: 100_000,
-    listPriceKrwMilli: 30_000, // 상장가 ₩30 (예시)
   },
   {
     symbol: "JAGAE",
@@ -72,6 +68,5 @@ export const PREVIEW_EVENTS: ListingEventPreview[] = [
     closesIn: "9일 뒤 마감",
     qualified: 88,
     allocationTokens: 60_000,
-    listPriceKrwMilli: 12_000, // 상장가 ₩12 (예시)
   },
 ];

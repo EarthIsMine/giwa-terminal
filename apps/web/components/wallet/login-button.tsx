@@ -164,17 +164,15 @@ export function LoginButton() {
   }, []);
 
   const disconnect = useCallback(() => {
-    /* 지갑 쪽 사이트 권한도 회수해야 진짜 해제다 — 안 하면 재연결 때 계정 선택 창
-       없이 같은 계정이 즉시 돌아온다. 미지원 지갑도 있으니 실패는 무시(best-effort).
-       회수가 실패하면 새로고침 시 세션이 되살아난다: 스토리지를 쓰지 않으므로
-       "사용자가 해제를 눌렀다"를 새로고침 너머로 기억할 방법이 없고, 유일한
-       진실은 지갑이 쥔 승인 상태뿐이다 (wallet-context 의 복구 로직 참고) */
-    connectedWallet?.provider
-      .request({
-        method: "wallet_revokePermissions",
-        params: [{ eth_accounts: {} }],
-      })
-      .catch(() => undefined);
+    /* 지갑 쪽 사이트 권한까지 회수해야 진짜 해제다 — 안 하면 재연결 때 계정 선택 창
+       없이 같은 계정이 즉시 돌아오고, 새로고침에도 세션이 되살아난다(스토리지를
+       쓰지 않으므로 "사용자가 해제를 눌렀다"를 새로고침 너머로 기억할 방법이 없고,
+       유일한 진실은 지갑이 쥔 승인 상태뿐이다 — wallet-context 의 복구 로직 참고).
+
+       회수를 지원하지 않는 지갑이 있어 실패 자체는 막을 수 없다. 대신 조용히
+       삼키지 않고 알린다: 공용 PC 에서 해제한 줄 알고 자리를 뜨면 다음 사람에게
+       계정이 그대로 보이므로, 사용자가 지갑에서 직접 끊을 수 있어야 한다. */
+    const provider = connectedWallet?.provider;
     setAccount(null);
     setConnectedWallet(null);
     setChainHex(null);
@@ -182,6 +180,17 @@ export function LoginButton() {
     setNetStatus("idle");
     setSignStatus("idle");
     setErrorMsg(null);
+
+    provider
+      ?.request({
+        method: "wallet_revokePermissions",
+        params: [{ eth_accounts: {} }],
+      })
+      .catch(() =>
+        setErrorMsg(
+          "연결을 끊었지만 이 지갑은 사이트 권한 회수를 지원하지 않습니다. 완전히 끊으려면 지갑에서 이 사이트의 연결을 직접 해제해 주세요.",
+        ),
+      );
   }, [connectedWallet]);
 
   /* GIWA Sepolia 전환 — 지갑이 모르는 체인이면(4902) 추가로 폴백 */

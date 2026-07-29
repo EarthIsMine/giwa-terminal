@@ -1,4 +1,4 @@
-import { displayKrw, formatCount, formatKrw } from "@giwa/shared";
+import { formatCount } from "@giwa/shared";
 import {
   PREVIEW_EVENTS,
   PREVIEW_SNAPSHOT,
@@ -25,7 +25,11 @@ function EventCard({ event }: { event: ListingEventPreview }) {
   /*
    * 커뮤니티 스프레드시트가 하던 계산을 화면이 대신 한다:
    * 한 지갑 몫 = 배분 물량 ÷ 지금 문턱 넘은 지갑 수 (균등·확정형이라 나눗셈 하나).
-   * 원화는 상장가 기준 환산 참고값 — "수익"이라는 말은 쓰지 않는다 (§4.4).
+   *
+   * 수량까지만 낸다. 원화 환산은 두 번 추정을 쌓는 일이라 하지 않는다 —
+   * 상장 전이라 시작가가 정해지지도 않았고, 미래 배분의 예상 금액은 그 자체가
+   * 금지 대상이다 (지표 정의 §손익: 손익은 이미 일어난 사실이라 괜찮지만
+   * 미래 배분의 예상 금액은 선을 넘는다 / 기획서 §4.4).
    *
    * 문턱을 넘은 지갑이 아직 0인 상태는 상장 직후의 정상 상태다. 나눗셈을 그대로
    * 두면 Infinity 가 BigInt() 에 들어가 RangeError 로 화면 전체가 죽으므로,
@@ -35,11 +39,6 @@ function EventCard({ event }: { event: ListingEventPreview }) {
     event.qualified > 0
       ? Math.floor(event.allocationTokens / event.qualified)
       : null;
-  const shareKrw =
-    shareTokens === null
-      ? null
-      : displayKrw(BigInt(shareTokens) * BigInt(event.listPriceKrwMilli));
-  const listPrice = displayKrw(BigInt(event.listPriceKrwMilli));
 
   return (
     <li className="rounded-lg bg-black/20 px-5 py-4">
@@ -101,7 +100,7 @@ function EventCard({ event }: { event: ListingEventPreview }) {
           </span>
         </div>
         <p className="mt-1.5 font-mono text-[19px] font-semibold tabular-nums leading-none">
-          {shareTokens === null || shareKrw === null ? (
+          {shareTokens === null ? (
             <span className="text-[14px] font-normal text-ink-3">
               아직 문턱을 넘은 지갑이 없습니다
             </span>
@@ -110,12 +109,6 @@ function EventCard({ event }: { event: ListingEventPreview }) {
               {formatCount(shareTokens)}
               <span className="ml-1 font-sans text-[11.5px] font-normal text-ink-3">
                 {event.symbol}
-              </span>
-              <span className="ml-3 text-[14px] font-medium text-ink-2">
-                ≈ ₩{formatKrw(shareKrw)}
-              </span>
-              <span className="ml-1.5 font-sans text-[11px] font-normal text-ink-3">
-                상장가 ₩{formatKrw(listPrice)} 환산 참고
               </span>
             </>
           )}
@@ -184,8 +177,8 @@ export function PointsSeasonPreview() {
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
         · 한 지갑 몫 = 배분 물량 ÷ 참여 확정 지갑 수. 몫은 마감 시점의 지갑
         수로 확정되며, 위 숫자는 그때까지 변합니다.
-        <br />· 원화는 상장 시작 가격 기준 환산 참고값입니다. 상장 후 가격은
-        변동하며, 배분 참여는 투자 권유가 아닙니다.
+        <br />· 상장 전에는 시작 가격이 정해지지 않아 몫을 원화로 환산하지
+        않습니다. 배분 참여는 투자 권유가 아닙니다.
       </p>
     </div>
   );

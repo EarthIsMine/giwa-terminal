@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { giwaChain } from "@giwa/config";
 
 /**
@@ -107,9 +115,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [signedAccount, setSignedAccount] = useState<string | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
 
-  /* 복구가 끝나기 전에 사용자가 직접 연결했으면 그 선택을 덮어쓰지 않는다 */
-  const accountRef = useRef<string | null>(null);
-  accountRef.current = account;
+  /*
+   * 복구는 마운트 직후 딱 한 번만 열려 있다. 세션이 한 번 정해지면(복구됐든 사용자가
+   * 직접 연결했든) 즉시 닫는다 — 열어두면 늦게 announce 하는 지갑이나 로그인 모달이
+   * 다시 쏘는 requestProvider 가 훨씬 나중에 계정을 갈아끼울 수 있고, 특히 사용자가
+   * 연결 해제를 누른 뒤에 되살아나면 스스로 끊은 세션이 조용히 돌아온다.
+   */
+  const restoreArmedRef = useRef(true);
 
   /*
    * 마운트 시 세션 복구 — EIP-6963 으로 지갑을 훑고 이미 승인된 계정만 되받는다.
@@ -121,14 +133,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const probed = new Set<string>();
 
     const probe = async (detail: Eip6963ProviderDetail) => {
-      if (cancelled || probed.has(detail.info.rdns)) return;
+      // await 앞에서 먼저 걸러야 이미 세션이 정해진 뒤의 지갑을 헛되이 깨우지 않는다
+      if (cancelled || !restoreArmedRef.current || probed.has(detail.info.rdns)) {
+        return;
+      }
       probed.add(detail.info.rdns);
       try {
         const accounts = await detail.provider.request({ method: "eth_accounts" });
         const first = firstString(accounts);
-        // 먼저 응답한 지갑 하나만 복구한다 — 둘을 동시에 붙이면 어느 쪽이 세션인지 모호해진다
-        if (cancelled || first === null || accountRef.current !== null) return;
-        accountRef.current = first;
+        if (cancelled || first === null || !restoreArmedRef.current) return;
+        restoreArmedRef.current = false; // 먼저 응답한 지갑 하나로 확정
         setAccount(first);
         setConnectedWallet(detail);
         try {
@@ -155,12 +169,21 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  /**
+   * 계정 변경의 단일 관문. 누가 부르든(복구·수동 연결·지갑의 accountsChanged·해제)
+   * 자동 복구를 닫아, 이후로는 사용자가 고른 세션만 남는다.
+   */
+  const claimAccount = useCallback((next: string | null) => {
+    restoreArmedRef.current = false;
+    setAccount(next);
+  }, []);
+
   const value = useMemo(
     () => ({
       connectedWallet,
       setConnectedWallet,
       account,
-      setAccount,
+      setAccount: claimAccount,
       chainHex,
       setChainHex,
       signedAccount,
@@ -168,7 +191,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       loginOpen,
       setLoginOpen,
     }),
-    [connectedWallet, account, chainHex, signedAccount, loginOpen],
+    [connectedWallet, account, claimAccount, chainHex, signedAccount, loginOpen],
   );
 
   return (
