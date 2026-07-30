@@ -138,6 +138,7 @@ export function PortfolioHoldingsTable({
   loading,
 }: PortfolioHoldingsTableProps) {
   return (
+    /* 데스크톱 테이블 — 모바일 카드와의 전환은 부모의 <Responsive> 조립이 정한다 */
     <div className="mt-6 border-y border-black/45 bg-black/[0.12]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[860px] border-collapse text-left">

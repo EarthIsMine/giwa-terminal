@@ -13,14 +13,14 @@ import { SiteHeader } from "@/components/layout/site-header";
 export const metadata: Metadata = {
   title: "나루 포인트 · 나루 NARU",
   description:
-    "예치와 거래로 포인트를 쌓고, 새 자산이 상장될 때 포인트를 소각해 배분에 참여합니다. 참여 자격은 업비트 KYC 인증 지갑.",
+    "예치와 거래로 포인트를 쌓고, 새 자산이 상장될 때 포인트를 차감해 배분에 참여합니다. 참여 자격은 업비트 KYC 인증 지갑.",
 };
 
 export default function PointsPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-[1280px] px-8 pb-20 pt-12">
+      <main className="mx-auto w-full max-w-[1280px] px-page pb-20 pt-8 sm:pt-12">
         <PointsIntro />
         <PointsView />
       </main>

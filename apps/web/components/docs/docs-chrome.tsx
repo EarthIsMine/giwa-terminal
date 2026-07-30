@@ -10,7 +10,7 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 export function DocsHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-base/85 backdrop-blur-md">
-      <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center gap-2.5 px-8">
+      <div className="mx-auto flex h-14 w-full max-w-[1180px] items-center gap-2.5 px-page">
         <Link
           href="/"
           aria-label="나루 터미널로 이동"
@@ -51,7 +51,7 @@ export function DocsIntro() {
 export function DocsFooter() {
   return (
     <footer className="border-t border-black/50 bg-[#150d07]/85">
-      <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-8 py-5 text-[11.5px] text-ink-3">
+      <div className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-2 px-page py-5 text-[11.5px] text-ink-3">
         <span>© 2026 나루 NARU · GIWA 가속 데모</span>
         <a
           href={giwaChain.explorerUrl}

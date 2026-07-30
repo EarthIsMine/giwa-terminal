@@ -280,7 +280,7 @@ export function TradePanel({
   }
 
   return (
-    <div className="rounded-xl carved p-6">
+    <div className="rounded-xl carved p-5 sm:p-6">
       {/* 매수/매도 토글 — 상승 초록/하락 빨강 관례와 동일 축 */}
       <div role="group" aria-label="주문 방향" className="grid grid-cols-2 gap-1 rounded-lg border border-hairline bg-panel p-1">
         {(["buy", "sell"] as const).map((s) => (

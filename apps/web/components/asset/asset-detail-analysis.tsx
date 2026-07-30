@@ -144,7 +144,7 @@ export function AssetDetailAnalysis({
   graph: HolderGraphWire | null;
 }) {
   return (
-    <section className="mt-5 rounded-xl carved p-5">
+    <section className="mt-5 rounded-xl carved p-4 sm:p-5">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="text-[15px] font-semibold">보유 분석</h2>
         <span className="text-[11px] text-ink-3">

@@ -18,7 +18,9 @@ import type { BasisPoints, PnlTrade } from "@giwa/shared";
 import type { PortfolioResponse } from "@/lib/api-types";
 import { usePoll } from "@/hooks/use-poll";
 import { CopyAddress } from "@/components/ui/copy-address";
+import { PortfolioHoldingsCards } from "@/components/portfolio/portfolio-holdings-cards";
 import { Masked, PortfolioHoldingsTable } from "@/components/portfolio/portfolio-holdings-table";
+import { Responsive } from "@/components/ui/responsive";
 import type { Holding } from "@/components/portfolio/portfolio-holdings-table";
 import { useWallet } from "@/contexts/wallet-context";
 
@@ -211,9 +213,9 @@ export function PortfolioView() {
   /* ---------- 미연결 상태 ---------- */
   if (!account) {
     return (
-      <div className="mx-auto w-full max-w-[1840px] px-8 pb-4 pt-12">
-        <h1 className="text-[28px] font-bold tracking-tight">내 자산</h1>
-        <div className="mx-auto mt-16 max-w-[520px] rounded-2xl carved p-10 text-center">
+      <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
+        <h1 className="text-[24px] font-bold tracking-tight sm:text-[28px]">내 자산</h1>
+        <div className="mx-auto mt-16 max-w-[520px] rounded-2xl carved p-6 text-center sm:p-10">
           <p className="text-[16px] font-semibold">
             지갑을 연결하면 보유 자산이 보입니다
           </p>
@@ -246,9 +248,9 @@ export function PortfolioView() {
 
   /* ---------- 연결됨 ---------- */
   return (
-    <div className="mx-auto w-full max-w-[1840px] px-8 pb-4 pt-12">
+    <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-[28px] font-bold tracking-tight">내 자산</h1>
+        <h1 className="text-[24px] font-bold tracking-tight sm:text-[28px]">내 자산</h1>
         {signedAccount !== account ? (
           <span className="rounded border border-warn/25 bg-warn/10 px-1.5 py-px text-[11px] text-warn">
             조회 전용 · 서명 로그인 전
@@ -388,13 +390,26 @@ export function PortfolioView() {
         <p className="mt-6 text-[13px] text-down">{error}</p>
       ) : null}
 
-      {/* 자산 테이블 */}
-      <PortfolioHoldingsTable
-        holdings={holdings}
-        totalWei={totalWei}
-        ethKrw={ethKrw}
-        hidden={hidden}
-        loading={!data && loading}
+      {/* 자산 목록 — 뷰포트별 조립 (전환 방식·이유는 ui/responsive.tsx 주석) */}
+      <Responsive
+        desktop={
+          <PortfolioHoldingsTable
+            holdings={holdings}
+            totalWei={totalWei}
+            ethKrw={ethKrw}
+            hidden={hidden}
+            loading={!data && loading}
+          />
+        }
+        mobile={
+          <PortfolioHoldingsCards
+            holdings={holdings}
+            totalWei={totalWei}
+            ethKrw={ethKrw}
+            hidden={hidden}
+            loading={!data && loading}
+          />
+        }
       />
 
       <div className="mt-3 space-y-1 text-[11.5px] leading-relaxed text-ink-3">

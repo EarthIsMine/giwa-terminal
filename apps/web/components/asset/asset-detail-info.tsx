@@ -52,7 +52,7 @@ export function AssetDetailInfo({
 
   return (
     <>
-      <div className="rounded-xl carved p-6">
+      <div className="rounded-xl carved p-5 sm:p-6">
         <h2 className="text-[15px] font-semibold">원본 기록</h2>
         <dl className="mt-3">
           <InfoRow label="예치 규모">
@@ -90,7 +90,7 @@ export function AssetDetailInfo({
         </dl>
       </div>
 
-      <div className="rounded-xl carved p-6">
+      <div className="rounded-xl carved p-5 sm:p-6">
         <h2 className="text-[15px] font-semibold">신원 검증</h2>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
           <span className="font-medium text-good">

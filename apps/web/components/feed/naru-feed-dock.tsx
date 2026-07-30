@@ -98,7 +98,7 @@ export function NaruFeedDock() {
         {/* 하단 바 — 좌측은 소식 토글, 우측은 온보딩 가이드 상주 링크 */}
         <div className="border-t border-hairline bg-base/90 backdrop-blur-md">
           {/* 바는 뷰포트 전폭을 쓴다 — 우측 끝까지 시세를 붙이고 도움말은 딱 맞게 */}
-          <div className="flex h-10 w-full items-center gap-3 pl-8 pr-3">
+          <div className="flex h-10 w-full items-center gap-3 pl-page pr-3">
             <button
               type="button"
               aria-expanded={open}

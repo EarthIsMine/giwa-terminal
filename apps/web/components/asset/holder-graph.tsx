@@ -37,8 +37,20 @@ interface Layout {
   links: { source: SimNode; target: SimNode }[];
 }
 
-const WIDTH = 640;
-const HEIGHT = 400;
+/**
+ * 그림판 크기 — viewBox 단위이자 실제 렌더 상한(px)이다.
+ * `w-full` 만 주면 SVG 높이가 컨테이너 폭에 비례해 자란다(폭 1,670px → 높이 1,044px):
+ * 상위 홀더 표가 옆에 붙지 않는 폭에서는 관계도 하나가 화면을 넘겼다.
+ * 그래서 폭에 상한을 두고, 비율은 넓고 낮은 띠로 잡는다 — 높이가 상한(HEIGHT)을 넘지 않는다.
+ */
+const WIDTH = 900;
+const HEIGHT = 320;
+
+/**
+ * 클러스터 앵커를 놓는 타원의 반경(그림판 대비 비율).
+ * 작게 두면 버블이 가운데로 뭉쳐 위아래가 텅 빈다 — 홀더가 몇 개뿐인 자산에서 특히.
+ */
+const ANCHOR_SPREAD = 0.34;
 
 function radiusOf(permille: number): number {
   // 면적 ∝ 보유 비중 (√ 스케일), 화면 하한·상한
@@ -75,8 +87,8 @@ function runLayout(graph: HolderGraphWire): Layout {
   clusterIds.forEach((id, i) => {
     const angle = (i / Math.max(1, clusterIds.length)) * Math.PI * 2;
     anchor.set(id, {
-      x: WIDTH / 2 + Math.cos(angle) * WIDTH * 0.22,
-      y: HEIGHT / 2 + Math.sin(angle) * HEIGHT * 0.22,
+      x: WIDTH / 2 + Math.cos(angle) * WIDTH * ANCHOR_SPREAD,
+      y: HEIGHT / 2 + Math.sin(angle) * HEIGHT * ANCHOR_SPREAD,
     });
   });
 
@@ -112,8 +124,9 @@ export function HolderGraph({ graph }: { graph: HolderGraphWire }) {
   }, [graph]);
 
   if (!layout) {
+    // 완성된 그림과 같은 상자를 차지해야 레이아웃이 튀지 않는다
     return (
-      <div className="grid h-[280px] place-items-center text-[12px] text-ink-3">
+      <div className="grid aspect-[900/320] w-full max-w-[900px] place-items-center text-[12px] text-ink-3">
         관계도를 그리는 중…
       </div>
     );
@@ -127,7 +140,7 @@ export function HolderGraph({ graph }: { graph: HolderGraphWire }) {
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         role="img"
         aria-label="홀더 관계도: 버블 크기는 보유 비중, 선은 두 지갑 간 직접 전송 이력"
-        className="h-auto w-full"
+        className="h-auto w-full max-w-[900px]"
       >
         <g stroke="rgba(179, 166, 144, 0.3)" strokeWidth="1">
           {layout.links.map((l) => (

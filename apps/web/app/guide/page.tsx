@@ -19,7 +19,7 @@ export default function GuidePage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-[840px] px-8 pb-20 pt-12">
+      <main className="mx-auto w-full max-w-[840px] px-page pb-20 pt-8 sm:pt-12">
         <GuideIntro />
         <GuideContent />
       </main>

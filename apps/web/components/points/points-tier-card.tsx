@@ -18,7 +18,8 @@ export function PointsTierCard({ tiers }: { tiers: readonly PointsTier[] }) {
   const maxPoints = Math.max(...asc.map((t) => t.points), 1);
 
   return (
-    <section className="h-full rounded-xl carved p-6">
+    // id: 행로 1단계 "산식 보기" 앵커의 착지점. scroll-mt 는 스티키 헤더 높이만큼
+    <section id="points-formula" className="h-full scroll-mt-20 rounded-xl carved p-6">
       <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
         <h2 className="text-[15px] font-semibold">얼마나 쌓이나요</h2>
         <span className="text-[11px] text-ink-3">
@@ -70,7 +71,7 @@ export function PointsTierCard({ tiers }: { tiers: readonly PointsTier[] }) {
           >
             ▶
           </span>
-          자세한 규칙 · 매수 가점 / 15일 소멸 / 조작 방어
+          자세한 규칙 · 매수 가점 / 15일 뒤 소멸 / 조작 방어
         </summary>
         <div className="mt-3 space-y-3 text-[12px] leading-relaxed text-ink-3">
           <p>
@@ -79,9 +80,9 @@ export function PointsTierCard({ tiers }: { tiers: readonly PointsTier[] }) {
             자산은 상장 후 30일간 2배.
           </p>
           <p>
-            <b className="text-ink-2">15일 롤링 · FIFO 소각</b>: 포인트는 적립
-            후 15일이 지나면 소멸하고, 소각은 가장 오래된 적립분부터
-            차감됩니다.
+            <b className="text-ink-2">15일 롤링</b>: 포인트는 적립 후 15일이
+            지나면 소멸하고, 참여 시 차감은 가장 오래된 적립분부터
+            적용됩니다(FIFO).
           </p>
           <p>
             <b className="text-ink-2">조작 방어</b>: 매수분은 다음 잔고

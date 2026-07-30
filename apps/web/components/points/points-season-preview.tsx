@@ -6,7 +6,7 @@ import {
 } from "@/lib/points-preview";
 
 /**
- * 시즌 0 화면 시안 — 적립·문턱·배분 루프가 열렸을 때의 모습.
+ * 시즌 0 화면 시안 — 적립·자격·배분 루프가 열렸을 때의 모습.
  *
  * 값은 전부 예시다. 라벨을 지우고 쓰면 안 된다: 이 제품은 테스트넷 시드 거래조차
  * 화면에 명시하는 원칙(절대 규칙 5) 위에 서 있고, 심사에서 실적립으로 오인되는
@@ -18,20 +18,20 @@ import {
  */
 
 function EventCard({ event }: { event: ListingEventPreview }) {
-  // 내 점수가 문턱의 어디쯤인지 — 넘었으면 가득 찬다
+  // 내 점수가 기준 점수의 어디쯤인지 — 넘었으면 가득 찬다
   const ratio = Math.min(1, PREVIEW_SNAPSHOT.total / event.threshold);
   const reached = PREVIEW_SNAPSHOT.total >= event.threshold;
 
   /*
    * 커뮤니티 스프레드시트가 하던 계산을 화면이 대신 한다:
-   * 한 지갑 몫 = 배분 물량 ÷ 지금 문턱 넘은 지갑 수 (균등·확정형이라 나눗셈 하나).
+   * 한 지갑 몫 = 배분 물량 ÷ 지금 기준을 넘은 지갑 수 (균등·확정형이라 나눗셈 하나).
    *
    * 수량까지만 낸다. 원화 환산은 두 번 추정을 쌓는 일이라 하지 않는다 —
    * 상장 전이라 시작가가 정해지지도 않았고, 미래 배분의 예상 금액은 그 자체가
    * 금지 대상이다 (지표 정의 §손익: 손익은 이미 일어난 사실이라 괜찮지만
    * 미래 배분의 예상 금액은 선을 넘는다 / 기획서 §4.4).
    *
-   * 문턱을 넘은 지갑이 아직 0인 상태는 상장 직후의 정상 상태다. 나눗셈을 그대로
+   * 기준을 넘은 지갑이 아직 0인 상태는 상장 직후의 정상 상태다. 나눗셈을 그대로
    * 두면 Infinity 가 BigInt() 에 들어가 RangeError 로 화면 전체가 죽으므로,
    * 몫을 낼 수 없는 구간으로 보고 계산을 건너뛴다.
    */
@@ -57,20 +57,20 @@ function EventCard({ event }: { event: ListingEventPreview }) {
 
       <div className="mt-3 flex items-baseline justify-between text-[12px]">
         <span className="text-ink-3">
-          참여 문턱{" "}
+          참여 기준 점수{" "}
           <span className="font-mono tabular-nums text-ink-2">
             {formatCount(event.threshold)}점
           </span>
         </span>
         <span className="text-ink-3">
-          문턱을 넘긴 지갑{" "}
+          기준을 넘긴 지갑{" "}
           <span className="font-mono tabular-nums text-ink-2">
             {formatCount(event.qualified)}
           </span>
         </span>
       </div>
 
-      {/* 내 점수 대비 문턱 — 분석 보드의 지분 막대와 같은 문법(검은 홈 + 한지빛) */}
+      {/* 내 점수 대비 기준 점수 — 분석 보드의 지분 막대와 같은 문법(검은 홈 + 한지빛) */}
       <div className="mt-2.5">
         <span
           aria-hidden
@@ -84,7 +84,7 @@ function EventCard({ event }: { event: ListingEventPreview }) {
         <p className="mt-1.5 text-[11.5px] text-ink-3">
           내 점수 {formatCount(PREVIEW_SNAPSHOT.total)}점 ·{" "}
           {reached
-            ? "문턱을 넘었습니다"
+            ? "기준을 넘었습니다"
             : `${formatCount(event.threshold - PREVIEW_SNAPSHOT.total)}점 남았습니다`}
         </p>
       </div>
@@ -102,7 +102,7 @@ function EventCard({ event }: { event: ListingEventPreview }) {
         <p className="mt-1.5 font-mono text-[19px] font-semibold tabular-nums leading-none">
           {shareTokens === null ? (
             <span className="text-[14px] font-normal text-ink-3">
-              아직 문턱을 넘은 지갑이 없습니다
+              아직 기준을 넘은 지갑이 없습니다
             </span>
           ) : (
             <>
@@ -135,7 +135,7 @@ export function PointsSeasonPreview() {
       </p>
 
       <dl className="mt-4 flex flex-wrap gap-2.5">
-        <div className="min-w-[132px] rounded-lg bg-black/20 px-4 py-3">
+        <div className="min-w-[132px] flex-1 rounded-lg bg-black/20 px-4 py-3 sm:flex-none">
           <dt className="text-[11px] tracking-[0.1em] text-ink-3">내 점수</dt>
           <dd className="mt-1 font-mono text-[20px] font-semibold leading-none">
             {formatCount(PREVIEW_SNAPSHOT.total)}
@@ -144,7 +144,7 @@ export function PointsSeasonPreview() {
             </span>
           </dd>
         </div>
-        <div className="min-w-[132px] rounded-lg bg-black/20 px-4 py-3">
+        <div className="min-w-[132px] flex-1 rounded-lg bg-black/20 px-4 py-3 sm:flex-none">
           <dt className="text-[11px] tracking-[0.1em] text-ink-3">참여 지갑 중</dt>
           <dd className="mt-1 font-mono text-[20px] font-semibold leading-none">
             상위 {PREVIEW_SNAPSHOT.percentile}
@@ -153,7 +153,7 @@ export function PointsSeasonPreview() {
             </span>
           </dd>
         </div>
-        <div className="min-w-[132px] rounded-lg bg-black/20 px-4 py-3">
+        <div className="min-w-[132px] flex-1 rounded-lg bg-black/20 px-4 py-3 sm:flex-none">
           <dt className="text-[11px] tracking-[0.1em] text-ink-3">곧 소멸</dt>
           <dd className="mt-1 font-mono text-[20px] font-semibold leading-none">
             {formatCount(PREVIEW_SNAPSHOT.expiring)}
