@@ -2,7 +2,7 @@
  * 상장 한 판의 배분 구조 — 문장을 그림으로 옮긴 것.
  *
  * ① 지갑들의 점수 기둥과 문턱선: 넘은 기둥만 밝다.
- * ② 넘은 지갑이 각 15점을 소각하며 참여를 확정한다.
+ * ② 넘은 지갑이 각 15점을 차감하며 참여를 확정한다.
  * ③ 배분 물량을 넘은 지갑 수대로 똑같이 자른다: 조각 크기가 전부 같다.
  *
  * 이 그림의 요점은 "포인트가 많아도 몫이 커지지 않는다"이다. 문턱은 자격이고
@@ -62,7 +62,7 @@ export function PointsAllocationDiagram() {
           </p>
         </div>
 
-        {/* ② 소각 — 참여 확정의 값 */}
+        {/* ② 차감 — 참여 확정의 값 */}
         <div className="flex shrink-0 flex-col items-start justify-center gap-1 lg:items-center">
           <span aria-hidden className="hidden text-[18px] text-ink-3 lg:block">
             →
@@ -71,7 +71,7 @@ export function PointsAllocationDiagram() {
             각 −15점
           </span>
           <p className="text-[11.5px] leading-snug text-ink-3">
-            ② 참여를 확정하며 소각
+            ② 참여를 확정하며 차감
           </p>
         </div>
 
