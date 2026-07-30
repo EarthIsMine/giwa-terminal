@@ -27,7 +27,7 @@ export function PortfolioHoldingsCards({
 }) {
   if (loading) {
     return (
-      <p className="mt-6 border-y border-black/45 bg-black/[0.12] px-4 py-14 text-center text-[13.5px] text-ink-3 md:hidden">
+      <p className="mt-6 border-y border-black/45 bg-black/[0.12] px-4 py-14 text-center text-[13.5px] text-ink-3">
         온체인 잔고를 불러오는 중…
       </p>
     );
@@ -35,7 +35,7 @@ export function PortfolioHoldingsCards({
 
   if (holdings.every((h) => h.balance === 0n)) {
     return (
-      <p className="mt-6 border-y border-black/45 bg-black/[0.12] px-4 py-14 text-center text-[13.5px] text-ink-3 md:hidden">
+      <p className="mt-6 border-y border-black/45 bg-black/[0.12] px-4 py-14 text-center text-[13.5px] text-ink-3">
         아직 보유 자산이 없습니다.{" "}
         <a
           href={giwaChain.bridgeUrl}
@@ -54,7 +54,7 @@ export function PortfolioHoldingsCards({
   }
 
   return (
-    <ul className="mt-6 border-y border-black/45 bg-black/[0.12] md:hidden">
+    <ul className="mt-6 border-y border-black/45 bg-black/[0.12]">
       {holdings.map((h) => {
         const share =
           (totalWei as bigint) > 0n

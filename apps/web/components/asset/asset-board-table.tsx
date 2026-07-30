@@ -5,9 +5,9 @@ import type { Table } from "@tanstack/react-table";
 import type { LiveAsset } from "@/components/asset/asset-board-model";
 
 /**
- * 자산 보드 — 데스크톱 테이블 렌더 (md 이상).
- * 모바일은 asset-board-cards 가 같은 행 모델을 카드로 그린다.
- * 상태·컬럼 정의는 asset-board(컨테이너)가 쥐고, 여기는 그리기만 한다.
+ * 자산 보드 — 데스크톱 테이블 렌더.
+ * 모바일 카드(asset-board-cards)와의 전환은 컨테이너의 <Responsive> 조립이 정한다
+ * — 여기는 뷰포트를 모른다. 상태·컬럼 정의도 asset-board(컨테이너) 소유.
  */
 
 const RIGHT_ALIGNED = new Set([
@@ -48,7 +48,7 @@ export function AssetBoardTable({
   return (
     /* 테이블 — 감싸는 패널 없이 전폭으로 펼친다. 행은 투명하게 두고
        영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */
-    <div className="mt-4 hidden border-y border-black/45 bg-black/[0.12] md:block">
+    <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1440px] border-collapse text-left">
           <caption className="sr-only">

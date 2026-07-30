@@ -7,9 +7,10 @@ import { AssetAvatar } from "@/components/ui/asset-avatar";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 
 /**
- * 자산 보드 — 모바일 카드 렌더 (md 미만).
- * 테이블 컬럼을 다 욱여넣지 않는다(절대 규칙 3): 현재가·변동률이 1급,
- * 예치 규모·발행자는 보조 줄 하나로 끝낸다. 정렬·필터 순서는 테이블과 동일
+ * 자산 보드 — 모바일 카드 렌더.
+ * 데스크톱 테이블과의 전환은 컨테이너의 <Responsive> 조립이 정한다 — 여기는
+ * 뷰포트를 모른다. 테이블 컬럼을 다 욱여넣지 않는다(절대 규칙 3): 현재가·변동률이
+ * 1급, 예치 규모·발행자는 보조 줄 하나로 끝낸다. 정렬·필터 순서는 테이블과 동일
  * (컨테이너가 정렬된 행 모델을 그대로 내려준다).
  */
 export function AssetBoardCards({
@@ -27,7 +28,7 @@ export function AssetBoardCards({
 }) {
   if (assets.length === 0) {
     return (
-      <p className="mt-4 border-y border-black/45 bg-black/[0.12] px-page py-14 text-center text-[13.5px] text-ink-3 md:hidden">
+      <p className="mt-4 border-y border-black/45 bg-black/[0.12] px-page py-14 text-center text-[13.5px] text-ink-3">
         {query.trim() === ""
           ? "자산을 불러오는 중이거나 아직 발행된 자산이 없습니다"
           : `"${query}" 검색 결과가 없습니다`}
@@ -36,7 +37,7 @@ export function AssetBoardCards({
   }
 
   return (
-    <ul className="mt-4 border-y border-black/45 bg-black/[0.12] md:hidden">
+    <ul className="mt-4 border-y border-black/45 bg-black/[0.12]">
       {assets.map((a) => (
         <li key={a.address} className="border-b border-black/30 last:border-0">
           <button

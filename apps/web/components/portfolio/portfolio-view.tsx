@@ -20,6 +20,7 @@ import { usePoll } from "@/hooks/use-poll";
 import { CopyAddress } from "@/components/ui/copy-address";
 import { PortfolioHoldingsCards } from "@/components/portfolio/portfolio-holdings-cards";
 import { Masked, PortfolioHoldingsTable } from "@/components/portfolio/portfolio-holdings-table";
+import { Responsive } from "@/components/ui/responsive";
 import type { Holding } from "@/components/portfolio/portfolio-holdings-table";
 import { useWallet } from "@/contexts/wallet-context";
 
@@ -389,20 +390,26 @@ export function PortfolioView() {
         <p className="mt-6 text-[13px] text-down">{error}</p>
       ) : null}
 
-      {/* 자산 목록 — 데스크톱 테이블 / 모바일 카드 (표시 전환은 각 컴포넌트의 CSS) */}
-      <PortfolioHoldingsTable
-        holdings={holdings}
-        totalWei={totalWei}
-        ethKrw={ethKrw}
-        hidden={hidden}
-        loading={!data && loading}
-      />
-      <PortfolioHoldingsCards
-        holdings={holdings}
-        totalWei={totalWei}
-        ethKrw={ethKrw}
-        hidden={hidden}
-        loading={!data && loading}
+      {/* 자산 목록 — 뷰포트별 조립 (전환 방식·이유는 ui/responsive.tsx 주석) */}
+      <Responsive
+        desktop={
+          <PortfolioHoldingsTable
+            holdings={holdings}
+            totalWei={totalWei}
+            ethKrw={ethKrw}
+            hidden={hidden}
+            loading={!data && loading}
+          />
+        }
+        mobile={
+          <PortfolioHoldingsCards
+            holdings={holdings}
+            totalWei={totalWei}
+            ethKrw={ethKrw}
+            hidden={hidden}
+            loading={!data && loading}
+          />
+        }
       />
 
       <div className="mt-3 space-y-1 text-[11.5px] leading-relaxed text-ink-3">

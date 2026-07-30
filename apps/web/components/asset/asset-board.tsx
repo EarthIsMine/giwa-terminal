@@ -25,6 +25,7 @@ import { KrwCompact, WINDOW_LABEL } from "@/components/asset/asset-board-model";
 import type { LiveAsset } from "@/components/asset/asset-board-model";
 import { AssetBoardTable } from "@/components/asset/asset-board-table";
 import { AssetAvatar } from "@/components/ui/asset-avatar";
+import { Responsive } from "@/components/ui/responsive";
 import { useSearch } from "@/contexts/search-context";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 
@@ -32,8 +33,8 @@ import { VerifiedBadge } from "@/components/ui/verified-badge";
  * 자산 보드 컨테이너 — GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
  * 현재가·예치 규모는 페어 준비금에서, 자산 메타는 발행 게이트 레지스트리에서 온다.
  * 상태(정렬·기간·검색)와 컬럼 정의는 여기가 쥐고, 렌더는 뷰포트별 분리:
- * 데스크톱 = asset-board-table, 모바일 = asset-board-cards (CSS 전환 —
- * SSR 첫 페인트에서 뷰포트를 모르므로 훅 분기 대신 hidden/md 클래스를 쓴다).
+ * 데스크톱 = asset-board-table, 모바일 = asset-board-cards — 전환은
+ * <Responsive> 조립으로 명시한다 (ui/responsive.tsx 에 방식·이유 주석).
  */
 
 /**
@@ -373,13 +374,19 @@ export function AssetBoard({
         </span>
       </div>
 
-      <AssetBoardTable table={table} query={query} onRowClick={goToAsset} />
-      <AssetBoardCards
-        assets={sortedAssets}
-        ethKrw={ethKrw}
-        windowLabel={WINDOW_LABEL[window_]}
-        query={query}
-        onSelect={goToAsset}
+      <Responsive
+        desktop={
+          <AssetBoardTable table={table} query={query} onRowClick={goToAsset} />
+        }
+        mobile={
+          <AssetBoardCards
+            assets={sortedAssets}
+            ethKrw={ethKrw}
+            windowLabel={WINDOW_LABEL[window_]}
+            query={query}
+            onSelect={goToAsset}
+          />
+        }
       />
 
       {/* 환산·집계 고지 (절대 규칙 1·5) */}
