@@ -56,10 +56,10 @@ function buildSteps(
 function LaunchIntro() {
   return (
     <>
-      <h1 className="text-[40px] font-bold leading-tight tracking-tight">
+      <h1 className="text-[27px] font-bold leading-tight tracking-tight sm:text-[34px] lg:text-[40px]">
         기와체인 최초의 <span className="text-accent">검증 런치패드</span>
       </h1>
-      <div className="mt-4 max-w-[720px] space-y-1 text-[14.5px] leading-relaxed text-ink-2">
+      <div className="mt-4 max-w-[720px] space-y-1 text-[13.5px] leading-relaxed text-ink-2 sm:text-[14.5px]">
         <p>
           나루는 퍼미션리스 발행을 지원하지 않습니다.{" "}
           <span className="font-medium text-good">검증된 발행 주체</span>만
@@ -143,7 +143,7 @@ export function LaunchForm() {
 
   /* ---------- 발행 폼 ---------- */
   return (
-    <div className="mx-auto w-full max-w-[1840px] px-8 pb-4 pt-12">
+    <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
       <LaunchIntro />
 
       {/* 진행 사다리 — 폼 상태와 연동 */}

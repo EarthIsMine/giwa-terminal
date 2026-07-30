@@ -20,7 +20,7 @@ export default function PointsPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-[1280px] px-8 pb-20 pt-12">
+      <main className="mx-auto w-full max-w-[1280px] px-page pb-20 pt-8 sm:pt-12">
         <PointsIntro />
         <PointsView />
       </main>

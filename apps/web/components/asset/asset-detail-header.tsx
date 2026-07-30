@@ -30,10 +30,11 @@ export function AssetDetailHeader({
           {asset.nameKo} · 발행 {asset.issuerName}
         </p>
       </div>
-      <div className="ml-auto text-right">
+      {/* 모바일: 이름 아래 전폭 줄로 내려온다 / sm 이상: 우측 정렬 */}
+      <div className="w-full sm:ml-auto sm:w-auto sm:text-right">
         {ethKrw ? (
           <>
-            <p className="font-mono text-[26px] font-semibold tabular-nums">
+            <p className="font-mono text-[22px] font-semibold tabular-nums sm:text-[26px]">
               <span className="mr-0.5 text-[18px] text-ink-2">₩</span>
               {formatKrw(weiToDisplayKrw(priceWei, ethKrw))}
             </p>
@@ -42,7 +43,7 @@ export function AssetDetailHeader({
             </p>
           </>
         ) : (
-          <p className="font-mono text-[26px] font-semibold tabular-nums">
+          <p className="font-mono text-[22px] font-semibold tabular-nums sm:text-[26px]">
             {formatEth(priceWei, 8)}{" "}
             <span className="text-[14px] text-ink-3">ETH</span>
           </p>

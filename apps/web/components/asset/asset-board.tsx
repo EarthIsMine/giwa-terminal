@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  flexRender,
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
@@ -15,58 +14,27 @@ import {
   formatCount,
   formatEth,
   formatKrw,
-  formatKrwCompact,
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
-import type { AssetVerification, WeiAmount } from "@giwa/shared";
 import { BOARD_WINDOWS } from "@/lib/indexer";
 import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
+import { AssetBoardCards } from "@/components/asset/asset-board-cards";
+import { KrwCompact, WINDOW_LABEL } from "@/components/asset/asset-board-model";
+import type { LiveAsset } from "@/components/asset/asset-board-model";
+import { AssetBoardTable } from "@/components/asset/asset-board-table";
 import { AssetAvatar } from "@/components/ui/asset-avatar";
 import { useSearch } from "@/contexts/search-context";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 
 /**
- * 자산 보드 — GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
+ * 자산 보드 컨테이너 — GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
  * 현재가·예치 규모는 페어 준비금에서, 자산 메타는 발행 게이트 레지스트리에서 온다.
- * 변동·거래량·참여 인원 지표는 이벤트 집계가 필요해 인덱서 연결 후 복원한다.
+ * 상태(정렬·기간·검색)와 컬럼 정의는 여기가 쥐고, 렌더는 뷰포트별 분리:
+ * 데스크톱 = asset-board-table, 모바일 = asset-board-cards (CSS 전환 —
+ * SSR 첫 페인트에서 뷰포트를 모르므로 훅 분기 대신 hidden/md 클래스를 쓴다).
  */
-
-interface LiveAsset {
-  address: `0x${string}`;
-  pair: `0x${string}`;
-  symbol: string;
-  nameKo: string;
-  issuerName: string;
-  priceWei: WeiAmount;
-  liquidityWei: WeiAmount;
-  verification: AssetVerification;
-  /** 선택 윈도우의 변동률 (bps). 데이터 없으면 null — 0%로 채우지 않는다 */
-  changeBps: number | null;
-  /** 시가총액 = totalSupply × 현재가.
-   *  NaruToken 은 공급 고정이고 소각 기능이 없어 락업·소각 차감분이 없다
-   *  (CLAUDE.md 시가총액 정의: 제외 정책을 주석으로 남긴다) */
-  marketCapWei: WeiAmount;
-  /** 선택 윈도우의 거래대금(WETH wei) · 체결 건수 · 참여 인원 */
-  volumeWei: WeiAmount | null;
-  trades: number | null;
-  traders: number | null;
-  /** 상장 후 경과 일수 */
-  ageDays: number;
-}
-
-/**
- * 윈도우 라벨 — "24h"는 rolling 24시간이 아니라 UTC 당일(09:00 KST 경계)이다.
- * 업비트 일봉과 같은 경계를 쓰기로 한 결정이라(CLAUDE.md 지표 정의) 계산은 그대로 두고
- * 이름을 "오늘"로 맞춘다. "24시간"이라 부르면 KST 오전에 창이 몇 분짜리가 된다.
- */
-const WINDOW_LABEL: Record<BoardWindow, string> = {
-  "24h": "오늘",
-  "7d": "7일",
-  "30d": "30일",
-  all: "전체",
-};
 
 /**
  * 데이터 없는 값은 정렬에서 항상 맨 아래로 보낸다.
@@ -80,22 +48,6 @@ const NO_DATA_SORT = { sortUndefined: "last" } as const;
 
 function cmpBigint(a: bigint, b: bigint): number {
   return a < b ? -1 : a > b ? 1 : 0;
-}
-
-/** "1.27억" → 숫자와 단위를 분리해 단위를 한 단계 죽인다 */
-function KrwCompact({ v, ethKrw }: { v: WeiAmount; ethKrw: bigint }) {
-  const s = formatKrwCompact(weiToDisplayKrw(v, ethKrw));
-  const m = /^([\d,.]+)(억|만)?$/.exec(s);
-  const num = m?.[1] ?? s;
-  const unit = m?.[2];
-  return (
-    <span className="font-mono text-[13px] tabular-nums">
-      {num}
-      {unit ? (
-        <span className="ml-0.5 font-sans text-[11px] text-ink-3">{unit}</span>
-      ) : null}
-    </span>
-  );
 }
 
 function AssetCell({ asset }: { asset: LiveAsset }) {
@@ -119,30 +71,6 @@ function AssetCell({ asset }: { asset: LiveAsset }) {
     </div>
   );
 }
-
-const RIGHT_ALIGNED = new Set([
-  "price",
-  "change",
-  "marketCap",
-  "volume",
-  "trades",
-  "traders",
-  "liquidity",
-  "age",
-]);
-
-/** 컬럼별 고정 폭 — 나머지는 자산 컬럼이 흡수한다 */
-const COL_WIDTH: Record<string, string> = {
-  issuer: "w-[150px]",
-  price: "w-[170px]",
-  change: "w-[110px]",
-  marketCap: "w-[120px]",
-  volume: "w-[120px]",
-  trades: "w-[90px]",
-  traders: "w-[100px]",
-  liquidity: "w-[120px]",
-  age: "w-[90px]",
-};
 
 export function AssetBoard({
   assets,
@@ -382,12 +310,14 @@ export function AssetBoard({
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const rows = table.getRowModel().rows;
+  // 정렬·필터가 적용된 행 모델 — 모바일 카드도 같은 순서를 쓴다
+  const sortedAssets = table.getRowModel().rows.map((r) => r.original);
+  const goToAsset = (a: LiveAsset) => router.push(`/asset/${a.address}`);
 
   return (
     <div>
       {/* 툴바 — 기간 토글 + 새로고침. 기간은 일 단위만 연다 (절대 규칙 3) */}
-      <div className="flex flex-wrap items-center justify-end gap-2.5 px-8">
+      <div className="flex flex-wrap items-center justify-end gap-2.5 px-page">
         <div
           role="group"
           aria-label="변동률 기간"
@@ -443,115 +373,17 @@ export function AssetBoard({
         </span>
       </div>
 
-      {/* 테이블 — 감싸는 패널 없이 전폭으로 펼친다. 행은 투명하게 두고
-          영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */}
-      <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1440px] border-collapse text-left">
-            <caption className="sr-only">
-              기와체인 검증 자산 목록. 실데이터: 현재가, 예치 규모,
-              발행자
-            </caption>
-            <thead>
-              {table.getHeaderGroups().map((hg) => (
-                <tr
-                  key={hg.id}
-                  className="border-b border-black/45 bg-[#120c06]/[0.97]"
-                >
-                  <th
-                    scope="col"
-                    className="w-14 py-2.5 pl-8 pr-2 text-[11.5px] font-medium tracking-[0.1em] text-ink-3"
-                  >
-                    #
-                  </th>
-                  {hg.headers.map((header) => {
-                    const sorted = header.column.getIsSorted();
-                    const right = RIGHT_ALIGNED.has(header.column.id);
-                    return (
-                      <th
-                        key={header.id}
-                        scope="col"
-                        aria-sort={
-                          sorted === "asc"
-                            ? "ascending"
-                            : sorted === "desc"
-                              ? "descending"
-                              : undefined
-                        }
-                        className={`px-4 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
-                      >
-                        {header.column.getCanSort() ? (
-                          <button
-                            type="button"
-                            onClick={header.column.getToggleSortingHandler()}
-                            className="inline-flex items-center gap-1 transition-colors hover:text-ink-2"
-                          >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                            <span aria-hidden className="text-[9px]">
-                              {sorted === "asc"
-                                ? "▲"
-                                : sorted === "desc"
-                                  ? "▼"
-                                  : ""}
-                            </span>
-                          </button>
-                        ) : (
-                          flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )
-                        )}
-                      </th>
-                    );
-                  })}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {rows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={12}
-                    className="py-14 text-center text-[13.5px] text-ink-3"
-                  >
-                    {query.trim() === ""
-                      ? "자산을 불러오는 중이거나 아직 발행된 자산이 없습니다"
-                      : `"${query}" 검색 결과가 없습니다`}
-                  </td>
-                </tr>
-              ) : (
-                rows.map((row, i) => (
-                  <tr
-                    key={row.id}
-                    onClick={() =>
-                      router.push(`/asset/${row.original.address}`)
-                    }
-                    className="cursor-pointer border-b border-black/30 transition-colors last:border-0 hover:bg-black/30"
-                  >
-                    <td className="py-2.5 pl-8 pr-2 font-mono text-[11px] text-ink-3">
-                      #{i + 1}
-                    </td>
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className={`px-4 py-2.5 last:pr-8 ${RIGHT_ALIGNED.has(cell.column.id) ? "text-right" : ""}`}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AssetBoardTable table={table} query={query} onRowClick={goToAsset} />
+      <AssetBoardCards
+        assets={sortedAssets}
+        ethKrw={ethKrw}
+        windowLabel={WINDOW_LABEL[window_]}
+        query={query}
+        onSelect={goToAsset}
+      />
 
       {/* 환산·집계 고지 (절대 규칙 1·5) */}
-      <div className="mt-3 space-y-1 px-8 text-[11.5px] leading-relaxed text-ink-3">
+      <div className="mt-3 space-y-1 px-page text-[11.5px] leading-relaxed text-ink-3">
         <p>
           {ethKrw
             ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다. 원화 자산이 기와체인에 존재하는 것은 아닙니다.`

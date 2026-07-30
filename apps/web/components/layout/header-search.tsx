@@ -71,7 +71,8 @@ export function HeaderSearch() {
         if (first) go(first.address);
         else if (q !== "") router.push("/"); // 매칭 없으면 홈 보드 필터로
       }}
-      className="relative hidden w-full max-w-[320px] md:block"
+      /* 표시/숨김·폭 제한은 배치하는 쪽 책임 — 헤더(데스크톱)와 모바일 시트가 다르게 감싼다 */
+      className="relative w-full md:max-w-[320px]"
     >
       <svg
         viewBox="0 0 16 16"

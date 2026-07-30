@@ -21,11 +21,11 @@ export function LaunchSubmitted({
   onReset: () => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[1840px] px-8 pb-4 pt-12">
+    <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
       <div className="mx-auto max-w-[640px]">
         <Stepper steps={steps} />
       </div>
-      <div className="mx-auto mt-8 max-w-[640px] rounded-2xl carved p-10 text-center">
+      <div className="mx-auto mt-8 max-w-[640px] rounded-2xl carved p-6 text-center sm:p-10">
         <div className="mx-auto grid size-14 place-items-center rounded-full border border-good/30 bg-good/10 text-good">
           <CheckIcon size={26} />
         </div>

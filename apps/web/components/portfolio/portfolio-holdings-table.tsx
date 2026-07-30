@@ -138,7 +138,8 @@ export function PortfolioHoldingsTable({
   loading,
 }: PortfolioHoldingsTableProps) {
   return (
-    <div className="mt-6 border-y border-black/45 bg-black/[0.12]">
+    /* 데스크톱 전용 — 모바일은 portfolio-holdings-cards 가 같은 모델을 카드로 그린다 */
+    <div className="mt-6 hidden border-y border-black/45 bg-black/[0.12] md:block">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[860px] border-collapse text-left">
           <caption className="sr-only">보유 자산: 현재가, 보유 수량, 평가금액, 총손익, 비중</caption>

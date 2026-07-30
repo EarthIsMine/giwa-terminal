@@ -40,7 +40,7 @@ export function AssetDetailChart({
 
   return (
     <>
-      <section className="rounded-xl carved p-5">
+      <section className="rounded-xl carved p-4 sm:p-5">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 className="text-[15px] font-semibold">가격 차트</h2>
           <span className="text-[11px] text-ink-3">

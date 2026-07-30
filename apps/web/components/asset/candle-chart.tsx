@@ -135,5 +135,6 @@ export function CandleChart({
     return () => chart.remove();
   }, [candles, decimals, currency]);
 
-  return <div ref={ref} className="h-[440px] w-full" />;
+  /* autoSize 라 컨테이너 높이만 뷰포트별로 주면 된다 — 모바일은 세로 공간 절약 */
+  return <div ref={ref} className="h-[300px] w-full sm:h-[440px]" />;
 }

@@ -135,7 +135,7 @@ export function PointsSeasonPreview() {
       </p>
 
       <dl className="mt-4 flex flex-wrap gap-2.5">
-        <div className="min-w-[132px] rounded-lg bg-black/20 px-4 py-3">
+        <div className="min-w-[132px] flex-1 rounded-lg bg-black/20 px-4 py-3 sm:flex-none">
           <dt className="text-[11px] tracking-[0.1em] text-ink-3">내 점수</dt>
           <dd className="mt-1 font-mono text-[20px] font-semibold leading-none">
             {formatCount(PREVIEW_SNAPSHOT.total)}
@@ -144,7 +144,7 @@ export function PointsSeasonPreview() {
             </span>
           </dd>
         </div>
-        <div className="min-w-[132px] rounded-lg bg-black/20 px-4 py-3">
+        <div className="min-w-[132px] flex-1 rounded-lg bg-black/20 px-4 py-3 sm:flex-none">
           <dt className="text-[11px] tracking-[0.1em] text-ink-3">참여 지갑 중</dt>
           <dd className="mt-1 font-mono text-[20px] font-semibold leading-none">
             상위 {PREVIEW_SNAPSHOT.percentile}
@@ -153,7 +153,7 @@ export function PointsSeasonPreview() {
             </span>
           </dd>
         </div>
-        <div className="min-w-[132px] rounded-lg bg-black/20 px-4 py-3">
+        <div className="min-w-[132px] flex-1 rounded-lg bg-black/20 px-4 py-3 sm:flex-none">
           <dt className="text-[11px] tracking-[0.1em] text-ink-3">곧 소멸</dt>
           <dd className="mt-1 font-mono text-[20px] font-semibold leading-none">
             {formatCount(PREVIEW_SNAPSHOT.expiring)}

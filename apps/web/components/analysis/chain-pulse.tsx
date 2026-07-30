@@ -41,7 +41,7 @@ function Stat({
   note: string;
 }) {
   return (
-    <div className="min-w-[168px] rounded-xl carved px-5 py-4">
+    <div className="min-w-[168px] flex-1 rounded-xl carved px-4 py-3.5 sm:flex-none sm:px-5 sm:py-4">
       <dt className="text-[11.5px] font-medium tracking-[0.12em] text-ink-3">
         {label}
       </dt>

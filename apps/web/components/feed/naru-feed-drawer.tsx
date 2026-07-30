@@ -36,11 +36,12 @@ export function NaruFeedDrawer({
       />
       <aside
         aria-label="나루터 소식 목록"
-        className={`absolute right-0 top-0 flex h-full w-[30%] min-w-[380px] max-w-[560px] flex-col border-l border-hairline bg-[#160e07]/97 shadow-[-24px_0_80px_rgba(0,0,0,0.5)] backdrop-blur-md transition-transform duration-300 ease-out ${
+        /* 모바일은 전폭, sm 이상부터 우측 패널 폭으로 */
+        className={`absolute right-0 top-0 flex h-full w-full flex-col border-l border-hairline bg-[#160e07]/97 shadow-[-24px_0_80px_rgba(0,0,0,0.5)] backdrop-blur-md transition-transform duration-300 ease-out sm:w-[420px] xl:w-[30%] xl:min-w-[420px] xl:max-w-[560px] ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-start justify-between border-b border-black/40 px-6 py-5">
+        <div className="flex items-start justify-between border-b border-black/40 px-4 py-4 sm:px-6 sm:py-5">
           <div>
             <h2 className="flex items-center gap-2 text-[16px] font-semibold">
               <span
@@ -75,7 +76,7 @@ export function NaruFeedDrawer({
           </button>
         </div>
 
-        <ul className="min-h-0 flex-1 overflow-y-auto px-6">
+        <ul className="min-h-0 flex-1 overflow-y-auto px-4 sm:px-6">
           {items.map((item) => (
             <li
               key={item.id}
@@ -109,7 +110,7 @@ export function NaruFeedDrawer({
           ))}
         </ul>
 
-        <p className="border-t border-black/40 px-6 py-4 text-[11px] leading-relaxed text-ink-3">
+        <p className="border-t border-black/40 px-4 py-4 sm:px-6 text-[11px] leading-relaxed text-ink-3">
           테스트넷 시드 데이터입니다. 사실 서술만 제공하며 투자 권유가
           아닙니다.
         </p>

@@ -117,6 +117,30 @@
 }
 
 /*
+ * 페이지 좌우 여백 단일 소스 — 모바일 1rem / sm 이상 2rem.
+ * 화면마다 px-8 을 흩뿌리면 반응형 조정 때 전부 따로 고쳐야 한다.
+ * 테이블 첫/끝 칸처럼 한쪽만 필요한 곳을 위해 pl/pr 변형을 함께 둔다.
+ */
+@utility px-page {
+  padding-inline: 1rem;
+  @media (min-width: 40rem) {
+    padding-inline: 2rem;
+  }
+}
+@utility pl-page {
+  padding-left: 1rem;
+  @media (min-width: 40rem) {
+    padding-left: 2rem;
+  }
+}
+@utility pr-page {
+  padding-right: 1rem;
+  @media (min-width: 40rem) {
+    padding-right: 2rem;
+  }
+}
+
+/*
  * 음각(carved) 서피스 — 유리판 대신 나무를 파낸 홈.
  * 위 모서리는 그림자, 아래 턱은 빛을 받는다. 보더 없이 깊이로 구분한다.
  */

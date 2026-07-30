@@ -23,7 +23,7 @@ export default function DocsPage() {
   return (
     <>
       <DocsHeader />
-      <main className="mx-auto w-full max-w-[1180px] px-8 pb-20 pt-12">
+      <main className="mx-auto w-full max-w-[1180px] px-page pb-20 pt-8 sm:pt-12">
         <DocsIntro />
         <div className="mt-10 gap-10 lg:grid lg:grid-cols-[210px_minmax(0,1fr)]">
           <DocsNav sections={NAV_SECTIONS} />

@@ -34,7 +34,7 @@ export function TradeHistory({
 
   return (
     <section className="overflow-hidden rounded-xl carved">
-      <div className="flex items-baseline justify-between px-6 pb-3 pt-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 px-4 pb-3 pt-4 sm:px-6 sm:pt-5">
         <h2 className="text-[15px] font-semibold">체결 내역</h2>
         <span className="text-[11px] text-ink-3">
           최근 {trades.length}건 · KST · 테스트넷 시드 데이터
@@ -48,7 +48,7 @@ export function TradeHistory({
           </caption>
           <thead>
             <tr className="border-y border-black/45 bg-[#120c06]/[0.97] text-[11.5px] font-medium tracking-[0.1em] text-ink-3">
-              <th scope="col" className="py-2 pl-6 pr-3">
+              <th scope="col" className="py-2 pl-4 pr-3 sm:pl-6">
                 시간
               </th>
               <th scope="col" className="px-3 py-2">
@@ -63,7 +63,7 @@ export function TradeHistory({
               <th scope="col" className="px-3 py-2 text-right">
                 체결액
               </th>
-              <th scope="col" className="py-2 pl-3 pr-6 text-right">
+              <th scope="col" className="py-2 pl-3 pr-4 sm:pr-6 text-right">
                 내역
               </th>
             </tr>
@@ -74,7 +74,7 @@ export function TradeHistory({
                 key={t.id}
                 className="border-b border-black/30 text-[12.5px] last:border-0"
               >
-                <td className="py-2 pl-6 pr-3 font-mono text-[11.5px] tabular-nums text-ink-3">
+                <td className="py-2 pl-4 pr-3 sm:pl-6 font-mono text-[11.5px] tabular-nums text-ink-3">
                   {formatKst(t.timestamp)}
                 </td>
                 <td
@@ -91,7 +91,7 @@ export function TradeHistory({
                 <td className="px-3 py-2 text-right font-mono tabular-nums">
                   {money(t.wethAmount)}
                 </td>
-                <td className="py-2 pl-3 pr-6 text-right">
+                <td className="py-2 pl-3 pr-4 sm:pr-6 text-right">
                   <a
                     href={explorerTxUrl(t.txHash)}
                     target="_blank"
