@@ -25,7 +25,10 @@ export function MobileNav() {
 
   useEscapeKey(open, () => setOpen(false));
 
-  /* 라우트가 바뀌면 닫는다 — 링크 이동 후 시트가 화면을 덮은 채 남는 것 방지 */
+  /* 라우트가 바뀌면 닫는다 — 링크 이동 후 시트가 화면을 덮은 채 남는 것 방지.
+     이것만으로는 부족하다: 지금 있는 화면과 같은 항목을 누르면 pathname 이
+     안 바뀌어 시트가 그대로 남는다(그 항목이 활성 표시라 오히려 누르기 쉽다).
+     그래서 링크 탭에서도 직접 닫는다 — 여기는 뒤로가기 등 링크 밖 이동을 받는다 */
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
@@ -110,7 +113,9 @@ export function MobileNav() {
                 </div>
 
                 <div className="mt-3">
-                  <HeaderSearch />
+                  {/* 검색이 끝나면 시트가 비켜선다 — 홈에서는 라우트가 안 바뀌어
+                      pathname 이펙트가 안 돌고, 시트가 방금 걸러진 보드를 덮는다 */}
+                  <HeaderSearch onSearched={() => setOpen(false)} />
                 </div>
 
                 <ul className="mt-4 space-y-1">
@@ -121,6 +126,7 @@ export function MobileNav() {
                         <Link
                           href={it.href}
                           aria-current={active ? "page" : undefined}
+                          onClick={() => setOpen(false)}
                           className={`block rounded-lg px-4 py-3 text-[15px] font-medium ${
                             active
                               ? "border border-accent/25 bg-accent/15 text-ink"
