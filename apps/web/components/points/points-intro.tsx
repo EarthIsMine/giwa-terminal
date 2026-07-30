@@ -8,7 +8,7 @@ export function PointsIntro() {
   return (
     <>
       <h1 className="font-serif text-[27px] font-bold tracking-tight">
-        나루 포인트
+        나루 포인트 (테스트)
       </h1>
       <p className="mt-2 max-w-[640px] text-[13px] leading-relaxed text-ink-3">
         예치와 거래로 포인트를 쌓고, 새 자산이 상장될 때 포인트를 차감해 배분에

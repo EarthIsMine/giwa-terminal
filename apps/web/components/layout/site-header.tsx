@@ -60,6 +60,36 @@ export function SiteHeader() {
               className="opacity-65 invert transition-opacity group-hover:opacity-95"
             />
           </a>
+
+          {/* 공식 브릿지 — 그림(홍예교 + 물결)으로 "건너온다"를 말한다.
+              글자 라벨을 붙이면 헤더 밀도가 올라가므로 아이콘 + title 만 둔다.
+              익스플로러와 같이 모바일에선 시트 링크로 대체한다 (헤더 밀도 절제) */}
+          <a
+            href={giwaChain.bridgeUrl}
+            target="_blank"
+            rel="noreferrer"
+            title="기와 공식 브릿지로 건너오기"
+            aria-label="기와 공식 브릿지 열기"
+            className={`hidden md:grid ${ICON_BUTTON_CLASS}`}
+          >
+            <svg
+              viewBox="0 0 18 18"
+              width={17}
+              height={17}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              {/* 상판(홍예) · 교각 · 아래로 흐르는 물 */}
+              <path d="M1.6 10.4C4 6.2 14 6.2 16.4 10.4" />
+              <path d="M5.6 8.3v4.3M12.4 8.3v4.3" />
+              <path d="M1.6 15q2.1-1.3 4.2 0t4.2 0t4.2 0" />
+            </svg>
+          </a>
+
           <LoginButton />
           <MobileNav />
         </div>

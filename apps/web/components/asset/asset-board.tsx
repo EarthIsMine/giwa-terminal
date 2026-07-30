@@ -25,6 +25,7 @@ import { KrwCompact, WINDOW_LABEL } from "@/components/asset/asset-board-model";
 import type { LiveAsset } from "@/components/asset/asset-board-model";
 import { AssetBoardTable } from "@/components/asset/asset-board-table";
 import { AssetAvatar } from "@/components/ui/asset-avatar";
+import { CopyAddress } from "@/components/ui/copy-address";
 import { Responsive } from "@/components/ui/responsive";
 import { useSearch } from "@/contexts/search-context";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
@@ -65,7 +66,10 @@ function AssetCell({ asset }: { asset: LiveAsset }) {
             {asset.symbol}
           </Link>
           <VerifiedBadge verification={asset.verification} />
-          {/* 주소 복사 버튼은 상세로 옮겼다 — 목록에서 주소를 다룰 일이 없다 */}
+          {/* 컨트랙트 주소 복사 — 주소 문자열은 노출하지 않고 버튼만 둔다.
+              0x… 를 19행에 깔면 정보 밀도가 튀지만(절대 규칙 3), 복사 자체는
+              지갑·익스플로러로 옮겨 확인하는 실제 동선이라 목록에 남긴다 */}
+          <CopyAddress address={asset.address} />
         </div>
         <p className="mt-0.5 text-[11.5px] text-ink-3">{asset.nameKo}</p>
       </div>

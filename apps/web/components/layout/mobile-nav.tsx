@@ -153,13 +153,22 @@ export function MobileNav() {
                   >
                     <TelegramIcon size={16} />
                   </a>
+                  {/* 데스크톱 헤더의 아이콘 두 개(브릿지·익스플로러)를 여기서 글자로 받는다 */}
                   <a
-                    href={giwaChain.explorerUrl}
+                    href={giwaChain.bridgeUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="ml-auto text-[12.5px] transition-colors hover:text-ink-2"
                   >
-                    GIWA 익스플로러 ↗
+                    브릿지 ↗
+                  </a>
+                  <a
+                    href={giwaChain.explorerUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[12.5px] transition-colors hover:text-ink-2"
+                  >
+                    익스플로러 ↗
                   </a>
                 </div>
               </nav>
