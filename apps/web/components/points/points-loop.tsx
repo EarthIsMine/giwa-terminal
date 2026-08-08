@@ -36,7 +36,7 @@ const STEPS: readonly {
 export function PointsLoop() {
   return (
     <section className="rounded-xl carved px-6 py-6">
-      <h2 className="text-[15px] font-semibold">포인트가 도는 길</h2>
+      <h2 className="text-[15px] font-semibold">적립부터 배분까지</h2>
       <ol className="relative mt-6 grid gap-x-6 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
         {/* 걸음을 잇는 홈줄 — 넓은 화면에서만 (세로 쌓임에선 오히려 헷갈린다) */}
         <span

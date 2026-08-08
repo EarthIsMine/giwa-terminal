@@ -8,9 +8,8 @@ export function AnalysisIntro() {
     <>
       <h1 className="font-serif text-[27px] font-bold tracking-tight">분석</h1>
       <p className="mt-2 max-w-[660px] text-[13px] leading-relaxed text-ink-3">
-        기와체인이라는 판 전체를 먼저 보고, 그 위에 올라온 자산으로 내려갑니다.
-        체인이 얼마나 돌아가는지, 한 번 거래에 얼마가 드는지, 그 안에서 나루가
-        무엇을 검증했는지. 가격 아래에 있는 구조를 보는 화면입니다.
+        기와체인의 거래량과 수수료를 확인하고, 나루에 등록된 자산의 보유 구조를
+        비교해 보세요.
       </p>
     </>
   );
