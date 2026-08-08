@@ -1,5 +1,5 @@
 import { giwaChain } from "@giwa/config";
-import { SITE_LINKS } from "@/lib/site";
+import { SITE_LINKS, VERIFICATION_DISCLAIMER } from "@/lib/site";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
@@ -21,7 +21,7 @@ export function SiteFooter() {
           <p className="mt-3 leading-relaxed text-ink-3">
             업비트에서 기와체인으로 오는 나룻길.
             <br />
-            기와체인 가격 데이터 레이어 위에 올린 터미널.
+            기와체인 자산을 원화 환산 시세로 확인하고 거래하는 터미널.
           </p>
           <div className="mt-4 flex items-center gap-3 text-ink-3">
             <a
@@ -112,10 +112,7 @@ export function SiteFooter() {
               자산이 기와체인에 존재하는 것은 아닙니다.
             </li>
             <li>표시 자산은 신원 검증을 통과한 자산으로 한정됩니다.</li>
-            <li>
-              검증은 사기 필터이지 투자 보증이 아닙니다. 발행 시점의 신원과
-              기와체인에 기록된 안전장치를 확인한 것입니다.
-            </li>
+            <li>{VERIFICATION_DISCLAIMER}</li>
             <li>
               나루는 두나무가 만든 GIWA 체인 위에서 동작하는 독립 서비스이며,
               업비트·두나무와 제휴 관계가 아닙니다.

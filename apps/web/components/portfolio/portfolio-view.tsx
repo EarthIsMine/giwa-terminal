@@ -220,7 +220,7 @@ export function PortfolioView() {
             지갑을 연결하면 보유 자산이 보입니다
           </p>
           <p className="mt-2.5 text-[13px] leading-relaxed text-ink-3">
-            보유 수량과 평가액을 익숙한 원화 감각으로 보여드립니다.
+            보유 수량과 원화 환산 평가액을 확인하세요.
           </p>
           <button
             type="button"
@@ -239,7 +239,7 @@ export function PortfolioView() {
             >
               자산 옮기기 ↗
             </a>
-            에서 Sepolia ETH를 건너오는 것부터 시작합니다.
+            에서 Sepolia ETH를 옮기는 것부터 시작하세요.
           </p>
         </div>
       </div>

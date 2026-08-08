@@ -130,8 +130,8 @@ export function PointsSeasonPreview() {
       </div>
 
       <p className="mt-2 max-w-[640px] text-[12.5px] leading-relaxed text-ink-3">
-        시즌 0이 열리면 이 자리에 실제 상장 이벤트가 들어옵니다. 아래는 그때의
-        화면 구성을 보여주기 위한 예시이며, 실제 적립 기록이 아닙니다.
+        시즌 0이 시작되면 실제 상장 이벤트가 표시됩니다. 아래는 화면 구성을
+        보여주는 예시이며, 실제 적립 기록이 아닙니다.
       </p>
 
       <dl className="mt-4 flex flex-wrap gap-2.5">

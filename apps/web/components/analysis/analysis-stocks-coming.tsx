@@ -14,8 +14,7 @@ export function AnalysisStocksComing() {
             준비 중
           </p>
           <p className="mx-auto mt-5 max-w-[420px] text-[13px] leading-relaxed text-ink-3">
-            익숙한 종목이 온체인에서 어떻게 거래되는지 조회 전용으로 보여드릴
-            예정입니다.
+            온체인 주식의 시세 조회 기능을 준비하고 있습니다.
           </p>
         </div>
       </div>

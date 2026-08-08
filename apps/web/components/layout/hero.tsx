@@ -35,7 +35,7 @@ export function Hero({
             오는 <span className="text-accent">나룻길</span>
           </h1>
           <p className="mt-3 text-[13px] leading-relaxed text-ink-2 sm:mt-4 sm:text-[14px]">
-            나루는 기와체인의 신원 검증 자산만 익숙한 원화 감각으로 보여줍니다.
+            발행 주체의 신원을 확인한 기와체인 자산, 원화 환산으로 한눈에.
           </p>
         </div>
 
