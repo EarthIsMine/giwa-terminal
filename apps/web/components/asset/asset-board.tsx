@@ -20,6 +20,7 @@ import {
 import { BOARD_WINDOWS } from "@/lib/indexer";
 import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
+import { VERIFICATION_DETAIL, VERIFICATION_LEAD } from "@/lib/site";
 import { AssetBoardCards } from "@/components/asset/asset-board-cards";
 import { KrwCompact, WINDOW_LABEL } from "@/components/asset/asset-board-model";
 import type { LiveAsset } from "@/components/asset/asset-board-model";
@@ -406,9 +407,8 @@ export function AssetBoard({
           시드 봇이 생성합니다.
         </p>
         <p>
-          · <b className="font-medium text-ink-2">검증은 사기 필터이지 투자
-          보증이 아닙니다.</b>{" "}
-          발행 시점의 신원과 기와체인에 기록된 안전장치를 확인한 것입니다.
+          · <b className="font-medium text-ink-2">{VERIFICATION_LEAD}.</b>{" "}
+          {VERIFICATION_DETAIL}
         </p>
       </div>
     </div>

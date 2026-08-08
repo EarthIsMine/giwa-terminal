@@ -3,6 +3,7 @@ import { formatCount } from "@giwa/shared";
 import type { AssetVerification } from "@giwa/shared";
 import { AssetAvatar } from "@/components/ui/asset-avatar";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { VERIFICATION_DETAIL, VERIFICATION_LEAD } from "@/lib/site";
 
 /**
  * 분석 탭 — 토큰 보드 (5면 구성 §분석 [토큰 · 온체인 주식]의 앞쪽 절반).
@@ -187,10 +188,8 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
         </p>
         <p>
           ·{" "}
-          <b className="font-medium text-ink-2">
-            검증은 사기 필터이지 투자 보증이 아닙니다.
-          </b>{" "}
-          발행 시점의 신원과 기와체인에 기록된 안전장치를 확인한 것입니다.
+          <b className="font-medium text-ink-2">{VERIFICATION_LEAD}.</b>{" "}
+          {VERIFICATION_DETAIL}
         </p>
       </div>
     </section>

@@ -8,6 +8,7 @@ import {
 } from "@giwa/shared";
 import type { WeiAmount } from "@giwa/shared";
 import type { LiveAssetWire } from "@/lib/onchain";
+import { VERIFICATION_LEAD } from "@/lib/site";
 
 function InfoRow({
   label,
@@ -112,10 +113,8 @@ export function AssetDetailInfo({
         </dl>
         <p className="mt-3 text-[11px] leading-relaxed text-ink-3">
           테스트넷 데모입니다. 검증은 나루 운영자 어테스테이션이며,
-          도장(Dojang) 정식 연동 시 같은 자리에 실검증이 기록됩니다.{" "}
-          <b className="font-medium text-ink-2">
-            검증은 사기 필터이며 투자 보증이 아닙니다.
-          </b>
+          도장(Dojang) 정식 연동 시 실제 검증 기록으로 대체됩니다.{" "}
+          <b className="font-medium text-ink-2">{VERIFICATION_LEAD}.</b>
         </p>
       </div>
     </>

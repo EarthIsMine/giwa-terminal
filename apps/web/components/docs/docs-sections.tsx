@@ -1,5 +1,6 @@
 import { giwaChain } from "@giwa/config";
 import { AddressRow, KeyValueTable, Term } from "@/components/docs/docs-primitives";
+import { VERIFICATION_LEAD } from "@/lib/site";
 
 /**
  * 기술 문서 콘텐츠 — 섹션 목록과 본문의 단일 소스.
@@ -148,12 +149,12 @@ function IdentityContent() {
         <li>
           현행 신원 원장은 도장(Dojang) 어테스테이션 스키마를 준거한 자체
           IdentityRegistry입니다. 정식 attester 등록은 기와팀과 협의 중이며,
-          연동 시 같은 자리에 실검증이 기록됩니다
+          연동 시 실제 검증 기록으로 대체됩니다
         </li>
         <li>
           배지 주체는 <Term>&ldquo;나루 검증&rdquo;</Term>으로 명시합니다. GIWA
           공식 인증이 아니며,{" "}
-          <Term>검증은 사기 필터이지 투자 보증이 아닙니다</Term>
+          <Term>{VERIFICATION_LEAD}</Term>
         </li>
         <li>
           나루 포인트의 참여 게이트는 기와의 실제 도장 컨트랙트를

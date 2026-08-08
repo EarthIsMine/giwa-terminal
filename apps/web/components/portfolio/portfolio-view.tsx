@@ -239,7 +239,7 @@ export function PortfolioView() {
             >
               자산 옮기기 ↗
             </a>
-            에서 Sepolia ETH를 건너오는 것부터 시작합니다.
+            에서 Sepolia ETH를 옮기는 것부터 시작하세요.
           </p>
         </div>
       </div>

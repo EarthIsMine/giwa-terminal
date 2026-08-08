@@ -14,9 +14,10 @@ export function AnalysisCoverage({ verifiedCount }: { verifiedCount: number }) {
       <h2 className="text-[15px] font-semibold">나루가 다루는 범위</h2>
       <p className="mt-2 max-w-[720px] text-[13px] leading-relaxed text-ink-2">
         기와체인에는 나루 밖에서 발행된 자산도 있습니다. 나루에는 발행 주체의
-        신원을 확인한 <strong className="font-semibold text-ink">{verifiedCount}종</strong>만
+        신원을 확인한{" "}
+        <strong className="font-semibold text-ink">{verifiedCount}종</strong>만
         표시합니다. 다른 경로로 발행된 자산은 같은 검증 절차가 마련된 뒤에
-        표시합니다.
+        다룹니다.
       </p>
       <p className="mt-2.5 text-[11.5px] leading-relaxed text-ink-3">
         · {VERIFICATION_DISCLAIMER}
