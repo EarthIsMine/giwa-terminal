@@ -18,7 +18,7 @@ const notoSerifKr = Noto_Serif_KR({
 export const metadata: Metadata = {
   title: "나루 NARU · 업비트에서 기와체인으로 오는 나룻길",
   description:
-    "발행 주체의 신원을 확인한 기와체인 자산의 시세와 변동을 원화로 확인하세요.",
+    "발행 주체의 신원을 확인한 기와체인 자산의 시세와 변동을 원화 환산으로 확인하세요.",
 };
 
 export const viewport: Viewport = {
