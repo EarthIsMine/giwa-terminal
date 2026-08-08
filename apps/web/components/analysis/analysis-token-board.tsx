@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { formatCount } from "@giwa/shared";
 import type { AssetVerification } from "@giwa/shared";
+import { VERIFICATION_DETAIL, VERIFICATION_LEAD } from "@/lib/site";
 import { AssetAvatar } from "@/components/ui/asset-avatar";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
-import { VERIFICATION_DETAIL, VERIFICATION_LEAD } from "@/lib/site";
 
 /**
  * 분석 탭 — 토큰 보드 (5면 구성 §분석 [토큰 · 온체인 주식]의 앞쪽 절반).

@@ -1,6 +1,6 @@
 import { giwaChain } from "@giwa/config";
-import { AddressRow, KeyValueTable, Term } from "@/components/docs/docs-primitives";
 import { VERIFICATION_LEAD } from "@/lib/site";
+import { AddressRow, KeyValueTable, Term } from "@/components/docs/docs-primitives";
 
 /**
  * 기술 문서 콘텐츠 — 섹션 목록과 본문의 단일 소스.
