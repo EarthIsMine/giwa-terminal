@@ -21,7 +21,7 @@ export function SiteFooter() {
           <p className="mt-3 leading-relaxed text-ink-3">
             업비트에서 기와체인으로 오는 나룻길.
             <br />
-            기와체인 자산을 원화로 확인하고 거래하는 터미널.
+            기와체인 자산을 원화 환산 시세로 확인하고 거래하는 터미널.
           </p>
           <div className="mt-4 flex items-center gap-3 text-ink-3">
             <a
