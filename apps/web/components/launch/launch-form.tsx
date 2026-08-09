@@ -84,6 +84,7 @@ export function LaunchForm() {
   const [logoError, setLogoError] = useState(false);
   const [website, setWebsite] = useState("");
   const [xUrl, setXUrl] = useState("");
+  const [telegramUrl, setTelegramUrl] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const verified = gateStatus === "verified";
@@ -125,6 +126,7 @@ export function LaunchForm() {
     setLogoError(false);
     setWebsite("");
     setXUrl("");
+    setTelegramUrl("");
     setSubmitted(false);
   };
 
@@ -136,6 +138,9 @@ export function LaunchForm() {
         name={name}
         ticker={ticker}
         gate={gate}
+        website={website}
+        xUrl={xUrl}
+        telegramUrl={telegramUrl}
         onReset={reset}
       />
     );
@@ -183,6 +188,8 @@ export function LaunchForm() {
             onWebsiteChange={setWebsite}
             xUrl={xUrl}
             onXUrlChange={setXUrl}
+            telegramUrl={telegramUrl}
+            onTelegramUrlChange={setTelegramUrl}
           />
         </div>
 
@@ -192,6 +199,9 @@ export function LaunchForm() {
           ticker={ticker}
           verified={verified}
           formValid={formValid}
+          website={website}
+          xUrl={xUrl}
+          telegramUrl={telegramUrl}
           onSubmit={() => setSubmitted(true)}
         />
       </div>

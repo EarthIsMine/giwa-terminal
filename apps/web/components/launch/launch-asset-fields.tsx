@@ -118,11 +118,15 @@ export function LaunchLinksSection({
   onWebsiteChange,
   xUrl,
   onXUrlChange,
+  telegramUrl,
+  onTelegramUrlChange,
 }: {
   website: string;
   onWebsiteChange: (value: string) => void;
   xUrl: string;
   onXUrlChange: (value: string) => void;
+  telegramUrl: string;
+  onTelegramUrlChange: (value: string) => void;
 }) {
   return (
     <section className="rounded-xl carved p-6">
@@ -134,7 +138,7 @@ export function LaunchLinksSection({
         자산 상세 페이지에 표시됩니다. 발행 후 발행자 서명으로 변경할 수
         있습니다.
       </p>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div>
           <label htmlFor="asset-website" className={LABEL_CLASS}>
             웹사이트
@@ -158,6 +162,19 @@ export function LaunchLinksSection({
             value={xUrl}
             onChange={(e) => onXUrlChange(e.target.value)}
             placeholder="https://x.com/yourasset"
+            className={INPUT_CLASS}
+          />
+        </div>
+        <div>
+          <label htmlFor="asset-telegram" className={LABEL_CLASS}>
+            Telegram
+          </label>
+          <input
+            id="asset-telegram"
+            type="url"
+            value={telegramUrl}
+            onChange={(e) => onTelegramUrlChange(e.target.value)}
+            placeholder="https://t.me/yourasset"
             className={INPUT_CLASS}
           />
         </div>

@@ -9,6 +9,11 @@ import {
 import type { WeiAmount } from "@giwa/shared";
 import type { LiveAssetWire } from "@/lib/onchain";
 import { VERIFICATION_LEAD } from "@/lib/site";
+import {
+  GlobeIcon,
+  TelegramIcon,
+  XIcon,
+} from "@/components/ui/social-icons";
 
 function InfoRow({
   label,
@@ -39,6 +44,29 @@ export function ExplorerLink({ address }: { address: `0x${string}` }) {
   );
 }
 
+function ChannelLink({
+  href,
+  label,
+  children,
+}: {
+  href: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={label}
+      title={label}
+      className="inline-grid size-7 place-items-center rounded-lg border border-hairline text-ink-3 transition-colors hover:border-accent/40 hover:text-accent"
+    >
+      {children}
+    </a>
+  );
+}
+
 /** 온체인 정보 + 신원 검증 카드 — 우측 사이드바의 정적 정보 블록 */
 export function AssetDetailInfo({
   asset,
@@ -50,6 +78,8 @@ export function AssetDetailInfo({
   const liquidityWei = wei(BigInt(asset.liquidityWei)) as WeiAmount;
   const supply = BigInt(asset.totalSupply) / 10n ** 18n;
   const issuedDate = new Date(asset.issuedAt * 1000);
+  const hasLinks =
+    asset.links?.website || asset.links?.x || asset.links?.telegram;
 
   return (
     <>
@@ -88,6 +118,30 @@ export function AssetDetailInfo({
           <InfoRow label="예치 풀">
             <ExplorerLink address={asset.pair} />
           </InfoRow>
+          {hasLinks ? (
+            <InfoRow label="공식 채널">
+              <span className="inline-flex items-center justify-end gap-1.5">
+                {asset.links?.website ? (
+                  <ChannelLink href={asset.links.website} label="공식 웹사이트">
+                    <GlobeIcon size={14} />
+                  </ChannelLink>
+                ) : null}
+                {asset.links?.x ? (
+                  <ChannelLink href={asset.links.x} label="공식 X 계정">
+                    <XIcon size={13} />
+                  </ChannelLink>
+                ) : null}
+                {asset.links?.telegram ? (
+                  <ChannelLink
+                    href={asset.links.telegram}
+                    label="공식 Telegram 채널"
+                  >
+                    <TelegramIcon size={14} />
+                  </ChannelLink>
+                ) : null}
+              </span>
+            </InfoRow>
+          ) : null}
         </dl>
       </div>
 

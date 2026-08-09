@@ -67,6 +67,7 @@ export interface WindowStats {
 export interface AssetLinks {
   website?: string;
   x?: string;
+  telegram?: string;
 }
 
 export interface VerifiedAsset {

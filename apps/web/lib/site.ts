@@ -17,9 +17,9 @@ export const VERIFICATION_DETAIL =
 
 export const VERIFICATION_DISCLAIMER = `${VERIFICATION_LEAD}. ${VERIFICATION_DETAIL}`;
 
-/** 나루 공식 채널 — 데모 가정 링크. 실제 계정 개설 후 교체한다 */
+/** 나루 공식 채널 */
 export const SITE_LINKS = {
-  x: "https://x.com/naru_onchain",
-  telegram: "https://t.me/naru_kr",
+  x: "https://x.com/Naru_giwa",
+  telegram: "https://t.me/Naru_giwa",
   github: "https://github.com/naru-onchain",
 } as const;

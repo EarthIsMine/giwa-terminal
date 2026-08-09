@@ -10,7 +10,7 @@
  */
 import { createPublicClient, defineChain, http, parseAbi } from "viem";
 import { giwaChain, serverRpcUrl } from "@giwa/config";
-import type { AssetVerification } from "@giwa/shared";
+import type { AssetLinks, AssetVerification } from "@giwa/shared";
 
 const chain = defineChain({
   id: giwaChain.chainId,
@@ -62,6 +62,8 @@ export interface LiveAssetWire {
   identityRef: `0x${string}`;
   /** 발행자 지갑 — 심사에서 등록되는 라벨 (온체인 분석·피드 판정의 기준 주소) */
   issuer: `0x${string}`;
+  /** 발행 주체가 등록한 공식 채널 */
+  links?: AssetLinks;
   /** 배지 표시용 — 발행 게이트가 어테스테이션을 강제하므로 목록 존재 = 검증 완료 */
   verification: AssetVerification;
 }
@@ -79,6 +81,26 @@ function verificationFrom(_identityRef: `0x${string}`): AssetVerification {
 interface SeedMetadata {
   nameKo: string;
   issuerName: string;
+  links?: AssetLinks;
+}
+
+function readStringField(source: Record<string, unknown>, key: string): string | undefined {
+  const value = source[key];
+  return typeof value === "string" && value.trim() !== "" ? value : undefined;
+}
+
+function readLinks(source: Record<string, unknown>): AssetLinks | undefined {
+  const linksValue = source.links;
+  const linksObject =
+    typeof linksValue === "object" && linksValue !== null
+      ? (linksValue as Record<string, unknown>)
+      : source;
+  const links = {
+    website: readStringField(linksObject, "website"),
+    x: readStringField(linksObject, "x"),
+    telegram: readStringField(linksObject, "telegram"),
+  } satisfies AssetLinks;
+  return links.website || links.x || links.telegram ? links : undefined;
 }
 
 /**
@@ -102,7 +124,12 @@ function parseMetadata(uri: string): SeedMetadata | null {
       typeof parsed.issuerName === "string" &&
       parsed.v === SEED_METADATA_VERSION
     ) {
-      return { nameKo: parsed.nameKo, issuerName: parsed.issuerName };
+      const source = parsed as Record<string, unknown>;
+      return {
+        nameKo: parsed.nameKo,
+        issuerName: parsed.issuerName,
+        links: readLinks(source),
+      };
     }
     return null;
   } catch {
@@ -194,6 +221,7 @@ async function fetchLiveAssets(
         issuedAt: Number(issuedAt),
         identityRef,
         issuer,
+        ...(meta.links ? { links: meta.links } : {}),
         verification: verificationFrom(identityRef),
       } satisfies LiveAssetWire;
     }),

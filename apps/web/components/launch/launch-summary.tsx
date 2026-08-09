@@ -137,12 +137,18 @@ export function LaunchSummaryAside({
   ticker,
   verified,
   formValid,
+  website,
+  xUrl,
+  telegramUrl,
   onSubmit,
 }: {
   name: string;
   ticker: string;
   verified: boolean;
   formValid: boolean;
+  website: string;
+  xUrl: string;
+  telegramUrl: string;
   onSubmit: () => void;
 }) {
   return (
@@ -167,6 +173,21 @@ export function LaunchSummaryAside({
           <SummaryRow
             label="노출 위치"
             value="나루 자산 목록"
+            mono={false}
+          />
+          <SummaryRow
+            label="X"
+            value={xUrl.trim() === "" ? "—" : xUrl.trim()}
+            mono={false}
+          />
+          <SummaryRow
+            label="Telegram"
+            value={telegramUrl.trim() === "" ? "—" : telegramUrl.trim()}
+            mono={false}
+          />
+          <SummaryRow
+            label="웹사이트"
+            value={website.trim() === "" ? "—" : website.trim()}
             mono={false}
           />
           <SummaryRow
