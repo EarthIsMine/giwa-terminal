@@ -10,6 +10,7 @@
  */
 import { createPublicClient, defineChain, http, parseAbi } from "viem";
 import { giwaChain, serverRpcUrl } from "@giwa/config";
+import { normalizeAssetLinks } from "@giwa/shared";
 import type { AssetLinks, AssetVerification } from "@giwa/shared";
 
 const chain = defineChain({
@@ -84,7 +85,10 @@ interface SeedMetadata {
   links?: AssetLinks;
 }
 
-function readStringField(source: Record<string, unknown>, key: string): string | undefined {
+function readStringField(
+  source: Record<string, unknown>,
+  key: string,
+): string | undefined {
   const value = source[key];
   return typeof value === "string" && value.trim() !== "" ? value : undefined;
 }
@@ -95,12 +99,11 @@ function readLinks(source: Record<string, unknown>): AssetLinks | undefined {
     typeof linksValue === "object" && linksValue !== null
       ? (linksValue as Record<string, unknown>)
       : source;
-  const links = {
+  return normalizeAssetLinks({
     website: readStringField(linksObject, "website"),
     x: readStringField(linksObject, "x"),
     telegram: readStringField(linksObject, "telegram"),
-  } satisfies AssetLinks;
-  return links.website || links.x || links.telegram ? links : undefined;
+  });
 }
 
 /**

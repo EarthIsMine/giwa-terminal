@@ -6,6 +6,7 @@
 
 const INPUT_CLASS =
   "h-10 w-full rounded-lg border border-hairline bg-panel px-3.5 text-[13.5px] text-ink placeholder:text-ink-3";
+const INVALID_INPUT_CLASS = "border-down/70";
 
 const LABEL_CLASS = "mb-1.5 block text-[12.5px] font-medium text-ink-2";
 
@@ -116,17 +117,23 @@ export function LaunchAssetSection({
 export function LaunchLinksSection({
   website,
   onWebsiteChange,
+  websiteValid,
   xUrl,
   onXUrlChange,
+  xUrlValid,
   telegramUrl,
   onTelegramUrlChange,
+  telegramUrlValid,
 }: {
   website: string;
   onWebsiteChange: (value: string) => void;
+  websiteValid: boolean;
   xUrl: string;
   onXUrlChange: (value: string) => void;
+  xUrlValid: boolean;
   telegramUrl: string;
   onTelegramUrlChange: (value: string) => void;
+  telegramUrlValid: boolean;
 }) {
   return (
     <section className="rounded-xl carved p-6">
@@ -148,8 +155,9 @@ export function LaunchLinksSection({
             type="url"
             value={website}
             onChange={(e) => onWebsiteChange(e.target.value)}
+            aria-invalid={!websiteValid}
             placeholder="https://yourasset.xyz"
-            className={INPUT_CLASS}
+            className={`${INPUT_CLASS} ${websiteValid ? "" : INVALID_INPUT_CLASS}`}
           />
         </div>
         <div>
@@ -161,8 +169,9 @@ export function LaunchLinksSection({
             type="url"
             value={xUrl}
             onChange={(e) => onXUrlChange(e.target.value)}
+            aria-invalid={!xUrlValid}
             placeholder="https://x.com/yourasset"
-            className={INPUT_CLASS}
+            className={`${INPUT_CLASS} ${xUrlValid ? "" : INVALID_INPUT_CLASS}`}
           />
         </div>
         <div>
@@ -174,8 +183,9 @@ export function LaunchLinksSection({
             type="url"
             value={telegramUrl}
             onChange={(e) => onTelegramUrlChange(e.target.value)}
+            aria-invalid={!telegramUrlValid}
             placeholder="https://t.me/yourasset"
-            className={INPUT_CLASS}
+            className={`${INPUT_CLASS} ${telegramUrlValid ? "" : INVALID_INPUT_CLASS}`}
           />
         </div>
       </div>

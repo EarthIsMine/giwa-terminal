@@ -23,6 +23,12 @@ export {
   feeFromAmountOut,
   getAmountOut,
 } from "./amm.ts";
+export {
+  isOptionalAssetLinkValid,
+  normalizeAssetLink,
+  normalizeAssetLinks,
+} from "./asset-links.ts";
+export type { AssetLinkKind } from "./asset-links.ts";
 export { WEI_PER_ETH, ethToWei, weiToDisplayKrw } from "./convert.ts";
 export {
   formatChangeBps,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { isOptionalAssetLinkValid } from "@giwa/shared";
 import { LaunchAssetSection, LaunchLinksSection } from "@/components/launch/launch-asset-fields";
 import { Stepper, type Step } from "@/components/launch/launch-stepper";
 import { LaunchSubmitted } from "@/components/launch/launch-submitted";
@@ -88,7 +89,11 @@ export function LaunchForm() {
   const [submitted, setSubmitted] = useState(false);
 
   const verified = gateStatus === "verified";
-  const formValid = name.trim() !== "" && ticker.length >= 2;
+  const websiteValid = isOptionalAssetLinkValid("website", website);
+  const xUrlValid = isOptionalAssetLinkValid("x", xUrl);
+  const telegramUrlValid = isOptionalAssetLinkValid("telegram", telegramUrl);
+  const linksValid = websiteValid && xUrlValid && telegramUrlValid;
+  const formValid = name.trim() !== "" && ticker.length >= 2 && linksValid;
   const showLogo = logoUrl.trim() !== "" && !logoError;
 
   const steps = buildSteps(verified, formValid, submitted);
@@ -186,10 +191,13 @@ export function LaunchForm() {
           <LaunchLinksSection
             website={website}
             onWebsiteChange={setWebsite}
+            websiteValid={websiteValid}
             xUrl={xUrl}
             onXUrlChange={setXUrl}
+            xUrlValid={xUrlValid}
             telegramUrl={telegramUrl}
             onTelegramUrlChange={setTelegramUrl}
+            telegramUrlValid={telegramUrlValid}
           />
         </div>
 
@@ -199,9 +207,13 @@ export function LaunchForm() {
           ticker={ticker}
           verified={verified}
           formValid={formValid}
+          linksValid={linksValid}
           website={website}
+          websiteValid={websiteValid}
           xUrl={xUrl}
+          xUrlValid={xUrlValid}
           telegramUrl={telegramUrl}
+          telegramUrlValid={telegramUrlValid}
           onSubmit={() => setSubmitted(true)}
         />
       </div>
