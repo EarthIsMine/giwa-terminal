@@ -15,6 +15,8 @@ export interface SeedAssetSpec {
   symbol: string;
   nameKo: string;
   issuerName: string;
+  x?: string;
+  telegram?: string;
   /** 총 발행량 (토큰 개수 — 18dec 적용 전) */
   supply: bigint;
   /** 초기 유동성 토큰 수량 (개수) */
@@ -59,6 +61,9 @@ export function metadataFor(spec: SeedAssetSpec): string {
   return JSON.stringify({
     nameKo: spec.nameKo,
     issuerName: spec.issuerName,
+    ...(spec.x || spec.telegram
+      ? { links: { x: spec.x, telegram: spec.telegram } }
+      : {}),
     seed: true, // 절대 규칙 5: 데모 시드 자산임을 온체인에도 명시
     v: SEED_METADATA_VERSION,
   });

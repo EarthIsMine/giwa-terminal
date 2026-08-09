@@ -12,12 +12,18 @@ export function LaunchSubmitted({
   name,
   ticker,
   gate,
+  website,
+  xUrl,
+  telegramUrl,
   onReset,
 }: {
   steps: readonly Step[];
   name: string;
   ticker: string;
   gate: GateMethod | null;
+  website: string;
+  xUrl: string;
+  telegramUrl: string;
   onReset: () => void;
 }) {
   return (
@@ -42,6 +48,21 @@ export function LaunchSubmitted({
           <SummaryRow label="자산" value={name} mono={false} />
           <SummaryRow label="페어" value={`${ticker}/WETH`} />
           <SummaryRow label="공급량" value="1,000,000,000 (고정)" />
+          <SummaryRow
+            label="X"
+            value={xUrl.trim() === "" ? "—" : xUrl.trim()}
+            mono={false}
+          />
+          <SummaryRow
+            label="Telegram"
+            value={telegramUrl.trim() === "" ? "—" : telegramUrl.trim()}
+            mono={false}
+          />
+          <SummaryRow
+            label="웹사이트"
+            value={website.trim() === "" ? "—" : website.trim()}
+            mono={false}
+          />
           <SummaryRow
             label="검증 방식"
             value={gate ? GATE_LABEL[gate] : "—"}

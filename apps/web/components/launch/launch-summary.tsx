@@ -23,7 +23,7 @@ export function SummaryRow({
     <div className="flex items-baseline justify-between gap-4 border-b border-hairline/60 py-3 last:border-0">
       <dt className="shrink-0 text-[12.5px] text-ink-3">{label}</dt>
       <dd
-        className={`text-right text-[13px] ${mono ? "font-mono tabular-nums" : ""} ${valueClass}`}
+        className={`min-w-0 max-w-full text-right text-[13px] [overflow-wrap:anywhere] ${mono ? "font-mono tabular-nums" : ""} ${valueClass}`}
       >
         {value}
       </dd>
@@ -35,10 +35,12 @@ export function SummaryRow({
 function SubmitButton({
   verified,
   formValid,
+  linksValid,
   onSubmit,
 }: {
   verified: boolean;
   formValid: boolean;
+  linksValid: boolean;
   onSubmit: () => void;
 }) {
   if (verified && formValid) {
@@ -76,10 +78,17 @@ function SubmitButton({
         </svg>
       )}
       {verified
-        ? "자산 이름과 심볼을 입력하세요"
+        ? linksValid
+          ? "자산 이름과 심볼을 입력하세요"
+          : "링크 URL을 확인하세요"
         : "신원 검증 후 발행할 수 있습니다"}
     </button>
   );
+}
+
+function linkSummaryValue(value: string, valid: boolean): string {
+  if (value.trim() === "") return "—";
+  return valid ? value.trim() : "잘못된 URL";
 }
 
 /* 발행 게이트 온체인 — 배포·검증된 실제 컨트랙트 (주소는 env 주입) */
@@ -137,12 +146,26 @@ export function LaunchSummaryAside({
   ticker,
   verified,
   formValid,
+  linksValid,
+  website,
+  websiteValid,
+  xUrl,
+  xUrlValid,
+  telegramUrl,
+  telegramUrlValid,
   onSubmit,
 }: {
   name: string;
   ticker: string;
   verified: boolean;
   formValid: boolean;
+  linksValid: boolean;
+  website: string;
+  websiteValid: boolean;
+  xUrl: string;
+  xUrlValid: boolean;
+  telegramUrl: string;
+  telegramUrlValid: boolean;
   onSubmit: () => void;
 }) {
   return (
@@ -168,6 +191,24 @@ export function LaunchSummaryAside({
             label="노출 위치"
             value="나루 자산 목록"
             mono={false}
+          />
+          <SummaryRow
+            label="X"
+            value={linkSummaryValue(xUrl, xUrlValid)}
+            mono={false}
+            valueClass={xUrlValid ? "" : "text-down"}
+          />
+          <SummaryRow
+            label="Telegram"
+            value={linkSummaryValue(telegramUrl, telegramUrlValid)}
+            mono={false}
+            valueClass={telegramUrlValid ? "" : "text-down"}
+          />
+          <SummaryRow
+            label="웹사이트"
+            value={linkSummaryValue(website, websiteValid)}
+            mono={false}
+            valueClass={websiteValid ? "" : "text-down"}
           />
           <SummaryRow
             label="발행 조건"
@@ -204,6 +245,7 @@ export function LaunchSummaryAside({
         <SubmitButton
           verified={verified}
           formValid={formValid}
+          linksValid={linksValid}
           onSubmit={onSubmit}
         />
 
