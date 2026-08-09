@@ -9,7 +9,7 @@ export function AnalysisIntro() {
       <h1 className="font-serif text-[27px] font-bold tracking-tight">분석</h1>
       <p className="mt-2 max-w-[660px] text-[13px] leading-relaxed text-ink-3">
         기와체인의 거래 건수와 수수료를 확인하고, 나루에 등록된 자산의 보유
-        구조를 비교해 보세요.
+        현황을 비교해 보세요.
       </p>
     </>
   );

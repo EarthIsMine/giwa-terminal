@@ -148,9 +148,9 @@ export function LaunchSummaryAside({
   return (
     <aside className="w-full shrink-0 xl:w-[400px]">
       <div className="rounded-xl carved p-6">
-        <h2 className="text-[15px] font-semibold">요약</h2>
+        <h2 className="text-[15px] font-semibold">최종 확인</h2>
         <p className="mt-1.5 text-[12.5px] text-ink-3">
-          아래 조건은 발행 시 컨트랙트로 고정됩니다.
+          아래 조건은 컨트랙트로 고정되어 추후에 변경하실 수 없습니다.
         </p>
         <dl className="mt-4">
           <SummaryRow

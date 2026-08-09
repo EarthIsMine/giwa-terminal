@@ -92,7 +92,7 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="text-[15px] font-semibold">토큰</h2>
         <span className="text-[11px] text-ink-3">
-          보유 구조 비교 · 기와체인 공개 기록 + 나루 집계 · 60초 갱신
+          보유 현황 비교 · 기와체인 공개 기록 + 나루 집계 · 60초 갱신
         </span>
       </div>
 
@@ -101,7 +101,7 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] border-collapse text-left">
             <caption className="sr-only">
-              상장 자산 보유 구조 비교. 홀더 수, 발행자 물량, 상위 10 집중도,
+              상장 자산 보유 현황 비교. 홀더 수, 발행자 물량, 상위 10 집중도,
               참여 인원
             </caption>
             <thead>

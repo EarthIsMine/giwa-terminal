@@ -30,7 +30,7 @@ import { getLiveAssets } from "@/lib/onchain";
 export const metadata: Metadata = {
   title: "분석 · 나루 NARU",
   description:
-    "기와체인 활동과 검증 자산의 보유 구조. 하루 거래 수, 거래 수수료, 홀더 수, 발행자 물량, 상위 지갑 집중도.",
+    "기와체인 활동과 검증 자산의 보유 현황. 하루 거래 수, 거래 수수료, 홀더 수, 발행자 물량, 상위 지갑 집중도.",
 };
 
 /** Blockscout 홀더 집계 fetch 캐시(60초)와 보폭을 맞춘다 */

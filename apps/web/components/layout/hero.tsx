@@ -35,7 +35,7 @@ export function Hero({
             오는 <span className="text-accent">나룻길</span>
           </h1>
           <p className="mt-3 text-[13px] leading-relaxed text-ink-2 sm:mt-4 sm:text-[14px]">
-            발행 주체의 신원을 확인한 기와체인 자산, 원화 환산으로 한눈에.
+            나루는 발행 주체의 신원을 확인한 기와체인 자산만 다룹니다.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export function Hero({
               {depositDisplay}
             </dd>
             <p className="mt-2 text-[11px] text-ink-3">
-              {depositIsKrw ? "업비트 시세 환산" : "환산 일시 불가 · ETH 표시"}
+              {depositIsKrw ? "업비트 시세로 환산" : "환산 일시 불가 · ETH 표시"}
             </p>
           </div>
 

@@ -52,7 +52,7 @@ function buildSteps(
   ];
 }
 
-/* 상단 타이틀·소개 카피 — 규제 검토를 거친 문구, 임의 수정 금지 */
+/* 상단 타이틀·소개 카피 — 규제 검토를 거친 문구. 의미를 바꾸는 수정 금지 (2026-08-09 표현만 정리) */
 function LaunchIntro() {
   return (
     <>
@@ -61,14 +61,14 @@ function LaunchIntro() {
       </h1>
       <div className="mt-4 max-w-[720px] space-y-1 text-[13.5px] leading-relaxed text-ink-2 sm:text-[14.5px]">
         <p>
-          나루는 퍼미션리스 발행을 지원하지 않습니다.{" "}
+          나루는 검증되지 않은 발행을 지원하지 않습니다.{" "}
           <span className="font-medium text-good">검증된 발행 주체</span>만
           자산을 올릴 수 있습니다.
         </p>
         <p>
           <span className="text-ink">도장(Dojang) 어테스테이션</span> 또는{" "}
-          <span className="text-ink">GIWA ID 연동</span>이 전제이며, 흐름은
-          신청 → 검증 → 상장입니다.
+          <span className="text-ink">GIWA ID 연동</span>을 전제로 하며, 발행
+          과정은 신청 → 검증 → 상장입니다.
         </p>
       </div>
     </>

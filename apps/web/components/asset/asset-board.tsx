@@ -398,7 +398,7 @@ export function AssetBoard({
       <div className="mt-3 space-y-1 px-page text-[11.5px] leading-relaxed text-ink-3">
         <p>
           {ethKrw
-            ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다. 원화 자산이 기와체인에 존재하는 것은 아닙니다.`
+            ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다.`
             : "· 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다."}
         </p>
         <p>
