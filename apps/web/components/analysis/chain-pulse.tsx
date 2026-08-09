@@ -101,8 +101,7 @@ export function ChainPulse({
         ) : null}
         {chain.addressTotal !== null ? (
           <>
-            장부에 올라 있는 주소는 {formatCountCompact(chain.addressTotal)} 개이며,
-            사람 지갑과 프로그램 계정을 합친 수입니다.
+            장부에 올라 있는 주소는 {formatCountCompact(chain.addressTotal)}개입니다.
           </>
         ) : null}
       </p>
