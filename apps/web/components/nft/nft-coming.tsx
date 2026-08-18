@@ -28,10 +28,6 @@ export function NftComing() {
           </Link>
         </div>
       </div>
-      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
-        · 열리는 시점은 정해지지 않았습니다. 표시 대상은 다른 화면과 마찬가지로
-        신원 검증을 통과한 자산으로 한정됩니다.
-      </p>
     </section>
   );
 }
