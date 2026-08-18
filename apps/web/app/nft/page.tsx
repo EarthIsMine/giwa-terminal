@@ -11,7 +11,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 
 export const metadata: Metadata = {
   title: "NFT · 나루 NARU",
-  description: "기와체인 NFT 조회 화면. 준비 중입니다.",
+  description: "나루만의 NFT. 준비 중입니다.",
 };
 
 export default function NftPage() {

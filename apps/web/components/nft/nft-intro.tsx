@@ -8,8 +8,7 @@ export function NftIntro() {
     <>
       <h1 className="font-serif text-[27px] font-bold tracking-tight">NFT</h1>
       <p className="mt-2 max-w-[640px] text-[13px] leading-relaxed text-ink-3">
-        기와체인의 NFT를 나루에서 확인하는 화면을 준비하고 있습니다. 아직 열려
-        있지 않습니다.
+        나루만의 NFT를 준비하고 있습니다. 아직 열려 있지 않습니다.
       </p>
     </>
   );

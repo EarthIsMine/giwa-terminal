@@ -18,7 +18,7 @@ export function NftComing() {
             준비 중
           </p>
           <p className="mx-auto mt-5 max-w-[420px] text-[13px] leading-relaxed text-ink-3">
-            기와체인 NFT의 조회 기능을 준비하고 있습니다.
+            나루만의 NFT를 준비하고 있습니다.
           </p>
           <Link
             href="/"
