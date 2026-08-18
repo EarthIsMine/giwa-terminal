@@ -5,7 +5,10 @@ import { usePathname } from "next/navigation";
 
 /**
  * 상단 주 메뉴 — 항목은 실제 있는 화면만 (절대 규칙 3: 밀도를 낮춘다).
- * 순서는 5면 구성을 따른다: 토큰 | 분석 | 발행 | 나루 포인트 | 내 자산
+ * 순서는 기획서 5면 구성을 따르고, NFT 를 토큰 옆에 끼운다:
+ * 토큰 | NFT | 분석 | 발행 | 나루 포인트 | 내 자산.
+ * 같은 "자산 목록"이라 토큰과 붙여 둔다 — 분석·발행 사이에 넣으면 흐름이 끊긴다.
+ * NFT 는 아직 준비 중 화면이다(팀 결정 2026-08-18: 자리를 먼저 알린다).
  * 항목 정의는 모바일 메뉴(mobile-nav)와 공유하는 단일 소스다.
  */
 export const NAV_ITEMS = [
@@ -13,6 +16,11 @@ export const NAV_ITEMS = [
     href: "/",
     label: "토큰",
     match: (p: string) => p === "/" || p.startsWith("/asset"),
+  },
+  {
+    href: "/nft",
+    label: "NFT",
+    match: (p: string) => p.startsWith("/nft"),
   },
   {
     href: "/analysis",
