@@ -59,11 +59,14 @@ export function MainNav() {
             key={it.href}
             href={it.href}
             aria-current={active ? "page" : undefined}
-            className={
+            /* 활성 탭은 박스가 아니라 진한 글자로 표시한다 (밀도 절제 - 절대 규칙 3).
+               커서를 올리면 예전처럼 액센트 박스가 뜬다.
+               키보드 포커스 박스는 focus-visible 이라 마우스 클릭엔 뜨지 않는다 */
+            className={`rounded-md px-3 py-1.5 outline-none transition-colors hover:bg-accent/15 focus-visible:ring-1 focus-visible:ring-accent/60 ${
               active
-                ? "rounded-md border border-accent/25 bg-accent/15 px-3 py-1.5 font-medium text-ink"
-                : "rounded-md border border-transparent px-3 py-1.5 text-ink-3 transition-colors hover:text-ink-2"
-            }
+                ? "font-semibold text-ink"
+                : "text-ink-3 hover:text-ink-2"
+            }`}
           >
             {it.label}
           </Link>
