@@ -6,14 +6,14 @@ import {IERC20} from "../interfaces/IERC20.sol";
 import {Math} from "../libraries/Math.sol";
 import {UQ112x112} from "../libraries/UQ112x112.sol";
 
-/// @title NaruswapV2Pair — 나루 터미널의 유동성 페어 (Uniswap V2 포크)
+/// @title NaruswapV2Pair - 나루 터미널의 유동성 페어 (Uniswap V2 포크)
 ///
 /// 캐노니컬 V2에서 의도적으로 뺀 것 두 가지, 이유와 함께:
 ///  1. 플래시스왑 콜백(swap의 data 파라미터): v1 제품 범위 밖. 콜백 리엔트런시 표면을
 ///     통째로 제거해 심사 시점 공격면을 줄인다.
 ///  2. 프로토콜 수수료(feeTo / kLast): 스왑 수수료 0.3%는 전량 LP에 귀속된다.
 ///     수수료 정책은 메인넷 단계에서 별도 결정한다.
-/// 이벤트/수학/상태 배치는 V2와 동일하다 — 기존 V2 인덱서·툴링이 그대로 붙는다.
+/// 이벤트/수학/상태 배치는 V2와 동일하다 - 기존 V2 인덱서·툴링이 그대로 붙는다.
 contract NaruswapV2Pair is INaruswapV2Pair {
     using UQ112x112 for uint224;
 
@@ -25,7 +25,7 @@ contract NaruswapV2Pair is INaruswapV2Pair {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
 
-    /// @dev 최초 유동성에서 영구 잠그는 물량 — 풀 전량 인출로 가격이 붕괴하는 것을 막는다 (V2 동일)
+    /// @dev 최초 유동성에서 영구 잠그는 물량 - 풀 전량 인출로 가격이 붕괴하는 것을 막는다 (V2 동일)
     uint256 public constant MINIMUM_LIQUIDITY = 1e3;
 
     address public immutable factory;

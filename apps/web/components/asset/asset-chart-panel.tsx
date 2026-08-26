@@ -9,7 +9,7 @@ import { CandleChart } from "@/components/asset/candle-chart";
 /**
  * 기간 전환이 붙은 차트 패널.
  *
- * 유저가 고르는 것은 "기간"이고 캔들 간격은 거기서 따라온다 — 1분봉·15분봉 같은
+ * 유저가 고르는 것은 "기간"이고 캔들 간격은 거기서 따라온다 - 1분봉·15분봉 같은
  * 간격을 직접 노출하지 않는다(절대 규칙 3). 업비트 차트도 기간이 앞에 온다.
  *
  * 간격 세 벌을 서버에서 미리 받아두므로 전환에 네트워크 왕복이 없다.
@@ -52,7 +52,7 @@ function toChartCandles(
     ? (v: string) => Number(weiToDisplayKrw(wei(BigInt(v)), ethKrw)) / 1_000
     : (v: string) => Number(BigInt(v)) / 1e18;
   return candles.map((c) => ({
-    // 일봉 경계는 00:00 UTC = 09:00 KST — 업비트 일봉과 같은 기준이라 그대로 쓴다
+    // 일봉 경계는 00:00 UTC = 09:00 KST - 업비트 일봉과 같은 기준이라 그대로 쓴다
     time:
       interval === "1d"
         ? new Date(c.bucket * 1_000).toISOString().slice(0, 10)
@@ -65,12 +65,12 @@ function toChartCandles(
   }));
 }
 
-/** 원화 축 소수 자리 — formatKrw 표시 규칙과 같은 단계 (≥1000 정수 / ≥100 1자리 / 그 외 2자리) */
+/** 원화 축 소수 자리 - formatKrw 표시 규칙과 같은 단계 (≥1000 정수 / ≥100 1자리 / 그 외 2자리) */
 function krwDecimals(lastClose: number): number {
   return lastClose >= 1_000 ? 0 : lastClose >= 100 ? 1 : 2;
 }
 
-/** 기본 기간 — 일봉이 얕은 테스트넷 초기 구간에서는 더 촘촘한 쪽으로 내려간다 */
+/** 기본 기간 - 일봉이 얕은 테스트넷 초기 구간에서는 더 촘촘한 쪽으로 내려간다 */
 function defaultRangeKey(series: AssetMarketWire["series"]): string {
   if (series["1d"].length >= 5) return "30d";
   if (series["1h"].length > 0) return "7d";
@@ -147,7 +147,7 @@ export function AssetChartPanel({
           />
         </div>
       ) : (
-        // 빈 차트를 그리지 않고 사실을 말한다 — 무거래와 데이터 없음을 구분한다
+        // 빈 차트를 그리지 않고 사실을 말한다 - 무거래와 데이터 없음을 구분한다
         <p className="mt-2 grid h-[440px] place-items-center text-[12.5px] text-ink-3">
           이 기간에는 체결이 없습니다. 다른 기간을 선택해 보세요.
         </p>

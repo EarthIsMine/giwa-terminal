@@ -1,15 +1,15 @@
 import { PointsAllocationDiagram } from "@/components/points/points-allocation-diagram";
 
 /**
- * 적립부터 배분까지 — 전폭 4걸음 행로 + 상장 배분 구조도.
+ * 적립부터 배분까지 - 전폭 4걸음 행로 + 상장 배분 구조도.
  *
  * 문단이 아니라 걸음이다: 단어 하나 + 한 줄 설명, 걸음 사이는 홈줄 하나로 잇는다.
- * 타겟 유저는 "쌓기→자격→차감→배분" 네 단어를 문장으로 읽지 않는다 —
+ * 타겟 유저는 "쌓기→자격→차감→배분" 네 단어를 문장으로 읽지 않는다 -
  * 왼쪽에서 오른쪽으로 눈이 흐르는 그림 하나로 만들어야 한다 (절대 규칙 3).
  * 카피는 기존 문안을 줄인 것: 숫자·조건을 새로 만들지 않는다.
  * 2~4단계(자격·차감·배분)는 아래 구조도가 그림으로 한 번 더 말한다.
  *
- * 용어(2026-07-31): "소각"→"차감", "문턱"→"자격"/"기준 점수" — 크립토 용어와
+ * 용어(2026-07-31): "소각"→"차감", "문턱"→"자격"/"기준 점수" - 크립토 용어와
  * 은유를 유저 노출 카피에서 걷어낸다(커트라인 감각의 "기준 점수"가 익숙하다).
  * 스냅샷 시각은 무작위(조작 방어)이므로 "자정" 같은 특정 시각을 적지 않는다.
  */
@@ -17,7 +17,7 @@ import { PointsAllocationDiagram } from "@/components/points/points-allocation-d
 const STEPS: readonly {
   label: string;
   desc: string;
-  /** 같은 화면 산식 카드로 내리는 앵커 — 새 화면 이동 아님 */
+  /** 같은 화면 산식 카드로 내리는 앵커 - 새 화면 이동 아님 */
   anchor?: { href: string; text: string };
 }[] = [
   {
@@ -38,7 +38,7 @@ export function PointsLoop() {
     <section className="rounded-xl carved px-6 py-6">
       <h2 className="text-[15px] font-semibold">적립부터 배분까지</h2>
       <ol className="relative mt-6 grid gap-x-6 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
-        {/* 걸음을 잇는 홈줄 — 넓은 화면에서만 (세로 쌓임에선 오히려 헷갈린다) */}
+        {/* 걸음을 잇는 홈줄 - 넓은 화면에서만 (세로 쌓임에선 오히려 헷갈린다) */}
         <span
           aria-hidden
           className="absolute inset-x-10 top-[15px] hidden h-px bg-hairline lg:block"

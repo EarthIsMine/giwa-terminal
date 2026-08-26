@@ -11,7 +11,7 @@ import {
 } from "./abis/naruswap";
 
 /**
- * 체인 파라미터는 전부 주입식 (절대 규칙 4) — 값의 원천은 config/chains.ts + 루트 .env.
+ * 체인 파라미터는 전부 주입식 (절대 규칙 4) - 값의 원천은 config/chains.ts + 루트 .env.
  * 프라이빗 메인넷 초대 시 env 교체만으로 재싱크된다.
  *
  * RPC: 공개 RPC는 레이트리밋이 있어 인덱서 전용 엔드포인트(Nodit 등)를
@@ -57,7 +57,7 @@ export default createConfig({
       }),
       startBlock: Number(startBlock),
     },
-    // 발행 게이트 통과 토큰의 Transfer 전수 — 홀더 원장·전송 그래프 (명세서 §2.2)
+    // 발행 게이트 통과 토큰의 Transfer 전수 - 홀더 원장·전송 그래프 (명세서 §2.2)
     NaruToken: {
       chain: "giwa",
       abi: naruTokenAbi,

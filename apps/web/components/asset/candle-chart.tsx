@@ -9,7 +9,7 @@ import {
 } from "lightweight-charts";
 import type { Time, UTCTimestamp } from "lightweight-charts";
 
-/** 캔들 — 인덱서 candles_1m 롤업(1h/1d)이 이 형태로 들어온다.
+/** 캔들 - 인덱서 candles_1m 롤업(1h/1d)이 이 형태로 들어온다.
  *  time: 일봉은 "yyyy-mm-dd", 시간봉은 UTC unix 초 */
 export interface ChartCandle {
   time: string | number;
@@ -17,18 +17,18 @@ export interface ChartCandle {
   high: number;
   low: number;
   close: number;
-  volume: number; // quote 환산 거래대금 — currency 단위와 짝
+  volume: number; // quote 환산 거래대금 - currency 단위와 짝
 }
 
 /** 시간봉 unix 초는 뷰어 로컬 시간대로 보정한다
- *  (lightweight-charts 는 timestamp 를 UTC 로 그린다 — KST 업저씨 기준 축 표기) */
+ *  (lightweight-charts 는 timestamp 를 UTC 로 그린다 - KST 업저씨 기준 축 표기) */
 function toTime(t: string | number): Time {
   return typeof t === "number"
     ? ((t - new Date(t * 1000).getTimezoneOffset() * 60) as UTCTimestamp)
     : (t as Time);
 }
 
-/** 원화 표시는 항상 내림 — 과대 표시 금지 (지표 정의). 차트는 float라 여기서 절사한다 */
+/** 원화 표시는 항상 내림 - 과대 표시 금지 (지표 정의). 차트는 float라 여기서 절사한다 */
 function floorTo(v: number, d: number): number {
   const f = 10 ** d;
   return Math.floor(v * f) / f;
@@ -36,7 +36,7 @@ function floorTo(v: number, d: number): number {
 
 /**
  * 캔들 + 거래대금 히스토그램.
- * y축은 원화 환산 값 — 차트 카드 헤더에 "원화 환산" 라벨을 항상 함께 띄운다 (절대 규칙 1).
+ * y축은 원화 환산 값 - 차트 카드 헤더에 "원화 환산" 라벨을 항상 함께 띄운다 (절대 규칙 1).
  * 환율 조회 실패 시 currency="eth" 로 ETH 단위 폴백 (추정치를 확정값처럼 안 보여준다).
  * 색 관례(팀 결정): 상승 초록 / 하락 빨강.
  */
@@ -63,7 +63,7 @@ export function CandleChart({
         fontSize: 11,
         fontFamily:
           "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace",
-        // 로고는 거래량 바와 겹쳐서 끈다 — 어트리뷰션은 차트 하단 고지 텍스트로 대체
+        // 로고는 거래량 바와 겹쳐서 끈다 - 어트리뷰션은 차트 하단 고지 텍스트로 대체
         attributionLogo: false,
       },
       grid: {
@@ -135,6 +135,6 @@ export function CandleChart({
     return () => chart.remove();
   }, [candles, decimals, currency]);
 
-  /* autoSize 라 컨테이너 높이만 뷰포트별로 주면 된다 — 모바일은 세로 공간 절약 */
+  /* autoSize 라 컨테이너 높이만 뷰포트별로 주면 된다 - 모바일은 세로 공간 절약 */
   return <div ref={ref} className="h-[300px] w-full sm:h-[440px]" />;
 }

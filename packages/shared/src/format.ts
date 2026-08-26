@@ -1,12 +1,12 @@
 /**
- * 표시 직전 포맷팅 — 여기가 bigint 가 문자열이 되는 유일한 관문이다.
+ * 표시 직전 포맷팅 - 여기가 bigint 가 문자열이 되는 유일한 관문이다.
  * float 를 거치지 않고 전부 문자열 연산으로 처리한다.
  *
  * 표기 규칙 (절대 규칙 3: 지수 표기 금지, 일반 소수점만):
  *  - ≥ 1,000원  → 정수 + 콤마      "2,453"
  *  - ≥ 100원    → 소수 1자리        "181.1"
  *  - < 100원    → 소수 2자리        "42.06"
- *  - 항상 내림(truncate) — 환산 참고값을 과대 표시하지 않는다
+ *  - 항상 내림(truncate) - 환산 참고값을 과대 표시하지 않는다
  */
 
 import { KRW_SCALE } from "./types.ts";
@@ -17,7 +17,7 @@ function groupDigits(digits: string): string {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-/** 주소·트랜잭션 해시 축약 — "0xAbCd…1234". 화면 여러 곳의 단일 소스 */
+/** 주소·트랜잭션 해시 축약 - "0xAbCd…1234". 화면 여러 곳의 단일 소스 */
 export function shortHex(hex: string, lead = 6, tail = 4): string {
   return hex.length <= lead + tail ? hex : `${hex.slice(0, lead)}…${hex.slice(-tail)}`;
 }
@@ -36,7 +36,7 @@ export function formatKrw(v: DisplayKrw): string {
 }
 
 /**
- * 원화 축약 표기 — 업저씨에게 익숙한 만/억 단위.
+ * 원화 축약 표기 - 업저씨에게 익숙한 만/억 단위.
  *  ≥ 1억 → "1.27억", ≥ 1만 → "9,432만", 그 외 → formatKrw
  */
 export function formatKrwCompact(v: DisplayKrw): string {
@@ -80,10 +80,10 @@ export function formatCount(n: number): string {
 }
 
 /**
- * 정수 카운트 축약 — 만/억 단위 (formatKrwCompact 와 같은 감각).
+ * 정수 카운트 축약 - 만/억 단위 (formatKrwCompact 와 같은 감각).
  *  ≥ 1억 → "1.3억", ≥ 1만 → "92만", 그 외 → "1,234"
  * 체인 누적 거래처럼 자릿수가 큰 수를 업저씨가 한눈에 읽게 한다.
- * 내림 — 실제보다 크게 보이지 않게 한다.
+ * 내림 - 실제보다 크게 보이지 않게 한다.
  */
 export function formatCountCompact(n: number): string {
   const v = Math.trunc(n);

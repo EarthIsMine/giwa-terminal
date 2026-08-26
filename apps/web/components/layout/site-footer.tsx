@@ -5,7 +5,7 @@ import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
 export function SiteFooter() {
   return (
-    // 본문 마루와 구분되는 짙은 그늘 영역 — 나무는 배경으로 희미하게만 비친다
+    // 본문 마루와 구분되는 짙은 그늘 영역 - 나무는 배경으로 희미하게만 비친다
     <footer className="mt-14 border-t border-black/50 bg-[#150d07]/85">
       <div className="mx-auto grid w-full max-w-[1840px] grid-cols-1 gap-8 px-page py-10 text-[13px] sm:py-12 md:grid-cols-[1.2fr_1fr_1.6fr] md:gap-10">
         <div>
@@ -51,7 +51,7 @@ export function SiteFooter() {
           </h2>
           <ul className="mt-3 space-y-1.5 text-ink-2">
             <li>
-              {/* 독립 문서 — 새 탭으로 띄운다 (터미널 세션을 끊지 않는다) */}
+              {/* 독립 문서 - 새 탭으로 띄운다 (터미널 세션을 끊지 않는다) */}
               <a
                 href="/docs"
                 target="_blank"

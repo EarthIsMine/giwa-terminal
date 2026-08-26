@@ -4,9 +4,9 @@ import { useSyncExternalStore } from "react";
 
 /**
  * 뷰포트 미디어쿼리 구독 훅.
- * 서버 스냅샷은 false(데스크톱 가정) — 렌더 분기가 아니라 "동작" 분기에만 쓴다.
+ * 서버 스냅샷은 false(데스크톱 가정) - 렌더 분기가 아니라 "동작" 분기에만 쓴다.
  * 렌더 자체를 모바일/데스크톱으로 가르는 건 CSS(hidden md:block)가 담당한다
- * — SSR 첫 페인트에서 뷰포트를 알 수 없어 훅으로 가르면 하이드레이션 깜빡임이 생긴다.
+ * - SSR 첫 페인트에서 뷰포트를 알 수 없어 훅으로 가르면 하이드레이션 깜빡임이 생긴다.
  */
 export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(

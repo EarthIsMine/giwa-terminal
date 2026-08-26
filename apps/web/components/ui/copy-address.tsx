@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-/** 주소 복사 버튼 — 행 클릭 내비게이션과 겹치지 않게 전파를 끊는다 */
+/** 주소 복사 버튼 - 행 클릭 내비게이션과 겹치지 않게 전파를 끊는다 */
 export function CopyAddress({ address }: { address: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -13,7 +13,7 @@ export function CopyAddress({ address }: { address: string }) {
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
-        // 비보안 컨텍스트(HTTP·IP·iframe)에선 clipboard 가 없다 — 조용히 무시
+        // 비보안 컨텍스트(HTTP·IP·iframe)에선 clipboard 가 없다 - 조용히 무시
         const clip = navigator.clipboard;
         if (!clip) return;
         void clip.writeText(address).then(

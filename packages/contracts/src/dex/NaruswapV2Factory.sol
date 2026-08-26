@@ -4,10 +4,10 @@ pragma solidity 0.8.30;
 import {INaruswapV2Factory} from "../interfaces/INaruswapV2Factory.sol";
 import {NaruswapV2Pair} from "./NaruswapV2Pair.sol";
 
-/// @title NaruswapV2Factory — 페어 팩토리 (Uniswap V2 포크)
+/// @title NaruswapV2Factory - 페어 팩토리 (Uniswap V2 포크)
 /// @notice 페어 생성은 퍼미션리스로 둔다. 발행 게이트(신원 검증)는 TokenFactory 계층의
 ///         책임이고, DEX 계층은 표준 V2 시맨틱을 유지해 기존 툴링 호환성을 지킨다.
-///         feeTo(프로토콜 수수료)는 v1에서 제거 — 수수료는 전량 LP 귀속.
+///         feeTo(프로토콜 수수료)는 v1에서 제거 - 수수료는 전량 LP 귀속.
 contract NaruswapV2Factory is INaruswapV2Factory {
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;

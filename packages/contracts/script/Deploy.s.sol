@@ -12,14 +12,14 @@ import {IWETH} from "../src/interfaces/IWETH.sol";
 /// @notice 나루 스택 전체 배포. 출력된 주소·startBlock을 config/chains.ts(.env)에 기록한다.
 ///
 /// 사용 (둘 중 하나):
-///   A. keystore (권장 — 키가 평문으로 남지 않는다):
+///   A. keystore (권장 - 키가 평문으로 남지 않는다):
 ///      cast wallet import giwa-deployer --interactive   # 최초 1회
 ///      forge script script/Deploy.s.sol --rpc-url $GIWA_RPC_URL --account giwa-deployer --broadcast
 ///   B. env 키: packages/contracts/.env 에 DEPLOYER_PRIVATE_KEY 기록 후
 ///      forge script script/Deploy.s.sol --rpc-url $GIWA_RPC_URL --broadcast
-///      (Foundry는 실행한 디렉토리의 .env만 자동 로드한다 — 루트 .env는 안 잡힘)
+///      (Foundry는 실행한 디렉토리의 .env만 자동 로드한다 - 루트 .env는 안 잡힘)
 ///
-/// 선택 env: WETH_ADDRESS — 미설정 시 OP Stack 프리디플로이 0x4200...0006
+/// 선택 env: WETH_ADDRESS - 미설정 시 OP Stack 프리디플로이 0x4200...0006
 contract Deploy is Script {
     function run() external {
         address weth =
@@ -33,7 +33,7 @@ contract Deploy is Script {
             vm.startBroadcast();
         }
         (, address deployer,) = vm.readCallers(); // 실제 브로드캐스터 = 운영자
-        // 키가 어디서도 로드되지 않으면 Foundry 기본 발신자로 시뮬레이션만 돈다 — 조기 차단
+        // 키가 어디서도 로드되지 않으면 Foundry 기본 발신자로 시뮬레이션만 돈다 - 조기 차단
         require(
             deployer != DEFAULT_SENDER,
             "no wallet loaded: use --account <keystore> or set DEPLOYER_PRIVATE_KEY in packages/contracts/.env"
@@ -43,7 +43,7 @@ contract Deploy is Script {
         NaruswapV2Router router = new NaruswapV2Router(address(dexFactory), weth);
         TokenFactory tokenFactory = new TokenFactory(registry, dexFactory, IWETH(weth));
 
-        // 운영 지갑 첫 어테스테이션 — 데모 시드 봇이 제품과 같은 게이트로 발행한다
+        // 운영 지갑 첫 어테스테이션 - 데모 시드 봇이 제품과 같은 게이트로 발행한다
         registry.attest(deployer, keccak256("naru:seed-operator:v1"));
         vm.stopBroadcast();
 

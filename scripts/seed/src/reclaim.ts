@@ -1,9 +1,9 @@
 /**
- * 운영 도구: 시드 풀 LP 회수 — 잘못 튜닝된 시드 세대의 유동성 ETH를 되찾는다.
+ * 운영 도구: 시드 풀 LP 회수 - 잘못 튜닝된 시드 세대의 유동성 ETH를 되찾는다.
  * 운영자가 시드 풀 LP를 전량 보유하므로 removeLiquidityETH로 안전하게 회수된다.
- * (MINIMUM_LIQUIDITY 1000 wei 몫만 풀에 영구히 남는다 — V2 설계)
+ * (MINIMUM_LIQUIDITY 1000 wei 몫만 풀에 영구히 남는다 - V2 설계)
  *
- * 안전장치 (한 번의 오실행이 라이브 데모를 비운다 — "빈 테이블로 제출하면 끝"):
+ * 안전장치 (한 번의 오실행이 라이브 데모를 비운다 - "빈 테이블로 제출하면 끝"):
  * - 기본 대상은 구세대(metadataURI v ≠ 현행 SEED_METADATA_VERSION)만.
  *   현행 세대까지 걷으려면 --all 또는 --version N 을 명시해야 한다.
  * - 기본은 dry-run: 대상 목록만 출력한다. 실제 회수는 --execute 필수.
@@ -50,7 +50,7 @@ function metadataVersion(metadataURI: string): number | null {
   }
 }
 
-/** 대상 세대 판정 — 기본은 "현행이 아닌 것"만 (라이브 세대 보호) */
+/** 대상 세대 판정 - 기본은 "현행이 아닌 것"만 (라이브 세대 보호) */
 function isTarget(version: number | null): boolean {
   if (all) return true;
   if (versionArg !== null) return version === versionArg;
@@ -115,13 +115,13 @@ const mode = all
   : versionArg !== null
     ? `v${versionArg} 세대`
     : `구세대(현행 v${SEED_METADATA_VERSION} 제외)`;
-console.log(`회수 대상: ${mode} — ${targets.length}개 풀`);
+console.log(`회수 대상: ${mode} - ${targets.length}개 풀`);
 for (const t of targets) {
   console.log(`  ${t.symbol.padEnd(10)} v${t.version ?? "?"} LP ${t.lp} (${t.token.slice(0, 10)}…)`);
 }
 
 if (targets.length === 0) {
-  console.log("대상 없음 — 종료");
+  console.log("대상 없음 - 종료");
   process.exit(0);
 }
 if (!execute) {
@@ -156,9 +156,9 @@ for (const t of targets) {
   });
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
   console.log(
-    `LP 회수 ${t.symbol} — ${receipt.status === "success" ? "ok" : "FAIL"} ${hash}`,
+    `LP 회수 ${t.symbol} - ${receipt.status === "success" ? "ok" : "FAIL"} ${hash}`,
   );
 }
 
 const after = await publicClient.getBalance({ address: me });
-console.log(`회수 완료 — 잔고 ${formatEther(before)} → ${formatEther(after)} ETH`);
+console.log(`회수 완료 - 잔고 ${formatEther(before)} → ${formatEther(after)} ETH`);

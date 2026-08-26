@@ -7,8 +7,8 @@ import { AssetAvatar } from "@/components/ui/asset-avatar";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 
 /**
- * 자산 보드 — 모바일 카드 렌더.
- * 데스크톱 테이블과의 전환은 컨테이너의 <Responsive> 조립이 정한다 — 여기는
+ * 자산 보드 - 모바일 카드 렌더.
+ * 데스크톱 테이블과의 전환은 컨테이너의 <Responsive> 조립이 정한다 - 여기는
  * 뷰포트를 모른다. 테이블 컬럼을 다 욱여넣지 않는다(절대 규칙 3): 현재가·변동률이
  * 1급, 예치 규모·발행자는 보조 줄 하나로 끝낸다. 정렬·필터 순서는 테이블과 동일
  * (컨테이너가 정렬된 행 모델을 그대로 내려준다).
@@ -73,7 +73,7 @@ export function AssetBoardCards({
               )}
               <span className="mt-0.5 block text-[12px]">
                 {a.changeBps === null ? (
-                  <span className="font-mono text-ink-3">{windowLabel} —</span>
+                  <span className="font-mono text-ink-3">{windowLabel} -</span>
                 ) : (
                   <span
                     className={`font-mono font-medium tabular-nums ${a.changeBps >= 0 ? "text-up" : "text-down"}`}
@@ -85,7 +85,7 @@ export function AssetBoardCards({
             </span>
           </button>
 
-          {/* 보조 지표 한 줄 — 예치 규모만 (밀도 절제) */}
+          {/* 보조 지표 한 줄 - 예치 규모만 (밀도 절제) */}
           <p className="flex items-baseline gap-1.5 px-page pb-3 text-[11.5px] text-ink-3">
             예치 규모{" "}
             {ethKrw ? (

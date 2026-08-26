@@ -17,13 +17,13 @@ import { getEthKrw } from "@/lib/krw";
 import { getLiveAssets } from "@/lib/onchain";
 
 /**
- * 분석 — 체인 → 범위 → 자산 순으로 내려간다.
+ * 분석 - 체인 → 범위 → 자산 순으로 내려간다.
  *
  * 위층(기와체인 활동)은 판 전체를, 아래층 탭은 나루가 검증한 자산을 다룬다.
  * 자산 보드만 있던 시절엔 토큰 화면과 같은 목록을 열만 바꿔 보여줘서
- * 분석이라 부를 게 없었다 — 체인을 프레임으로 올려 그 자리를 채운다.
+ * 분석이라 부를 게 없었다 - 체인을 프레임으로 올려 그 자리를 채운다.
  *
- * 온체인 주식 탭은 외부 데이터 원천 연결 전이라 준비 중 패널 — 가짜 시세 대신
+ * 온체인 주식 탭은 외부 데이터 원천 연결 전이라 준비 중 패널 - 가짜 시세 대신
  * 보드 구성과 확정 고지(조회 전용·파생상품)만 미리 밝힌다 (팀 결정 2026-07-27).
  */
 
@@ -45,7 +45,7 @@ export default async function AnalysisPage() {
   ]);
 
   // 자산별 보유 분포는 상세 페이지와 같은 리더(getHolderAnalysis)를 그대로 쓴다.
-  // 자산이 수십 종 이내라는 전제의 병렬 조회 — fetch 60초 캐시가 Blockscout 부하를 묶는다.
+  // 자산이 수십 종 이내라는 전제의 병렬 조회 - fetch 60초 캐시가 Blockscout 부하를 묶는다.
   const analyses = await Promise.all(
     assets.map((a) =>
       getHolderAnalysis({
@@ -57,7 +57,7 @@ export default async function AnalysisPage() {
     ),
   );
 
-  // 정렬은 자산 보드와 동일(예치 규모 내림차순) — 화면마다 순서가 다르면 헷갈린다
+  // 정렬은 자산 보드와 동일(예치 규모 내림차순) - 화면마다 순서가 다르면 헷갈린다
   const rows: AnalysisTokenRow[] = assets.map((a, i) => {
     const analysis = analyses[i] ?? null;
     return {

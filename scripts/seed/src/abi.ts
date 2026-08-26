@@ -1,4 +1,4 @@
-/** 시드 봇이 쓰는 최소 ABI — 전체 ABI는 packages/contracts 아티팩트가 원본 */
+/** 시드 봇이 쓰는 최소 ABI - 전체 ABI는 packages/contracts 아티팩트가 원본 */
 
 export const tokenFactoryAbi = [
   {

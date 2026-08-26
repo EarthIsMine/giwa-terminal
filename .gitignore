@@ -7,7 +7,7 @@ out/
 dist/
 *.tsbuildinfo
 
-# env — 절대 규칙: 키는 커밋하지 않는다. .env.example만 저장소에 둔다
+# env - 절대 규칙: 키는 커밋하지 않는다. .env.example만 저장소에 둔다
 .env
 .env.*
 !.env.example

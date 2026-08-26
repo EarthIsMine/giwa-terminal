@@ -131,7 +131,7 @@ contract TokenFactoryTest is Test {
         vm.expectRevert(TokenFactory.NotVerified.selector);
         tokenFactory.issueAndList("Naru Silver", "NSLV", SUPPLY, 0, META);
 
-        // 이미 발행된 토큰의 발행 시점 스냅샷은 불변 — "발행 당시 검증됨"은 사실로 남는다
+        // 이미 발행된 토큰의 발행 시점 스냅샷은 불변 - "발행 당시 검증됨"은 사실로 남는다
         (, bytes32 ref,,,) = tokenFactory.issuedTokens(token);
         assertEq(ref, REF);
         assertTrue(tokenFactory.isIssued(token));
@@ -141,7 +141,7 @@ contract TokenFactoryTest is Test {
         vm.prank(issuer);
         (address token,) = tokenFactory.issueAndList("Naru Gold", "NGLD", SUPPLY, 0, META);
 
-        // 발행 후 총공급 고정 — mint 표면 자체가 없음을 셀렉터 호출로 확인
+        // 발행 후 총공급 고정 - mint 표면 자체가 없음을 셀렉터 호출로 확인
         (bool ok,) = token.call(abi.encodeWithSignature("mint(address,uint256)", issuer, 1e18));
         assertFalse(ok);
         (ok,) = token.call(abi.encodeWithSignature("burn(uint256)", 1e18));

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /**
- * 기술 문서 사이드바 — 스틱키 + IntersectionObserver 스크롤스파이.
+ * 기술 문서 사이드바 - 스틱키 + IntersectionObserver 스크롤스파이.
  * 레이아웃 레퍼런스: EarthIsMine/Vigil api-docs (사이드바·활성 표시 구조),
  * 색·질감은 나루 세계관 유지.
  */

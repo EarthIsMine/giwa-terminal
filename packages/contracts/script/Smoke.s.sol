@@ -30,7 +30,7 @@ contract Smoke is Script {
             vm.startBroadcast();
         }
         (, operator,) = vm.readCallers();
-        // Deploy.s.sol과 동일한 조기 차단 — 키 미로드 시 기본 발신자 시뮬레이션 방지
+        // Deploy.s.sol과 동일한 조기 차단 - 키 미로드 시 기본 발신자 시뮬레이션 방지
         require(
             operator != DEFAULT_SENDER,
             "no wallet loaded: use --account <keystore> or set DEPLOYER_PRIVATE_KEY in packages/contracts/.env"

@@ -66,5 +66,5 @@ test("수수료 두 방향이 서로 정합한다", () => {
   const received = paid - feeIn;
   const feeOut = feeFromAmountOut(received);
   const diff = feeIn > feeOut ? feeIn - feeOut : feeOut - feeIn;
-  assert.ok(diff <= 1n, `양방향 수수료 차이가 ${diff} wei — 1 wei 이하여야 한다`);
+  assert.ok(diff <= 1n, `양방향 수수료 차이가 ${diff} wei - 1 wei 이하여야 한다`);
 });

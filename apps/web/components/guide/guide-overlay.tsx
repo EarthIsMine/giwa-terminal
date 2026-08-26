@@ -6,7 +6,7 @@ import { useEscapeKey } from "@/hooks/use-escape-key";
 import { GuideContent } from "@/components/guide/guide-content";
 
 /**
- * 온보딩 가이드 오버레이 — 어느 화면에서든 이탈 없이 열어보는 X 닫기 방식.
+ * 온보딩 가이드 오버레이 - 어느 화면에서든 이탈 없이 열어보는 X 닫기 방식.
  * 로그인 모달과 같은 관례: body 포털 + ESC + 백드롭 클릭 닫기.
  */
 export function GuideOverlay({

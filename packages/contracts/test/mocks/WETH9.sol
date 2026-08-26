@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @notice 테스트용 WETH9 — GIWA 프리디플로이(0x4200...0006)와 동일한 인터페이스 표면
+/// @notice 테스트용 WETH9 - GIWA 프리디플로이(0x4200...0006)와 동일한 인터페이스 표면
 contract WETH9 {
     string public constant name = "Wrapped Ether";
     string public constant symbol = "WETH";

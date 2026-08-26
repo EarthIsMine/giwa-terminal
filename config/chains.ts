@@ -21,22 +21,22 @@ export interface ChainConfig {
     symbol: string;
     decimals: number;
   };
-  /** V2 팩토리(NaruswapV2Factory) 주소 — 컨트랙트 배포 후 env로 주입 */
+  /** V2 팩토리(NaruswapV2Factory) 주소 - 컨트랙트 배포 후 env로 주입 */
   factoryAddress: `0x${string}` | null;
-  /** 라우터(NaruswapV2Router) 주소 — 컨트랙트 배포 후 env로 주입 */
+  /** 라우터(NaruswapV2Router) 주소 - 컨트랙트 배포 후 env로 주입 */
   routerAddress: `0x${string}` | null;
-  /** 발행 게이트(TokenFactory) 주소 — 컨트랙트 배포 후 env로 주입 */
+  /** 발행 게이트(TokenFactory) 주소 - 컨트랙트 배포 후 env로 주입 */
   tokenFactoryAddress: `0x${string}` | null;
-  /** 신원 검증 원장(IdentityRegistry) 주소 — 컨트랙트 배포 후 env로 주입 */
+  /** 신원 검증 원장(IdentityRegistry) 주소 - 컨트랙트 배포 후 env로 주입 */
   identityRegistryAddress: `0x${string}` | null;
-  /** WETH 주소 — OP Stack 프리디플로이가 기본값 (체인 상수) */
+  /** WETH 주소 - OP Stack 프리디플로이가 기본값 (체인 상수) */
   wethAddress: `0x${string}`;
-  /** 도장(Dojang) Verified Address 조회 컨트랙트 — 기본값은 GIWA Sepolia 공개 주소
+  /** 도장(Dojang) Verified Address 조회 컨트랙트 - 기본값은 GIWA Sepolia 공개 주소
    *  (docs.giwa.io, 2026-07-26 온체인 실검증). 메인넷 주소는 미공개라 env 로 주입한다 */
   dojangScrollAddress: `0x${string}` | null;
   /** 업비트 KYC attesterId = keccak256("dojang.dojangattesterids.upbitkorea") */
   upbitKycAttesterId: `0x${string}`;
-  /** 인덱서 시작 블록 — 컨트랙트 배포 후 env로 주입 */
+  /** 인덱서 시작 블록 - 컨트랙트 배포 후 env로 주입 */
   startBlock: bigint | null;
   testnet: boolean;
 }
@@ -76,10 +76,10 @@ export const giwaChain: ChainConfig = {
 };
 
 /**
- * 서버 전용 RPC — Nodit 등 키 포함 엔드포인트를 여기로 주입한다.
+ * 서버 전용 RPC - Nodit 등 키 포함 엔드포인트를 여기로 주입한다.
  * NEXT_PUBLIC 접두사를 절대 붙이지 않는다: 붙이는 순간 클라이언트 번들과
  * 유저 지갑(wallet_addEthereumChain)에 키가 박제된다 (보안 규칙).
- * 클라이언트에서 평가되면 env 부재로 공개 RPC 폴백 — 안전하다.
+ * 클라이언트에서 평가되면 env 부재로 공개 RPC 폴백 - 안전하다.
  */
 export const serverRpcUrl: string =
   process.env.GIWA_SERVER_RPC_URL ?? giwaChain.rpcUrl;

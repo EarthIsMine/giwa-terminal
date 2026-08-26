@@ -3,7 +3,7 @@ import { giwaChain } from "@giwa/config";
 import { BrandLogo } from "@/components/ui/brand-logo";
 
 /**
- * 기술 문서 전용 크롬 — 헤더·인트로·푸터.
+ * 기술 문서 전용 크롬 - 헤더·인트로·푸터.
  * 터미널 네비·검색·로그인 없이 문서만의 헤더/푸터를 쓴다 (레퍼런스 방식).
  */
 

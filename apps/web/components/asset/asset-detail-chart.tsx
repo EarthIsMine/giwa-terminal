@@ -10,7 +10,7 @@ import type { AssetMarketWire } from "@/lib/indexer";
 import { AssetChartPanel } from "@/components/asset/asset-chart-panel";
 import { TradeHistory } from "@/components/asset/trade-history";
 
-/** 차트·체결 섹션 — 인덱서 데이터. 미연결·데이터 없음이면 자리표시 폴백.
+/** 차트·체결 섹션 - 인덱서 데이터. 미연결·데이터 없음이면 자리표시 폴백.
  *  기간 전환·캔들 변환은 클라이언트 패널(AssetChartPanel) 몫이다 */
 export function AssetDetailChart({
   market,

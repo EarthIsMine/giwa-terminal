@@ -6,11 +6,11 @@ import {INaruswapV2Pair} from "../interfaces/INaruswapV2Pair.sol";
 import {IERC20} from "../interfaces/IERC20.sol";
 import {IWETH} from "../interfaces/IWETH.sol";
 
-/// @title NaruswapV2Router — 유저 진입점 (Uniswap V2 Router02 축소 포크)
+/// @title NaruswapV2Router - 유저 진입점 (Uniswap V2 Router02 축소 포크)
 ///
 /// 캐노니컬 대비 조정 두 가지:
 ///  1. 페어 주소는 init code hash 계산 대신 팩토리 getPair 조회를 쓴다.
-///     — V2 포크의 단골 사고 지점(해시 불일치)을 구조적으로 제거. 호출당 외부 조회
+///     - V2 포크의 단골 사고 지점(해시 불일치)을 구조적으로 제거. 호출당 외부 조회
 ///       비용은 늘지만 GIWA 가스 환경에서 무시 가능한 수준이다.
 ///  2. v1 범위 축소: permit 변형, fee-on-transfer 변형, ExactOut 계열 제외.
 ///     나루 발행 토큰은 전부 표준 ERC-20이라 필요 없다.
@@ -224,7 +224,7 @@ contract NaruswapV2Router {
         amountB = (amountA * reserveB) / reserveA;
     }
 
-    /// @notice 스왑 출력 견적 (0.3% 수수료 반영) — V2 공식 그대로
+    /// @notice 스왑 출력 견적 (0.3% 수수료 반영) - V2 공식 그대로
     function getAmountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut)
         public
         pure

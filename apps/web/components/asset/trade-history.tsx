@@ -4,22 +4,22 @@ import type { WeiAmount } from "@giwa/shared";
 import type { TradeWire } from "@/lib/indexer";
 
 /**
- * 체결 내역 — 인덱서 trades 원장 (매 스왑 = 한 건).
+ * 체결 내역 - 인덱서 trades 원장 (매 스왑 = 한 건).
  * 원화는 환산 표시(절대 규칙 1), 실패 시 ETH 폴백.
- * 헤더행은 인두 띠·행 구분은 검은 홈줄 — 보드 테이블과 같은 문법.
+ * 헤더행은 인두 띠·행 구분은 검은 홈줄 - 보드 테이블과 같은 문법.
  *
  * 30건을 전부 펼치면 섹션이 1,000px을 넘어 아래 내용이 화면 밖으로 밀린다.
  * 표 영역만 잘라 스크롤로 돌린다(데스크톱 약 20행 = 종전 높이의 70% 수준).
- * 상한은 뷰포트별로 나눈다 — 680px 는 폰 화면 하나를 거의 다 먹어서
+ * 상한은 뷰포트별로 나눈다 - 680px 는 폰 화면 하나를 거의 다 먹어서
  * "잘라서 아래를 보이게 한다"는 목적이 모바일에서만 무너진다.
  */
-/** 헤더 셀 공통 — 스크롤 중에도 남게 sticky.
+/** 헤더 셀 공통 - 스크롤 중에도 남게 sticky.
  *  border-collapse 상태의 sticky 셀에는 보더가 그려지지 않으므로 inset 그림자로 홈줄을 낸다.
  *  배경은 반투명(/0.97)이 아니라 불투명이어야 아래 행이 비쳐 겹치지 않는다 */
 const TH_CLASS =
   "sticky top-0 z-10 bg-[#120c06] shadow-[inset_0_1px_0_rgba(0,0,0,0.45),inset_0_-1px_0_rgba(0,0,0,0.45)]";
 
-/** 체결 시각 — 업저씨 기준 KST 고정 표기 (서버 렌더라 뷰어 tz 를 모른다) */
+/** 체결 시각 - 업저씨 기준 KST 고정 표기 (서버 렌더라 뷰어 tz 를 모른다) */
 function formatKst(ts: number): string {
   const d = new Date((ts + 9 * 3_600) * 1_000);
   const p = (n: number) => String(n).padStart(2, "0");

@@ -1,5 +1,5 @@
 /**
- * 봇 지갑 준비 — 없으면 생성해 scripts/seed/.env에 기록(gitignored), 부족하면 충전.
+ * 봇 지갑 준비 - 없으면 생성해 scripts/seed/.env에 기록(gitignored), 부족하면 충전.
  * 배포/운영 지갑과 봇 지갑을 분리한다 (CLAUDE.md 보안 규칙). 봇 키는 테스트넷 전용.
  * 거래자 수 지표가 distinct tx.origin이라 지갑 여러 개가 "참여 인원"을 만든다.
  */
@@ -38,13 +38,13 @@ if (isMain) {
     const bot = privateKeyToAccount(key).address;
     const balance = await publicClient.getBalance({ address: bot });
     if (balance >= MIN_BALANCE) {
-      console.log(`봇 ${bot} 잔고 ${formatEther(balance)} ETH — 충전 생략`);
+      console.log(`봇 ${bot} 잔고 ${formatEther(balance)} ETH - 충전 생략`);
       continue;
     }
     const amount = TARGET_BALANCE - balance;
     const hash = await operator.sendTransaction({ to: bot, value: amount });
     await publicClient.waitForTransactionReceipt({ hash });
-    console.log(`봇 ${bot} 충전 +${formatEther(amount)} ETH — ${hash}`);
+    console.log(`봇 ${bot} 충전 +${formatEther(amount)} ETH - ${hash}`);
   }
   console.log("봇 지갑 준비 완료");
 }

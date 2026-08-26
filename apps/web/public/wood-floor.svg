@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="480">
   <!--
-    나루 원목 마루 바닥 타일 (심리스 720x480) — 톤 업 버전.
+    나루 원목 마루 바닥 타일 (심리스 720x480) - 톤 업 버전.
     4단 널(120px) + 엇갈린 이음매 + 널별 톤 변화 + feTurbulence 결.
-    중간톤 원목 — 패널은 반투명 스크림이라 이 결이 전체 화면 아래로 흐른다.
+    중간톤 원목 - 패널은 반투명 스크림이라 이 결이 전체 화면 아래로 흐른다.
   -->
   <defs>
     <filter id="grain" x="0" y="0" width="100%" height="100%">
@@ -30,7 +30,7 @@
   <!-- 나뭇결 -->
   <rect width="720" height="480" filter="url(#grain)"/>
 
-  <!-- 가로 홈(널 경계) — 어두운 골 + 아래 하이라이트 베벨 -->
+  <!-- 가로 홈(널 경계) - 어두운 골 + 아래 하이라이트 베벨 -->
   <rect y="0" width="720" height="1" fill="#0e0905" opacity="0.9"/>
   <rect y="1" width="720" height="1" fill="#6a4c2a" opacity="0.18"/>
   <rect y="119" width="720" height="2" fill="#0e0905" opacity="0.9"/>

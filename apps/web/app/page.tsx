@@ -7,7 +7,7 @@ import { getBoardStats } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
 import { getLiveAssets } from "@/lib/onchain";
 
-/** 온체인 현재 상태 + 업비트 시세 — 15초 재생성으로 공개 RPC 부하를 묶는다 */
+/** 온체인 현재 상태 + 업비트 시세 - 15초 재생성으로 공개 RPC 부하를 묶는다 */
 export const revalidate = 15;
 
 export default async function Home() {
@@ -35,7 +35,7 @@ export default async function Home() {
           depositIsKrw={ethKrw !== null}
           ethKrwLabel={ethKrw ? `₩${Number(ethKrw).toLocaleString("ko-KR")}` : null}
         />
-        {/* 보드는 컨테이너 없이 뷰포트 전폭으로 펼친다 — 내부에서 여백을 관리한다 */}
+        {/* 보드는 컨테이너 없이 뷰포트 전폭으로 펼친다 - 내부에서 여백을 관리한다 */}
         <section className="w-full pt-8">
           <AssetBoard
             assets={assets}

@@ -8,7 +8,7 @@ import { useAutoFocus } from "@/hooks/use-auto-focus";
 import { useEscapeKey } from "@/hooks/use-escape-key";
 
 /**
- * 로그인 진입점 — 버튼 하나, 방식 선택은 모달에서.
+ * 로그인 진입점 - 버튼 하나, 방식 선택은 모달에서.
  * 절대 규칙 3: 이메일이 첫 번째 동선(준비 중), 지갑 연결은 보조 동선(실동작).
  *
  * 지갑 동선은 3단계다. 연결(EIP-6963 탐지) → 네트워크(현재 체인을 eth_chainId로
@@ -69,7 +69,7 @@ function useEip6963Wallets(open: boolean): readonly Eip6963ProviderDetail[] {
 }
 
 export function LoginButton() {
-  /* 연결 상태·모달 개폐는 컨텍스트 공유 — 내 자산·거래 패널이 같은 세션을 쓴다 */
+  /* 연결 상태·모달 개폐는 컨텍스트 공유 - 내 자산·거래 패널이 같은 세션을 쓴다 */
   const {
     connectedWallet,
     setConnectedWallet,
@@ -94,7 +94,7 @@ export function LoginButton() {
 
   const wallets = useEip6963Wallets(open);
 
-  /* 모달 공통 관례 — ESC 닫기 · 배경 스크롤 잠금 · 닫기 버튼 포커스 */
+  /* 모달 공통 관례 - ESC 닫기 · 배경 스크롤 잠금 · 닫기 버튼 포커스 */
   useEscapeKey(open, () => setOpen(false));
   useEffect(() => {
     if (!open) return;
@@ -105,7 +105,7 @@ export function LoginButton() {
   }, [open]);
   const closeRef = useAutoFocus<HTMLButtonElement>(open);
 
-  /* 연결된 지갑의 체인/계정 변경을 구독 — 네트워크 표기를 실시간으로 맞춘다 */
+  /* 연결된 지갑의 체인/계정 변경을 구독 - 네트워크 표기를 실시간으로 맞춘다 */
   useEffect(() => {
     const p = connectedWallet?.provider;
     if (!p?.on) return;
@@ -164,10 +164,10 @@ export function LoginButton() {
   }, []);
 
   const disconnect = useCallback(() => {
-    /* 지갑 쪽 사이트 권한까지 회수해야 진짜 해제다 — 안 하면 재연결 때 계정 선택 창
+    /* 지갑 쪽 사이트 권한까지 회수해야 진짜 해제다 - 안 하면 재연결 때 계정 선택 창
        없이 같은 계정이 즉시 돌아오고, 새로고침에도 세션이 되살아난다(스토리지를
        쓰지 않으므로 "사용자가 해제를 눌렀다"를 새로고침 너머로 기억할 방법이 없고,
-       유일한 진실은 지갑이 쥔 승인 상태뿐이다 — wallet-context 의 복구 로직 참고).
+       유일한 진실은 지갑이 쥔 승인 상태뿐이다 - wallet-context 의 복구 로직 참고).
 
        회수를 지원하지 않는 지갑이 있어 실패 자체는 막을 수 없다. 대신 조용히
        삼키지 않고 알린다: 공용 PC 에서 해제한 줄 알고 자리를 뜨면 다음 사람에게
@@ -193,7 +193,7 @@ export function LoginButton() {
       );
   }, [connectedWallet]);
 
-  /* GIWA Sepolia 전환 — 지갑이 모르는 체인이면(4902) 추가로 폴백 */
+  /* GIWA Sepolia 전환 - 지갑이 모르는 체인이면(4902) 추가로 폴백 */
   const addOrSwitchNetwork = useCallback(async () => {
     if (!connectedWallet) return;
     const hexChainId = `0x${giwaChain.chainId.toString(16)}`;
@@ -239,7 +239,7 @@ export function LoginButton() {
     }
   }, [connectedWallet]);
 
-  /* 서명 로그인 — 소유 확인용 personal_sign. 온체인 전송이 아니다.
+  /* 서명 로그인 - 소유 확인용 personal_sign. 온체인 전송이 아니다.
      서명 메시지가 GIWA를 대상으로 단언하므로, 실제로 GIWA에 연결됐을 때만 진행한다 */
   const signIn = useCallback(async () => {
     if (!connectedWallet || !account) return;
@@ -351,7 +351,7 @@ export function LoginButton() {
                 </div>
 
                 {loggedIn && connectedWallet && account ? (
-                  /* 로그인 완료 — 상태 확인 + 로그아웃 */
+                  /* 로그인 완료 - 상태 확인 + 로그아웃 */
                   <div className="mt-5 rounded-xl border border-hairline bg-panel px-4 py-3.5">
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -395,7 +395,7 @@ export function LoginButton() {
                   </div>
                 ) : (
                   <>
-                    {/* 이메일 — 주 동선 (준비 중) */}
+                    {/* 이메일 - 주 동선 (준비 중) */}
                     <button
                       type="button"
                       className="mt-5 w-full rounded-xl border border-accent/30 bg-accent/10 px-4 py-3.5 text-left transition-colors hover:bg-accent/15"
@@ -434,7 +434,7 @@ export function LoginButton() {
                       </span>
                     </button>
 
-                    {/* 업비트 아이디 — 참여 게이트 동선 (팀 결정 2026-07-22: KYC 신원으로
+                    {/* 업비트 아이디 - 참여 게이트 동선 (팀 결정 2026-07-22: KYC 신원으로
                         런치패드 참여 자격까지 연결). 연동 전이라 비활성 + 준비 중 표기 */}
                     <button
                       type="button"
@@ -483,7 +483,7 @@ export function LoginButton() {
                       <span className="h-px flex-1 bg-hairline" aria-hidden />
                     </div>
 
-                    {/* 기와 월렛 — 기와 공식 지갑. 출시되면 최우선 지갑 동선이 된다 */}
+                    {/* 기와 월렛 - 기와 공식 지갑. 출시되면 최우선 지갑 동선이 된다 */}
                     {!account ? (
                       <button
                         type="button"
@@ -492,7 +492,7 @@ export function LoginButton() {
                         className="mt-4 w-full cursor-not-allowed rounded-xl border border-hairline bg-panel px-4 py-3.5 text-left opacity-75"
                       >
                         <span className="flex items-center gap-3.5">
-                          {/* 기와 월렛 공식 로고 — 코너 투명화 처리한 원본 (검정 타일 + 흰 마크) */}
+                          {/* 기와 월렛 공식 로고 - 코너 투명화 처리한 원본 (검정 타일 + 흰 마크) */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src="/giwa-wallet-mark.png"
@@ -517,7 +517,7 @@ export function LoginButton() {
                     ) : null}
 
                     {account && connectedWallet ? (
-                      /* 연결됨 — 네트워크 확인 후 서명 로그인 */
+                      /* 연결됨 - 네트워크 확인 후 서명 로그인 */
                       <div className="mt-4 rounded-xl border border-hairline bg-panel px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           {/* eslint-disable-next-line @next/next/no-img-element */}

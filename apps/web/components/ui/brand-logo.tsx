@@ -1,4 +1,4 @@
-/** 나루(NARU) 심볼 — 나룻배와 물결. "업비트에서 기와체인으로 오는 나룻길" */
+/** 나루(NARU) 심볼 - 나룻배와 물결. "업비트에서 기와체인으로 오는 나룻길" */
 export function BrandLogo({ size = 26 }: { size?: number }) {
   return (
     <svg

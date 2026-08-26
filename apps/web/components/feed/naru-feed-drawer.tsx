@@ -5,7 +5,7 @@ import type { FeedItemWire } from "@/lib/indexer";
 import { ItemBody, relativeTime, TAG } from "@/components/feed/naru-feed-item";
 
 /**
- * 소식 드로어 — 우측에서 슬라이드해 들어온다. 닫힘 상태에서도 마운트를 유지해
+ * 소식 드로어 - 우측에서 슬라이드해 들어온다. 닫힘 상태에서도 마운트를 유지해
  * transform 트랜지션이 살아 있게 하고, 대신 포인터 이벤트를 끈다.
  * 열림 상태는 부모(NaruFeedDock)가 React state 로만 유지한다 (브라우저 스토리지 금지 규칙).
  */

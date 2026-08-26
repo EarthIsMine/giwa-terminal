@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @notice Uniswap V2와 동일한 수학 유틸 — 최초 유동성 산출(sqrt)과 비례 산출(min)에 사용.
+/// @notice Uniswap V2와 동일한 수학 유틸 - 최초 유동성 산출(sqrt)과 비례 산출(min)에 사용.
 library Math {
     function min(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = x < y ? x : y;

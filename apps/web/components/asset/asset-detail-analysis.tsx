@@ -4,7 +4,7 @@ import type { HolderGraphWire } from "@/lib/indexer";
 import { ExplorerLink } from "@/components/asset/asset-detail-info";
 import { HolderGraph } from "@/components/asset/holder-graph";
 
-/** 분포 지표 카드 — 게이지는 중립색(해석 색 입히지 않음), 산정 기준을 함께 표기 */
+/** 분포 지표 카드 - 게이지는 중립색(해석 색 입히지 않음), 산정 기준을 함께 표기 */
 function AnalysisMetric({
   label,
   permille,
@@ -47,7 +47,7 @@ const HOLDER_LABEL: Record<
   },
 };
 
-/** 홀더 관계도 — 전송 원장 기반. 인덱싱 전이면 자리표시 폴백 */
+/** 홀더 관계도 - 전송 원장 기반. 인덱싱 전이면 자리표시 폴백 */
 function HolderRelationBlock({ graph }: { graph: HolderGraphWire | null }) {
   return (
     <div className="min-w-0 flex-1 rounded-lg border border-hairline/60 bg-black/20 p-4">
@@ -77,7 +77,7 @@ function HolderRelationBlock({ graph }: { graph: HolderGraphWire | null }) {
   );
 }
 
-/** 상위 홀더 표 — Blockscout 집계 기반 */
+/** 상위 홀더 표 - Blockscout 집계 기반 */
 function TopHoldersTable({
   topHolders,
 }: {
@@ -117,7 +117,7 @@ function TopHoldersTable({
                     {HOLDER_LABEL[h.label].text}
                   </span>
                 ) : (
-                  <span className="text-ink-3">—</span>
+                  <span className="text-ink-3">-</span>
                 )}
               </td>
               <td className="py-1.5 text-right font-mono tabular-nums text-ink-2">
@@ -134,8 +134,8 @@ function TopHoldersTable({
   );
 }
 
-/** 온체인 분석 v0 — 보유 분포 (명세서 §2.2 부분 선행).
-    인사이더·스나이퍼·관계도는 전송 전수 원장(P1) 전제 — 자리표시로 명시 */
+/** 온체인 분석 v0 - 보유 분포 (명세서 §2.2 부분 선행).
+    인사이더·스나이퍼·관계도는 전송 전수 원장(P1) 전제 - 자리표시로 명시 */
 export function AssetDetailAnalysis({
   analysis,
   graph,

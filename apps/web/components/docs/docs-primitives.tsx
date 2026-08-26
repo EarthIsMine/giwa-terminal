@@ -1,7 +1,7 @@
 import { explorerAddressUrl } from "@giwa/config";
 
 /**
- * 기술 문서 전용 표현 프리미티브 — 섹션 틀·강조·표.
+ * 기술 문서 전용 표현 프리미티브 - 섹션 틀·강조·표.
  * 콘텐츠(docs-sections.tsx)와 조립(app/docs/page.tsx)이 공용으로 쓴다.
  */
 

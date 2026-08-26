@@ -1,7 +1,7 @@
 import { NaruScene } from "@/components/layout/naru-scene";
 
 /**
- * 히어로 — 브랜드 워드마크를 반복하지 않는다(헤더에 이미 있음).
+ * 히어로 - 브랜드 워드마크를 반복하지 않는다(헤더에 이미 있음).
  * 대신 진짜 나루터 풍경(물·산·나룻배)이 아이덴티티를 말한다.
  * 절대 규칙 3: 통계 카드는 3장뿐. 값은 전부 온체인·업비트 실데이터다.
  * (거래대금·참여 인원 카드는 인덱서 연결 시 복원한다)
@@ -27,7 +27,7 @@ export function Hero({
       />
 
       <div className="relative mx-auto flex min-h-[220px] w-full max-w-[1840px] flex-wrap items-end justify-between gap-x-10 gap-y-6 px-page pb-7 pt-9 sm:min-h-[280px] sm:gap-y-7 sm:pb-10 sm:pt-12">
-        {/* 헤드라인은 위쪽에 둔다 — 아래로 내려오면 물결·배와 겹쳐 액센트가 묻힌다 */}
+        {/* 헤드라인은 위쪽에 둔다 - 아래로 내려오면 물결·배와 겹쳐 액센트가 묻힌다 */}
         <div className="max-w-[680px] self-start">
           <h1 className="font-serif text-[26px] font-bold leading-[1.32] tracking-[-0.01em] text-ink sm:text-[32px] lg:text-[36px]">
             업비트에서 기와체인으로
@@ -71,7 +71,7 @@ export function Hero({
               환산 기준 시세
             </dt>
             <dd className="mt-1.5 font-mono text-[24px] font-semibold leading-none">
-              {ethKrwLabel ?? "—"}
+              {ethKrwLabel ?? "-"}
             </dd>
             <p className="mt-2 text-[11px] text-ink-3">
               {ethKrwLabel ? "업비트 KRW-ETH · 60초 갱신" : "업비트 시세 조회 불가"}

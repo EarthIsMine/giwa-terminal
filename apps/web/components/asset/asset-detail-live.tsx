@@ -9,9 +9,9 @@ import { AssetDetailInfo } from "@/components/asset/asset-detail-info";
 import { TradePanel } from "@/components/asset/trade-panel";
 
 /**
- * 자산 상세 — 온체인 실데이터 (목데이터 대체, 2026-07-22).
+ * 자산 상세 - 온체인 실데이터 (목데이터 대체, 2026-07-22).
  * 차트·체결 내역은 인덱서(가격 API)에서 온다 (2026-07-23 연결).
- * 인덱서 미연결·데이터 없음이면 자리표시로 폴백 — 그 사실을 화면에 명시한다.
+ * 인덱서 미연결·데이터 없음이면 자리표시로 폴백 - 그 사실을 화면에 명시한다.
  * 섹션별 렌더는 헤더·차트·정보·분석 서브컴포넌트로 분리 (2026-07-27 리팩토링).
  */
 export function AssetDetailLive({
@@ -42,7 +42,7 @@ export function AssetDetailLive({
       <AssetDetailHeader asset={asset} ethKrw={ethKrw} />
 
       <div className="mt-8 flex flex-col items-start gap-5 xl:flex-row">
-        {/* 좌: 차트·체결 — 인덱서 데이터. 미연결이면 자리표시 폴백 */}
+        {/* 좌: 차트·체결 - 인덱서 데이터. 미연결이면 자리표시 폴백 */}
         <div className="w-full min-w-0 flex-1 space-y-4">
           <AssetDetailChart
             market={market}

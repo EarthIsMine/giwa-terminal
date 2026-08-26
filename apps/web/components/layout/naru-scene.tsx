@@ -1,7 +1,7 @@
 /**
- * 나루터 풍경 — 히어로 배경 (수묵 레이어드 SVG).
+ * 나루터 풍경 - 히어로 배경 (수묵 레이어드 SVG).
  * 달·산 3겹·물안개·윤슬·나룻배(사공)·반영으로 "물 있고 산 있는 진짜 나루"를 그린다.
- * 뷰박스 1600×300은 히어로 비율(≈5.3:1)에 맞춘 값 — 와이드 크롭에도 달이 잘리지 않는다.
+ * 뷰박스 1600×300은 히어로 비율(≈5.3:1)에 맞춘 값 - 와이드 크롭에도 달이 잘리지 않는다.
  * 장식 요소라 aria-hidden, 애니메이션은 CSS 키프레임(배 흔들림·안개 드리프트)만 사용.
  */
 export function NaruScene() {
@@ -24,7 +24,7 @@ export function NaruScene() {
           <stop offset="0.55" stopColor="#c9a554" stopOpacity="0.15" />
           <stop offset="1" stopColor="#c9a554" stopOpacity="0" />
         </radialGradient>
-        {/* 달 원반 — 좌상단 광원의 구형 음영 */}
+        {/* 달 원반 - 좌상단 광원의 구형 음영 */}
         <radialGradient id="ns-moon" cx="0.4" cy="0.36" r="0.78">
           <stop offset="0" stopColor="#f8eecf" />
           <stop offset="0.5" stopColor="#eedcab" />
@@ -54,7 +54,7 @@ export function NaruScene() {
       {/* 하늘 */}
       <rect width="1600" height="230" fill="url(#ns-sky)" />
 
-      {/* 달 — 겹 달무리 + 구형 음영 원반 + 분화구 */}
+      {/* 달 - 겹 달무리 + 구형 음영 원반 + 분화구 */}
       <circle cx="1178" cy="58" r="94" fill="url(#ns-moonglow)" opacity="0.85" />
       <circle cx="1178" cy="58" r="46" fill="url(#ns-moonglow)" />
       <circle cx="1178" cy="58" r="28" fill="url(#ns-moon)" />
@@ -77,9 +77,9 @@ export function NaruScene() {
         <path d="M551 72l7 5 8-5" />
       </g>
 
-      {/* 지형·물·배 — 300 프레임 기준으로 시프트 */}
+      {/* 지형·물·배 - 300 프레임 기준으로 시프트 */}
       <g transform="translate(0,-70)">
-        {/* 원경 산 — 수묵 번짐 */}
+        {/* 원경 산 - 수묵 번짐 */}
         <path
           d="M0 216C90 208 170 186 268 192C360 197 428 170 520 164C610 158 668 184 760 192C850 199 948 168 1052 162C1150 157 1214 180 1310 190C1400 199 1520 190 1600 180L1600 292L0 292Z"
           fill="#453117"
@@ -109,7 +109,7 @@ export function NaruScene() {
         <rect y="290" width="1600" height="110" fill="url(#ns-water)" />
         <rect y="289" width="1600" height="1.2" fill="#c9a554" opacity="0.32" />
 
-        {/* 윤슬 — 두 무리가 서로 다른 결로 흘러 잔잔한 물살을 만든다 */}
+        {/* 윤슬 - 두 무리가 서로 다른 결로 흘러 잔잔한 물살을 만든다 */}
         <g fill="#eeda9f" className="[animation:ns-current_16s_ease-in-out_infinite_alternate]">
           <rect x="120" y="304" width="90" height="1.4" opacity="0.1" />
           <rect x="252" y="336" width="120" height="1.6" opacity="0.07" />
@@ -135,7 +135,7 @@ export function NaruScene() {
           <rect x="1148" y="366" width="64" height="2" opacity="0.09" />
         </g>
 
-        {/* 나루터 잔교 — 널 상판 + 말뚝 + 등롱 (마루가 그림 속으로 이어진다)
+        {/* 나루터 잔교 - 널 상판 + 말뚝 + 등롱 (마루가 그림 속으로 이어진다)
             좌측 텍스트 스크림에 묻히지 않게 열린 수면(x≈560)까지 길게 뺀다 */}
         <g>
           {/* 말뚝 */}
@@ -183,7 +183,7 @@ export function NaruScene() {
           </g>
         </g>
 
-        {/* 나룻배 + 사공 — 물을 오가는 왕복 + 잔흔들림 */}
+        {/* 나룻배 + 사공 - 물을 오가는 왕복 + 잔흔들림 */}
         <g className="[animation:ns-ferry_22s_ease-in-out_infinite_alternate]">
           <g className="[animation:ns-bob_7s_ease-in-out_infinite]">
           <g>
@@ -195,7 +195,7 @@ export function NaruScene() {
             {/* 삿대 */}
             <path d="M962 268l16 40" stroke="#0b0704" strokeWidth="2.4" strokeLinecap="round" />
             <path d="M962 268l16 40" stroke="#c9a554" strokeWidth="0.8" strokeLinecap="round" opacity="0.5" />
-            {/* 노 젓는 파문 — 삿대 끝 동심원 + 배 밑에서 넓게 밀리는 물결 */}
+            {/* 노 젓는 파문 - 삿대 끝 동심원 + 배 밑에서 넓게 밀리는 물결 */}
             <g stroke="#eeda9f" strokeWidth="1" fill="none">
               <ellipse className="ns-ripple" cx="978" cy="309" rx="12" ry="3" />
               <ellipse

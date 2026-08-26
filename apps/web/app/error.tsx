@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * 전역 에러 폴백 — RPC·인덱서 히컵으로 렌더가 실패해도
+ * 전역 에러 폴백 - RPC·인덱서 히컵으로 렌더가 실패해도
  * 원시 500 대신 브랜드 화면 + 재시도를 보여준다 (시연 방어).
  */
 export default function GlobalError({

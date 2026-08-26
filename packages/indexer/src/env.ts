@@ -1,5 +1,5 @@
 /**
- * env 로딩 — 반드시 @giwa/config 보다 먼저 import 되는 사이드이펙트 모듈.
+ * env 로딩 - 반드시 @giwa/config 보다 먼저 import 되는 사이드이펙트 모듈.
  * 체인 파라미터 단일 소스는 루트 .env (절대 규칙 4).
  * 로컬 전용 오버라이드(전용 RPC, DATABASE_URL)는 packages/indexer/.env.local.
  */

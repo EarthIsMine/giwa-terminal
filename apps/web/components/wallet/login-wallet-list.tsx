@@ -2,7 +2,7 @@
 
 import type { Eip6963ProviderDetail } from "@/contexts/wallet-context";
 
-/* 설치된 지갑 목록 (EIP-6963) — 하나도 없으면 설치 안내로 폴백 */
+/* 설치된 지갑 목록 (EIP-6963) - 하나도 없으면 설치 안내로 폴백 */
 export function LoginWalletList({
   wallets,
   connectingRdns,

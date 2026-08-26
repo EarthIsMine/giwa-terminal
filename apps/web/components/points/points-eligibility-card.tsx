@@ -3,10 +3,10 @@
 import { formatKrwCompact } from "@giwa/shared";
 import type { DisplayKrw } from "@giwa/shared";
 
-/** 도장 KYC 조회 상태 — 조회 로직은 PointsView 가 쥐고, 이 카드는 표시만 한다 */
+/** 도장 KYC 조회 상태 - 조회 로직은 PointsView 가 쥐고, 이 카드는 표시만 한다 */
 export type KycState = "idle" | "loading" | "verified" | "unverified" | "error";
 
-/** 잔고 구간 한 칸 (명세서 §2.5) — minKrwMilli 비교는 PointsView 몫 */
+/** 잔고 구간 한 칸 (명세서 §2.5) - minKrwMilli 비교는 PointsView 몫 */
 export interface PointsTier {
   points: number;
   label: string;
@@ -17,13 +17,13 @@ interface PointsEligibilityCardProps {
   onConnect: () => void;
   kyc: KycState;
   tier: PointsTier | null;
-  /* DisplayKrw 로 받는다 — 언브랜드 bigint 면 WeiAmount 가 그대로 통과해
+  /* DisplayKrw 로 받는다 - 언브랜드 bigint 면 WeiAmount 가 그대로 통과해
      wei 수량이 원화로 렌더된다 (절대 규칙 1: 온체인 값과 환산 값은 타입 레벨 분리) */
   valueKrwMilli: DisplayKrw | null;
   valueLoaded: boolean;
 }
 
-/** 좌: 내 자격·미리보기 — KYC 게이트 결과와 예상 잔고 포인트 렌더 전용 */
+/** 좌: 내 자격·미리보기 - KYC 게이트 결과와 예상 잔고 포인트 렌더 전용 */
 export function PointsEligibilityCard({
   account,
   onConnect,

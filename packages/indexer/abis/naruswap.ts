@@ -1,5 +1,5 @@
 /**
- * 인덱서가 구독하는 이벤트 ABI — 원본은 packages/contracts/src/interfaces.
+ * 인덱서가 구독하는 이벤트 ABI - 원본은 packages/contracts/src/interfaces.
  * 시그니처는 Uniswap V2 캐노니컬과 동일 (INaruswapV2Pair.sol 주석 참조).
  *
  * topic0 검증 (cast keccak, 2026-07-23):
@@ -25,7 +25,7 @@ export const naruswapV2FactoryAbi = [
 ] as const;
 
 /**
- * 발행 게이트(TokenFactory) 이벤트 — 피드의 "신규 상장"과 발행자 라벨의 원천.
+ * 발행 게이트(TokenFactory) 이벤트 - 피드의 "신규 상장"과 발행자 라벨의 원천.
  * topic0 검증 (packages/contracts/test/E2E.t.sol 핀 테스트와 동일 값):
  *   TokenIssued(address,address,string,string,uint256,bytes32,string)
  *     0x9074df6f9d0eeb5e3741c275f37406408558e11d1a64e936a810afd9b67c3b0a
@@ -59,7 +59,7 @@ export const tokenFactoryAbi = [
   },
 ] as const;
 
-/** 발행 토큰(NaruToken) ERC-20 Transfer — 홀더 원장·전송 그래프의 원천 */
+/** 발행 토큰(NaruToken) ERC-20 Transfer - 홀더 원장·전송 그래프의 원천 */
 export const naruTokenAbi = [
   {
     type: "event",
@@ -93,7 +93,7 @@ export const naruswapV2PairAbi = [
       { name: "reserve1", type: "uint112", indexed: false },
     ],
   },
-  // 유동성 공급·회수 — 체결과 함께 "거래 수·참여 인원"에 들어간다
+  // 유동성 공급·회수 - 체결과 함께 "거래 수·참여 인원"에 들어간다
   // topic0 (cast keccak, 2026-07-27):
   //   Mint(address,uint256,uint256)
   //     0x4c209b5fc8ad50758f13e2e1088ba56a560dff690a1c6fef26394f4c03821c4f

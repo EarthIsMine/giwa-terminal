@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
 /**
- * 나루 포인트 (기획서 §4.4) — 참여 루프의 입구.
+ * 나루 포인트 (기획서 §4.4) - 참여 루프의 입구.
  * 시즌 0(테스트베드) 이전: 도장 KYC 게이트 실조회 + 산식 공개 + 잔고 미리보기.
  * 적립 원장·랭킹은 집계 서버(P1) 가동과 함께 열린다.
  */
