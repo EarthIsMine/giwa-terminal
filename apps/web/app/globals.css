@@ -80,12 +80,159 @@
     opacity: 0.55;
   }
 }
+/*
+ * 한 척의 한 바퀴 - 30초. 사공(ns-aboard)·달려가는 사람(ns-runner)이 같은 30초를 공유한다.
+ *
+ * 접근 구간을 사이클 경계에 걸쳐 놓은 게 핵심이다(52% 에 출발해 다음 바퀴 25% 에 도착).
+ * 그래야 사공이 달리는 동안(29~62%) 빈 배가 사라지고(41%) 다음 배가 출발해(52%)
+ * 오른쪽 끝으로 들어오는 게 한 화면에서 같이 보인다.
+ * 0% 와 100% 의 translateX 가 -7 로 같아야 경계에서 배가 튀지 않는다 - 등속 15.15/% 로 맞춘 값이다.
+ *
+ * -363 은 뱃머리가 잔교 끝(x565) 뒤로 살짝 물리고 사공은 그 오른쪽에 드러나는 자리다.
+ * 사라질 때 페이드를 쓰는 이유: 정박 자리에서 +720 으로 순간이동하면 그 점프가 그대로 보인다.
+ */
 @keyframes ns-ferry {
   0% {
-    transform: translateX(-88px);
+    transform: translateX(-7px);
+    opacity: 1;
+  }
+  18% {
+    transform: translateX(-280px);
+    animation-timing-function: ease-out;
+  }
+  25% {
+    transform: translateX(-363px);
+  }
+  31% {
+    transform: translateX(-363px);
+    opacity: 1;
+  }
+  41% {
+    transform: translateX(-363px);
+    opacity: 0;
+  }
+  42% {
+    transform: translateX(720px);
+    opacity: 0;
+  }
+  52% {
+    transform: translateX(720px);
+    opacity: 1;
   }
   100% {
-    transform: translateX(88px);
+    transform: translateX(-7px);
+    opacity: 1;
+  }
+}
+/* 배에 타고 있는 것들 - 사공·노·물결·사공 반영. 내리는 순간(27~29%) 함께 사라진다.
+   노와 물결까지 같이 감춰야 정박한 배가 빈 배로 보인다 - 사공 없는 노가 저어지면 유령선이다.
+   50% 에 되살리는 건 다음 배가 아직 화면 밖(오른쪽)에 있을 때다. */
+@keyframes ns-aboard {
+  0%,
+  27% {
+    opacity: 1;
+  }
+  29%,
+  46% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+/* 내려서 달려가기 - 27~29% 는 배 위(오른쪽 아래 26,9)에서 잔교 높이로 올라서는 구간이고,
+   29~62% 에 왼쪽으로 620 을 달려 화면 밖으로 나간다(약 63/초).
+   63% 이후 안 보이는 동안 제자리로 되돌려 다음 배를 기다린다. */
+@keyframes ns-runner {
+  0%,
+  27% {
+    opacity: 0;
+    transform: translate(26px, 9px);
+  }
+  29% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(-620px, 0);
+  }
+  63% {
+    opacity: 0;
+    transform: translate(-620px, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(26px, 9px);
+  }
+}
+/* 달릴 때 다리 - 같은 쪽 다리는 반대 위상 */
+@keyframes ns-stride-a {
+  0%,
+  100% {
+    transform: rotate(22deg);
+  }
+  50% {
+    transform: rotate(-22deg);
+  }
+}
+@keyframes ns-stride-b {
+  0%,
+  100% {
+    transform: rotate(-22deg);
+  }
+  50% {
+    transform: rotate(22deg);
+  }
+}
+/* 만세한 두 팔 - 좌우 대칭으로 함께 벌렸다 오므린다.
+   같은 부호로 돌리면 한쪽은 벌어지고 한쪽은 오므라들어 가위질이 된다. */
+@keyframes ns-cheer-a {
+  0%,
+  100% {
+    transform: rotate(-9deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes ns-cheer-b {
+  0%,
+  100% {
+    transform: rotate(9deg);
+  }
+  50% {
+    transform: rotate(-6deg);
+  }
+}
+/* 달리기 시작하자마자 한 번 뛰어오르기 - 32~34.5%(0.75초).
+   달리는 구간이 29~62% 이므로 시작 직후다 - 내려서 신난 김에 한 번 뛰는 순서가 된다.
+   오를 땐 ease-out 으로 꼭대기에서 느려지고 내릴 땐 ease-in 으로 가속한다.
+   삼각형으로 오르내리면 뜀이 아니라 승강기가 된다.
+   높이 5.5 는 키 27 의 약 1/5 - 더 띄우면 잔교에서 떨어진 것처럼 보인다. */
+@keyframes ns-runjump {
+  0%,
+  32% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  33.2% {
+    transform: translateY(-5.5px);
+    animation-timing-function: ease-in;
+  }
+  34.5%,
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes ns-runbob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.1px);
   }
 }
 @keyframes ns-current {
@@ -98,22 +245,113 @@
 }
 @keyframes ns-ripple {
   0% {
-    transform: scale(0.25);
-    opacity: 0.38;
+    transform: translateX(0) scale(0.45);
+    opacity: 0.18;
   }
   70% {
-    opacity: 0.12;
+    opacity: 0.06;
   }
   100% {
-    transform: scale(1.7);
+    transform: translateX(18px) scale(1.25);
     opacity: 0;
   }
 }
-/* 노 저을 때 퍼지는 파문 - fill-box 기준으로 제자리에서 확장 */
+/*
+ * 노젓기 한 획 - 상체와 노(팔 포함)가 같은 2.8초를 공유해 위상이 맞는다.
+ * 0% = 피니시(손잡이를 몸쪽으로 당긴 끝), 45% = 캐치(팔을 펴 노깃을 물에 넣는 순간).
+ * SVG 쪽 좌표는 전부 피니시 자세로 그려 두었다 - 그래서 노의 0% 가 0deg 다.
+ */
+@keyframes ns-lean {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  45% {
+    transform: rotate(5deg);
+  }
+}
+@keyframes ns-row {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  45% {
+    transform: rotate(18deg);
+  }
+}
+/*
+ * 노 저을 때 밀려 나가는 물결 - fill-box 기준으로 퍼지면서 노가 미는 쪽으로 흘러간다.
+ * backwards 가 없으면 animation-delay 가 걸린 물결들이 지연 동안 애니메이션 이전 상태로
+ * 그려진다 - 불투명도 1 의 진한 선이 첫 화면에 그대로 박혀 보인다.
+ */
 .ns-ripple {
   transform-box: fill-box;
   transform-origin: center;
-  animation: ns-ripple 4.2s ease-out infinite;
+  animation: ns-ripple 4.2s ease-out infinite backwards;
+}
+/*
+ * 사공 - 상체는 엉덩이를, 노(+팔)는 뱃전 노받이를 축으로 돈다.
+ * 축은 전부 fill-box(그룹 자기 bbox) 기준 오프셋이다.
+ * view-box 를 쓰면 조상 그룹의 translate(0,-70) 만큼 축이 어긋난다.
+ * 오프셋 = 관절 좌표 - 그룹 bbox 좌상단. 도형을 고치면 이 값도 같이 고쳐야 한다.
+ */
+/*
+ * 배 건너가기 - 등속이라야 건너가는 배로 읽힌다 (ease 는 제자리에서 흔들리는 느낌을 준다).
+ * 음수 delay 가 핵심이다: 0 에서 시작하면 배가 화면 밖 오른쪽에 있어 첫 8초 동안 빈 물만 보인다.
+ * -14s 로 시작해 페이지를 여는 순간 이미 오른쪽 중간을 건너는 중이게 한다.
+ */
+.ns-ferry {
+  animation: ns-ferry 30s linear -3s infinite;
+}
+/* 아래 셋은 배 한 바퀴와 같은 30초·같은 -3s 여야 위상이 맞는다. 하나만 어긋나도
+   사공이 배에 남거나, 빈 잔교를 달리거나, 배 없는 물에서 내리는 장면이 된다. */
+.ns-aboard {
+  animation: ns-aboard 30s linear -3s infinite;
+}
+.ns-runner {
+  animation: ns-runner 30s linear -3s infinite;
+}
+/* 점프도 배 한 바퀴와 같은 30초·같은 -3s 다 - 달리는 구간(29~62%) 안에 들어야 한다 */
+.ns-runjump {
+  animation: ns-runjump 30s linear -3s infinite;
+}
+.ns-runbob {
+  animation: ns-runbob 0.26s ease-in-out infinite;
+}
+/* 팔다리 축은 전부 관절(엉덩이·어깨)이고, fill-box 좌상단에서의 오프셋으로 준다 */
+.ns-leg1 {
+  transform-box: fill-box;
+  transform-origin: 3.1px 0;
+  animation: ns-stride-a 0.52s ease-in-out infinite;
+}
+.ns-leg2 {
+  transform-box: fill-box;
+  transform-origin: 0 0;
+  animation: ns-stride-b 0.52s ease-in-out infinite;
+}
+/* 만세한 팔의 축은 어깨(559.7,264) - 위로 뻗어 있어 bbox 좌하단이 축이다 */
+.ns-arm1 {
+  transform-box: fill-box;
+  transform-origin: 5px 8.7px;
+  animation: ns-cheer-a 0.52s ease-in-out infinite;
+}
+.ns-arm2 {
+  transform-box: fill-box;
+  transform-origin: 0 8.7px;
+  animation: ns-cheer-b 0.52s ease-in-out infinite;
+}
+.ns-torso {
+  transform-box: fill-box;
+  /* 엉덩이(950,296) - bbox 좌상단(947.38,273.95). 위끝은 삿갓, 왼끝은 몸통이 정한다.
+     바깥 클립은 bbox 에 영향을 주지 않는다 */
+  transform-origin: 2.62px 22.05px;
+  animation: ns-lean 2.8s ease-in-out infinite;
+}
+.ns-oar {
+  transform-box: fill-box;
+  /* 노받이(972,296.3) - bbox 좌상단(949.75,286.55). 팔 뿌리가 bbox 왼끝이다 */
+  transform-origin: 22.25px 9.75px;
+  animation: ns-row 2.8s ease-in-out infinite;
 }
 
 /*
