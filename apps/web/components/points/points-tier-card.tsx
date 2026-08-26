@@ -1,11 +1,11 @@
 import type { PointsTier } from "@/components/points/points-eligibility-card";
 
 /**
- * 얼마나 쌓이나 — 잔고 구간표를 계단 그림으로.
+ * 얼마나 쌓이나 - 잔고 구간표를 계단 그림으로.
  *
  * 표(구간 5행 × 점수)는 약관처럼 읽힌다. 같은 정보를 "잔고가 오를수록
  * 게이지가 차오르는" 기둥 다섯 개로 바꾸면 규칙이 2초 만에 읽힌다.
- * 게이지는 분석 보드 지분 막대와 같은 문법(검은 홈 + 한지빛) — 화면끼리
+ * 게이지는 분석 보드 지분 막대와 같은 문법(검은 홈 + 한지빛) - 화면끼리
  * 시각 언어를 하나로 유지한다.
  *
  * 매수 가점·소멸·조작 방어 세 문단은 내용을 그대로 두고 <details> 로 접는다.
@@ -13,7 +13,7 @@ import type { PointsTier } from "@/components/points/points-eligibility-card";
  * 잔고 규칙 하나로 좁힌다 (절대 규칙 3).
  */
 export function PointsTierCard({ tiers }: { tiers: readonly PointsTier[] }) {
-  // TIERS 는 내림차순(1억↑ 먼저) — 계단은 낮은 데서 높은 데로 오른다
+  // TIERS 는 내림차순(1억↑ 먼저) - 계단은 낮은 데서 높은 데로 오른다
   const asc = [...tiers].reverse();
   const maxPoints = Math.max(...asc.map((t) => t.points), 1);
 
@@ -40,7 +40,7 @@ export function PointsTierCard({ tiers }: { tiers: readonly PointsTier[] }) {
                 점/일
               </span>
             </span>
-            {/* 홈은 다섯 기둥 모두 같은 높이 — 채워진 만큼만 다르다.
+            {/* 홈은 다섯 기둥 모두 같은 높이 - 채워진 만큼만 다르다.
                 0점 구간은 빈 홈 그대로 보인다 ("적립 없음"이 그림으로 읽힌다) */}
             <span
               aria-hidden

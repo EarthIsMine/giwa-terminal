@@ -3,10 +3,10 @@ import type { WeiAmount } from "@giwa/shared";
 import { giwaChain } from "@giwa/config";
 
 /**
- * 기와체인 자체의 활동 집계 — 분석 화면의 최상단 레이어.
+ * 기와체인 자체의 활동 집계 - 분석 화면의 최상단 레이어.
  *
  * 나루 인덱서는 우리 팩토리 페어만 본다. 체인 전체를 말하려면 원천이 따로 필요해서
- * Blockscout 집계 API 를 쓴다. 여기서 다루는 건 "판이 얼마나 돌아가는가"까지다 —
+ * Blockscout 집계 API 를 쓴다. 여기서 다루는 건 "판이 얼마나 돌아가는가"까지다 -
  * 체인 전체 거래대금·유동성은 전 DEX 인덱싱(P1+) 전에는 알 수 없고, 모르는 값을
  * 추정해서 채우지 않는다 (지표 정의 §환산: 추정치를 확정값처럼 보여주지 않는다).
  *
@@ -22,7 +22,7 @@ const BLOCKSCOUT = `${giwaChain.explorerUrl}/api/v2`;
  */
 const EXPLORER_TIMEOUT_MS = 8_000;
 
-/** 일별 거래 수 한 점 — 날짜는 UTC 기준(Blockscout 원본) */
+/** 일별 거래 수 한 점 - 날짜는 UTC 기준(Blockscout 원본) */
 export interface DailyTxPoint {
   /** YYYY-MM-DD */
   date: string;
@@ -68,7 +68,7 @@ async function getJson(path: string, revalidate: number): Promise<unknown> {
   }
 }
 
-/** 체인 집계 — 갱신이 느린 값이라 60초 캐시로 묶는다 */
+/** 체인 집계 - 갱신이 느린 값이라 60초 캐시로 묶는다 */
 async function getStats(): Promise<Omit<ChainOverview, "daily" | "medianFeeWei">> {
   const body = await getJson("stats", 60);
   const empty = {
@@ -92,7 +92,7 @@ async function getStats(): Promise<Omit<ChainOverview, "daily" | "medianFeeWei">
 }
 
 /**
- * 일별 거래 추이 — 하루 한 번 바뀌는 값이라 10분 캐시.
+ * 일별 거래 추이 - 하루 한 번 바뀌는 값이라 10분 캐시.
  * 진행 중인 오늘(UTC)은 잘라낸다: 반나절치가 완결된 하루 옆에 서면 막대가 뚝
  * 떨어져 "체인이 죽었다"로 읽힌다. 평균과 차트가 같은 모집단을 보도록 자르는
  * 지점을 여기 한 곳으로 둔다 (날짜가 YYYY-MM-DD 고정 폭이라 사전순 = 시간순).
@@ -111,7 +111,7 @@ async function getDaily(): Promise<DailyTxPoint[]> {
     if (typeof r.date !== "string" || count === null) continue;
     out.push({ date: r.date, count });
   }
-  // Blockscout 는 최신순으로 준다 — 차트는 시간순이라 뒤집고 30일로 자른다
+  // Blockscout 는 최신순으로 준다 - 차트는 시간순이라 뒤집고 30일로 자른다
   const todayUtc = new Date().toISOString().slice(0, 10);
   return out
     .filter((d) => d.date < todayUtc)
@@ -122,7 +122,7 @@ async function getDaily(): Promise<DailyTxPoint[]> {
 /**
  * 최근 거래 수수료의 중앙값.
  *
- * 평균이 아니라 중앙값을 쓴다 — 컨트랙트 배포 한 건이 평균을 수십 배로 끌어올려
+ * 평균이 아니라 중앙값을 쓴다 - 컨트랙트 배포 한 건이 평균을 수십 배로 끌어올려
  * "이 체인 비싸네"로 읽히게 만든다. 중앙값은 흔한 거래 한 건의 체감에 가깝다.
  */
 async function getMedianFee(): Promise<WeiAmount | null> {
@@ -148,7 +148,7 @@ async function getMedianFee(): Promise<WeiAmount | null> {
 }
 
 /**
- * 세 원천을 한 번에 — 하나가 죽어도 나머지는 살아서 내려간다.
+ * 세 원천을 한 번에 - 하나가 죽어도 나머지는 살아서 내려간다.
  * 페이지가 서버 컴포넌트라 내부 API 라우트를 거치지 않고 직접 부른다.
  */
 export async function getChainOverview(): Promise<ChainOverview> {

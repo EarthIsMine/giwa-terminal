@@ -1,4 +1,4 @@
-/** 아바타 색은 자산 정체성을 따른다(순위 아님) — 전통 공예 모티프 팔레트 */
+/** 아바타 색은 자산 정체성을 따른다(순위 아님) - 전통 공예 모티프 팔레트 */
 const AVATAR_GRADIENTS: readonly [string, string][] = [
   ["#627eea", "#3c4e9c"], // 이더리움 블루
   ["#2e9e8f", "#1b5f56"], // 청자 비취
@@ -14,7 +14,7 @@ const AVATAR_GRADIENTS: readonly [string, string][] = [
   ["#c96a8a", "#8a3f5c"], // 노리개 연지
 ];
 
-/** 시드 자산의 색 정체성 고정 매핑 — 목록에 없는 심볼은 이름 해시로 팔레트를 고른다 */
+/** 시드 자산의 색 정체성 고정 매핑 - 목록에 없는 심볼은 이름 해시로 팔레트를 고른다 */
 const SYMBOL_ORDER = [
   "WETH",
   "CHUNGJA",

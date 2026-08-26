@@ -20,7 +20,7 @@ import type { LiveAssetWire } from "@/lib/onchain";
 import { requestGiwaNetwork, useWallet } from "@/contexts/wallet-context";
 
 /**
- * 매수/매도 패널 — 나루 라우터로 직접 스왑한다 (터미널의 핵심 동작).
+ * 매수/매도 패널 - 나루 라우터로 직접 스왑한다 (터미널의 핵심 동작).
  * 견적은 페어 준비금으로 V2 공식(0.3% 수수료)을 클라이언트에서 계산하고,
  * 트랜잭션은 연결된 지갑(EIP-1193)으로 보낸다. 슬리피지 허용치 1% 고정.
  */
@@ -35,10 +35,10 @@ const erc20Abi = parseAbi([
   "function balanceOf(address owner) view returns (uint256)",
 ]);
 
-/** MAX 매수 시 가스 예약분 — 잔고 전액을 넣으면 가스가 없어 실패한다 (명세서 §2.1) */
+/** MAX 매수 시 가스 예약분 - 잔고 전액을 넣으면 가스가 없어 실패한다 (명세서 §2.1) */
 const GAS_RESERVE_WEI = 10n ** 15n; // 0.001 ETH
 
-/** wei → 입력창 문자열 (콤마 없는 순수 소수 표기 — 포맷터와 달리 입력 파서와 왕복 가능) */
+/** wei → 입력창 문자열 (콤마 없는 순수 소수 표기 - 포맷터와 달리 입력 파서와 왕복 가능) */
 function weiToInput(v: bigint): string {
   const int = v / 10n ** 18n;
   const frac = (v % 10n ** 18n).toString().padStart(18, "0").replace(/0+$/, "");
@@ -85,10 +85,10 @@ export function TradePanel({
       ? getAmountOut(amountIn, wethReserve, tokenReserve)
       : getAmountOut(amountIn, tokenReserve, wethReserve);
   }, [amountIn, side, tokenReserve, wethReserve]);
-  /* 슬리피지(체결 오차) 허용 1% — 최소 수령량 미만이면 컨트랙트가 되돌린다 */
+  /* 슬리피지(체결 오차) 허용 1% - 최소 수령량 미만이면 컨트랙트가 되돌린다 */
   const minOut = quote !== null ? (quote * 99n) / 100n : null;
 
-  /* 수수료 절대액 — ETH 레그 기준 (명세서 §2.1: 원화로 체감시킨다).
+  /* 수수료 절대액 - ETH 레그 기준 (명세서 §2.1: 원화로 체감시킨다).
      매수는 지불 ETH에서 떼이고, 매도는 수령 ETH가 차감 후 값이라 역산한다. 산식은 shared/amm */
   const fee =
     amountIn === null || amountIn <= 0n
@@ -102,7 +102,7 @@ export function TradePanel({
   const provider = connectedWallet?.provider ?? null;
   const busy = phase !== "idle";
 
-  /* 보유 잔고 — MAX 버튼과 라벨 표시용. 체결 완료(doneTx) 후 재조회 */
+  /* 보유 잔고 - MAX 버튼과 라벨 표시용. 체결 완료(doneTx) 후 재조회 */
   const [balance, setBalance] = useState<bigint | null>(null);
   useAsyncEffect(
     async (isCancelled) => {
@@ -131,7 +131,7 @@ export function TradePanel({
               });
         if (!isCancelled() && typeof hex === "string") setBalance(BigInt(hex));
       } catch {
-        /* 잔고 조회 실패 — MAX 버튼만 비활성으로 남긴다 */
+        /* 잔고 조회 실패 - MAX 버튼만 비활성으로 남긴다 */
       }
     },
     [provider, account, side, asset.address, doneTx],
@@ -148,7 +148,7 @@ export function TradePanel({
         : balance;
 
   /**
-   * 영수증 대기 — status 까지 확인한다.
+   * 영수증 대기 - status 까지 확인한다.
    * revert 된 트랜잭션도 블록에 포함되어 영수증이 생기므로(EIP-658, status 0x0),
    * 존재 여부만 보면 실패한 거래를 "체결 완료"로 표시하게 된다.
    * status 를 못 읽는 응답은 성공으로 단정하지 않고 실패로 본다.
@@ -268,7 +268,7 @@ export function TradePanel({
       if (code === 4001) {
         setError("요청이 거절되었습니다");
       } else if (reverted) {
-        // 되돌림의 주 원인은 체결 오차 초과다 — 시세가 움직인 뒤 재시도하도록 안내한다
+        // 되돌림의 주 원인은 체결 오차 초과다 - 시세가 움직인 뒤 재시도하도록 안내한다
         setError("시세가 움직여 거래가 되돌려졌습니다. 금액을 확인하고 다시 시도해 주세요");
         router.refresh(); // 최신 준비금으로 견적을 다시 잡는다
       } else {
@@ -281,7 +281,7 @@ export function TradePanel({
 
   return (
     <div className="rounded-xl carved p-5 sm:p-6">
-      {/* 매수/매도 토글 — 상승 초록/하락 빨강 관례와 동일 축 */}
+      {/* 매수/매도 토글 - 상승 초록/하락 빨강 관례와 동일 축 */}
       <div role="group" aria-label="주문 방향" className="grid grid-cols-2 gap-1 rounded-lg border border-hairline bg-panel p-1">
         {(["buy", "sell"] as const).map((s) => (
           <button
@@ -345,7 +345,7 @@ export function TradePanel({
           MAX는 네트워크 수수료(가스) 예약분 0.001 ETH를 빼고 채웁니다
         </p>
       ) : null}
-      {/* 브릿지는 필요한 순간에만 — 매수하려는데 ETH가 가스 예약분에도 못 미칠 때 */}
+      {/* 브릿지는 필요한 순간에만 - 매수하려는데 ETH가 가스 예약분에도 못 미칠 때 */}
       {account && side === "buy" && balance !== null && balance <= GAS_RESERVE_WEI ? (
         <p className="mt-2 rounded-lg border border-accent/20 bg-accent/[0.06] px-3 py-2 text-[11.5px] leading-relaxed text-ink-2">
           ETH가 부족하신가요?{" "}
@@ -397,7 +397,7 @@ export function TradePanel({
           rel="noreferrer"
           className="font-mono hover:text-ink-2"
         >
-          {routerAddress ? shortHex(routerAddress) : "—"}
+          {routerAddress ? shortHex(routerAddress) : "-"}
         </a>
         ) 직접 체결 · 수수료 0.3% 전량 예치 참여자 귀속 · 테스트넷
       </p>
@@ -405,9 +405,9 @@ export function TradePanel({
   );
 }
 
-/* ── 순수 렌더 서브컴포넌트 — 상태는 전부 TradePanel 이 쥐고 props 로 내린다 ── */
+/* ── 순수 렌더 서브컴포넌트 - 상태는 전부 TradePanel 이 쥐고 props 로 내린다 ── */
 
-/** 견적 표시 — 예상 수령 / 최소 수령 / 수수료 (계산값은 상위에서 받는다) */
+/** 견적 표시 - 예상 수령 / 최소 수령 / 수수료 (계산값은 상위에서 받는다) */
 function QuoteSummary({
   side,
   symbol,
@@ -446,7 +446,7 @@ function QuoteSummary({
               </>
             )
           ) : (
-            "—"
+            "-"
           )}
         </dd>
       </div>
@@ -455,7 +455,7 @@ function QuoteSummary({
         <dd className="font-mono text-[12px] tabular-nums text-ink-3">
           {minOut !== null && minOut > 0n
             ? `${formatEth(wei(minOut), side === "buy" ? 2 : 8)} ${side === "buy" ? symbol : "ETH"}`
-            : "—"}
+            : "-"}
         </dd>
       </div>
       <div className="flex items-baseline justify-between border-t border-hairline/40 py-2">
@@ -465,14 +465,14 @@ function QuoteSummary({
             ? ethKrw
               ? `≈ ₩${formatKrw(weiToDisplayKrw(wei(fee), ethKrw))}`
               : `${formatEth(wei(fee), 8)} ETH`
-            : "—"}
+            : "-"}
         </dd>
       </div>
     </dl>
   );
 }
 
-/** 실행 버튼 — 연결 → 네트워크 → 주문 순으로 안내 (동작은 콜백으로 위임) */
+/** 실행 버튼 - 연결 → 네트워크 → 주문 순으로 안내 (동작은 콜백으로 위임) */
 function ExecuteButton({
   account,
   onGiwa,
@@ -541,7 +541,7 @@ function ExecuteButton({
   );
 }
 
-/** 거래 결과 안내 — 에러 문구와 체결 완료 링크 */
+/** 거래 결과 안내 - 에러 문구와 체결 완료 링크 */
 function TxResultNotice({ error, doneTx }: { error: string | null; doneTx: string | null }) {
   return (
     <>

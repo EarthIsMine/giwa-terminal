@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
 /**
- * 온보딩 가이드 — 주 동선은 하단 도크의 오버레이(X 닫기)이고,
+ * 온보딩 가이드 - 주 동선은 하단 도크의 오버레이(X 닫기)이고,
  * 이 라우트는 딥링크·공유용으로 유지한다. 본문은 GuideContent 공용.
  */
 

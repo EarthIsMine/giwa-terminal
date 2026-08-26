@@ -5,7 +5,7 @@ import { CheckIcon, Stepper, type Step } from "@/components/launch/launch-steppe
 import { GATE_LABEL, type GateMethod } from "@/components/launch/launch-verification";
 import { SummaryRow } from "@/components/launch/launch-summary";
 
-/* 접수 완료 화면 — 신청 내용을 요약해 보여주고 목록/재작성 동선을 제공한다 */
+/* 접수 완료 화면 - 신청 내용을 요약해 보여주고 목록/재작성 동선을 제공한다 */
 
 export function LaunchSubmitted({
   steps,
@@ -50,22 +50,22 @@ export function LaunchSubmitted({
           <SummaryRow label="공급량" value="1,000,000,000 (고정)" />
           <SummaryRow
             label="X"
-            value={xUrl.trim() === "" ? "—" : xUrl.trim()}
+            value={xUrl.trim() === "" ? "-" : xUrl.trim()}
             mono={false}
           />
           <SummaryRow
             label="Telegram"
-            value={telegramUrl.trim() === "" ? "—" : telegramUrl.trim()}
+            value={telegramUrl.trim() === "" ? "-" : telegramUrl.trim()}
             mono={false}
           />
           <SummaryRow
             label="웹사이트"
-            value={website.trim() === "" ? "—" : website.trim()}
+            value={website.trim() === "" ? "-" : website.trim()}
             mono={false}
           />
           <SummaryRow
             label="검증 방식"
-            value={gate ? GATE_LABEL[gate] : "—"}
+            value={gate ? GATE_LABEL[gate] : "-"}
             mono={false}
             valueClass="text-good"
           />

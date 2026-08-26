@@ -1,7 +1,7 @@
 "use client";
 
 /*
- * 2. 자산 정보 / 3. 링크 입력 섹션 — 값·변경은 전부 부모(LaunchForm) 상태에 위임한다.
+ * 2. 자산 정보 / 3. 링크 입력 섹션 - 값·변경은 전부 부모(LaunchForm) 상태에 위임한다.
  */
 
 const INPUT_CLASS =
@@ -10,7 +10,7 @@ const INVALID_INPUT_CLASS = "border-down/70";
 
 const LABEL_CLASS = "mb-1.5 block text-[12.5px] font-medium text-ink-2";
 
-/** 심볼 입력 정규화 — 대문자 영숫자 10자 제한 (기존 onChange 인라인 로직과 동일) */
+/** 심볼 입력 정규화 - 대문자 영숫자 10자 제한 (기존 onChange 인라인 로직과 동일) */
 function sanitizeTicker(raw: string): string {
   return raw
     .toUpperCase()
@@ -80,7 +80,7 @@ export function LaunchAssetSection({
         <div className="flex items-center gap-4">
           <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-dashed border-hairline text-[11px] text-ink-3">
             {showLogo ? (
-              // 미리보기 전용 원격 이미지 — 업로드 전 확인 용도라 next/image 최적화 대상이 아니다
+              // 미리보기 전용 원격 이미지 - 업로드 전 확인 용도라 next/image 최적화 대상이 아니다
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logoUrl}

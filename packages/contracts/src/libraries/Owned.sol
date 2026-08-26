@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @notice 최소 소유권 모듈. 외부 의존성 없이 직접 구현 — Blockscout verify를 단순하게 유지한다.
+/// @notice 최소 소유권 모듈. 외부 의존성 없이 직접 구현 - Blockscout verify를 단순하게 유지한다.
 abstract contract Owned {
     address public owner;
 

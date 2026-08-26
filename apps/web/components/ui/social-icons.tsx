@@ -1,4 +1,4 @@
-/** 소셜 아이콘 세트 — currentColor 기반, 크기만 주입 */
+/** 소셜 아이콘 세트 - currentColor 기반, 크기만 주입 */
 
 export function XIcon({ size = 13 }: { size?: number }) {
   return (

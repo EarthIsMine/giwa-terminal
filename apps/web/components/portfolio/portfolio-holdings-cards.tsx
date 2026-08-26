@@ -9,7 +9,7 @@ import type { Holding } from "@/components/portfolio/portfolio-holdings-table";
 import type { WeiAmount } from "@giwa/shared";
 
 /**
- * 내 자산 — 모바일 카드 렌더 (md 미만). 데스크톱 테이블과 같은 데이터 모델(Holding).
+ * 내 자산 - 모바일 카드 렌더 (md 미만). 데스크톱 테이블과 같은 데이터 모델(Holding).
  * 카드 1장 = 자산 한 줄: 평가액이 1급, 보유 수량·비중은 보조 줄로 (밀도 절제).
  */
 export function PortfolioHoldingsCards({
@@ -105,7 +105,7 @@ export function PortfolioHoldingsCards({
               </div>
             </div>
 
-            {/* 비중 바 — 테이블의 비중 컬럼과 같은 산식 */}
+            {/* 비중 바 - 테이블의 비중 컬럼과 같은 산식 */}
             <div className="mt-2 flex items-center gap-2.5">
               <span
                 aria-hidden

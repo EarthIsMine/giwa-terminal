@@ -20,7 +20,7 @@ interface AssetHit {
 }
 
 /**
- * @param onSearched 검색이 "동작을 마쳤다"고 알리는 신호 — 자산으로 이동했거나,
+ * @param onSearched 검색이 "동작을 마쳤다"고 알리는 신호 - 자산으로 이동했거나,
  *   홈에서 보드 필터가 걸렸을 때 호출한다. 모바일 시트처럼 검색창을 덮고 있는
  *   호스트가 스스로 비켜서라고 쓰는 용도다(홈에서는 라우트가 안 바뀌어
  *   pathname 변화로는 알 수 없다). 데스크톱 헤더는 넘기지 않는다.
@@ -34,7 +34,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
   const [assets, setAssets] = useState<AssetHit[] | null>(null);
   const [open, setOpen] = useState(false);
 
-  /** 자산 목록 지연 로드 — 첫 포커스에 1회, 실패 시 드롭다운만 비활성 */
+  /** 자산 목록 지연 로드 - 첫 포커스에 1회, 실패 시 드롭다운만 비활성 */
   const ensureAssets = async () => {
     if (assets !== null) return;
     try {
@@ -73,7 +73,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
       role="search"
       onSubmit={(e) => {
         e.preventDefault();
-        // 홈은 라우트 이동이 없다 — 입력 즉시 보드가 걸러지므로 Enter 는
+        // 홈은 라우트 이동이 없다 - 입력 즉시 보드가 걸러지므로 Enter 는
         // "결과를 보여달라"는 뜻이 된다. 검색창을 덮고 있는 호스트를 비켜세운다
         if (onHome) {
           onSearched?.();
@@ -86,7 +86,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
           router.push("/"); // 매칭 없으면 홈 보드 필터로
         }
       }}
-      /* 표시/숨김·폭 제한은 배치하는 쪽 책임 — 헤더(데스크톱)와 모바일 시트가 다르게 감싼다 */
+      /* 표시/숨김·폭 제한은 배치하는 쪽 책임 - 헤더(데스크톱)와 모바일 시트가 다르게 감싼다 */
       className="relative w-full md:max-w-[320px]"
     >
       <svg
@@ -127,7 +127,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
         <ul
           role="listbox"
           aria-label="자산 검색 결과"
-          /* mousedown 기본동작 차단 — input blur 보다 클릭이 먼저 살게 한다 */
+          /* mousedown 기본동작 차단 - input blur 보다 클릭이 먼저 살게 한다 */
           onMouseDown={(e) => e.preventDefault()}
           className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-lg border border-hairline bg-[#1d140c] shadow-[0_16px_48px_rgba(0,0,0,0.55)]"
         >

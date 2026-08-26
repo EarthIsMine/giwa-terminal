@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @notice 페어 인터페이스 — 라우터/발행 게이트가 호출하는 표면 + 인덱서가 구독하는 이벤트.
+/// @notice 페어 인터페이스 - 라우터/발행 게이트가 호출하는 표면 + 인덱서가 구독하는 이벤트.
 /// 이벤트 시그니처는 Uniswap V2 캐노니컬과 완전히 동일하게 유지한다.
-/// (인덱서가 topic0 상수로 구독한다 — CLAUDE.md "인덱싱 참고" 참조. 바꾸면 인덱서가 눈이 먼다.)
+/// (인덱서가 topic0 상수로 구독한다 - CLAUDE.md "인덱싱 참고" 참조. 바꾸면 인덱서가 눈이 먼다.)
 interface INaruswapV2Pair {
     // --- V2 표준 이벤트 (시그니처 변경 금지) ---
     event Mint(address indexed sender, uint256 amount0, uint256 amount1);

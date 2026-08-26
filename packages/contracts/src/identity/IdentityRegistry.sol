@@ -4,13 +4,13 @@ pragma solidity 0.8.30;
 import {IIdentityVerifier} from "../interfaces/IIdentityVerifier.sol";
 import {Owned} from "../libraries/Owned.sol";
 
-/// @title IdentityRegistry — 신원 검증 원장 (v1: 운영자 어테스테이션)
+/// @title IdentityRegistry - 신원 검증 원장 (v1: 운영자 어테스테이션)
 ///
 /// 나루 런치패드의 발행 게이트가 참조하는 검증 원장. 검증 배지는 장식이 아니라
-/// 스키마의 1급 시민이다 (절대 규칙 6) — 이 컨트랙트가 그 온체인 원천이다.
+/// 스키마의 1급 시민이다 (절대 규칙 6) - 이 컨트랙트가 그 온체인 원천이다.
 ///
 /// v1은 운영자(나루 팀)가 오프체인 심사 후 수동으로 어테스테이션을 기록한다.
-/// 신청 → (오프체인 심사) → attest → 발행 자격 획득 — 프론트의 "신청 → 검증 → 상장"
+/// 신청 → (오프체인 심사) → attest → 발행 자격 획득 - 프론트의 "신청 → 검증 → 상장"
 /// 흐름과 대응된다. 도장(Dojang) 어테스테이션 / GIWA ID 온체인 연동이 공개되면
 /// IIdentityVerifier를 구현한 어댑터로 교체하며, TokenFactory는 수정되지 않는다.
 contract IdentityRegistry is IIdentityVerifier, Owned {

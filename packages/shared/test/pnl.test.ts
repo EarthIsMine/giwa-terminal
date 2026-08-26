@@ -40,7 +40,7 @@ test("전량 매도 후 보유 0: 실현분이 손익에 그대로 남는다", (
   const l = summarizeTrades([buy(100n * ETH, 1n * ETH), sell(100n * ETH, 2n * ETH)]);
   assert.equal(l.ledgerQty, 0n);
   assert.equal(l.netInvestedWei as bigint, -1n * ETH, "원금보다 많이 회수하면 음수");
-  // 남은 평가 0 인데 손익은 +1 ETH — 미실현/실현을 나누지 않아도 맞는다
+  // 남은 평가 0 인데 손익은 +1 ETH - 미실현/실현을 나누지 않아도 맞는다
   assert.equal(totalPnlWei(0n, l.netInvestedWei as bigint) as bigint, 1n * ETH);
 });
 
@@ -68,7 +68,7 @@ test("입력 순서가 달라도 결과가 같다 (합계라 순서 무관)", ()
   assert.deepEqual(b, a);
 });
 
-test("roiBps: 분모는 총매수 — 원금 이상 회수해도 수익률이 폭발하지 않는다", () => {
+test("roiBps: 분모는 총매수 - 원금 이상 회수해도 수익률이 폭발하지 않는다", () => {
   const l = summarizeTrades([buy(100n * ETH, 1n * ETH), sell(100n * ETH, 2n * ETH)]);
   const pnl = totalPnlWei(0n, l.netInvestedWei as bigint) as bigint;
   // 순투입(0)을 분모로 쓰면 ∞ 가 되지만, 총매수(1 ETH)를 쓰면 +100%
@@ -102,7 +102,7 @@ test("전송으로 내보낸 물량: 원장 수량이 잔고보다 많다 (없�
   assert.equal(
     totalPnlWei(valueOf60, l.netInvestedWei as bigint) as bigint,
     -4n * 10n ** 17n,
-    "이 값을 화면에 띄우면 안 된다 — 잃은 돈이 없다",
+    "이 값을 화면에 띄우면 안 된다 - 잃은 돈이 없다",
   );
 });
 

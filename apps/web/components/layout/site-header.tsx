@@ -40,7 +40,7 @@ export function SiteHeader() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-2.5 md:ml-0">
-          {/* 소셜(X·텔레그램)은 푸터에만 둔다 — 헤더는 터미널 동선만 남긴다.
+          {/* 소셜(X·텔레그램)은 푸터에만 둔다 - 헤더는 터미널 동선만 남긴다.
               익스플로러 아이콘은 모바일에선 시트 링크로 대체 (헤더 밀도 절제) */}
           <a
             href={giwaChain.explorerUrl}
@@ -50,7 +50,7 @@ export function SiteHeader() {
             aria-label="기와체인 원본 기록 열기"
             className={`group hidden md:grid ${ICON_BUTTON_CLASS}`}
           >
-            {/* 기와 공식 마크(누끼 PNG) — 검정 원화라 다크 배경에선 invert로 밝힌다 */}
+            {/* 기와 공식 마크(누끼 PNG) - 검정 원화라 다크 배경에선 invert로 밝힌다 */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/giwa-mark.png"
@@ -61,7 +61,7 @@ export function SiteHeader() {
             />
           </a>
 
-          {/* 공식 브릿지 — 그림(홍예교 + 물결)으로 "건너온다"를 말한다.
+          {/* 공식 브릿지 - 그림(홍예교 + 물결)으로 "건너온다"를 말한다.
               글자 라벨을 붙이면 헤더 밀도가 올라가므로 아이콘 + title 만 둔다.
               익스플로러와 같이 모바일에선 시트 링크로 대체한다 (헤더 밀도 절제) */}
           <a

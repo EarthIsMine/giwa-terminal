@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @title NaruToken — 발행 게이트를 통해서만 태어나는 표준 ERC-20
+/// @title NaruToken - 발행 게이트를 통해서만 태어나는 표준 ERC-20
 ///
 /// 설계 원칙: 토큰 자체에는 어떤 특권도 없다.
 ///  - 공급량은 생성 시 고정, mint/burn 함수 자체가 없다
@@ -15,7 +15,7 @@ contract NaruToken {
     uint8 public constant decimals = 18;
     uint256 public immutable totalSupply;
 
-    /// @notice 발행자 (검증된 신원) — 익스플로러에서 바로 확인 가능하도록 토큰에도 남긴다
+    /// @notice 발행자 (검증된 신원) - 익스플로러에서 바로 확인 가능하도록 토큰에도 남긴다
     address public immutable issuer;
     /// @notice 이 토큰을 발행한 게이트 컨트랙트
     address public immutable tokenFactory;

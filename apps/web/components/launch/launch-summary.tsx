@@ -4,7 +4,7 @@ import { explorerAddressUrl, giwaChain } from "@giwa/config";
 import { shortHex } from "@giwa/shared";
 
 /*
- * 우측 요약·인포 카드 — 발행 조건 요약, 발행 신청 버튼, 발행 게이트 온체인 안내.
+ * 우측 요약·인포 카드 - 발행 조건 요약, 발행 신청 버튼, 발행 게이트 온체인 안내.
  * 제출 판단(verified && formValid)은 부모가 내리고, 여기는 표시와 클릭 전달만 한다.
  */
 
@@ -31,7 +31,7 @@ export function SummaryRow({
   );
 }
 
-/* 발행 신청 버튼 — 조건 충족 전에는 잠금 상태와 사유를 보여준다 */
+/* 발행 신청 버튼 - 조건 충족 전에는 잠금 상태와 사유를 보여준다 */
 function SubmitButton({
   verified,
   formValid,
@@ -87,11 +87,11 @@ function SubmitButton({
 }
 
 function linkSummaryValue(value: string, valid: boolean): string {
-  if (value.trim() === "") return "—";
+  if (value.trim() === "") return "-";
   return valid ? value.trim() : "잘못된 URL";
 }
 
-/* 발행 게이트 온체인 — 배포·검증된 실제 컨트랙트 (주소는 env 주입) */
+/* 발행 게이트 온체인 - 배포·검증된 실제 컨트랙트 (주소는 env 주입) */
 function GateOnchainCard() {
   if (!giwaChain.tokenFactoryAddress) return null;
   return (
@@ -178,12 +178,12 @@ export function LaunchSummaryAside({
         <dl className="mt-4">
           <SummaryRow
             label="자산"
-            value={name.trim() === "" ? "—" : name}
+            value={name.trim() === "" ? "-" : name}
             mono={false}
           />
           <SummaryRow
             label="페어"
-            value={`${ticker === "" ? "—" : ticker}/WETH`}
+            value={`${ticker === "" ? "-" : ticker}/WETH`}
           />
           <SummaryRow label="공급량" value="1,000,000,000 (고정)" />
           <SummaryRow label="추가 발행 · 과세" value="불가" mono={false} />

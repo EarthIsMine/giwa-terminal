@@ -14,16 +14,16 @@ import {
 
 /**
  * 검증 런치패드 (2026-07-21 팀 결정: 제품이다).
- * 퍼미션리스가 아니라 신원 검증 발행이 정체성 — 흐름은 신청 → 검증 → 상장.
+ * 퍼미션리스가 아니라 신원 검증 발행이 정체성 - 흐름은 신청 → 검증 → 상장.
  * 데모 단계: 검증·발행 신청은 시뮬레이션이며 화면에 명시한다.
  * 발행 게이트(TokenFactory)·신원 원장(IdentityRegistry)은 GIWA Sepolia에 배포·검증
- * 완료 — 주소는 env로 주입되며(절대 규칙 4) 우측 카드에서 익스플로러로 확인할 수 있다.
+ * 완료 - 주소는 env로 주입되며(절대 규칙 4) 우측 카드에서 익스플로러로 확인할 수 있다.
  *
  * 이 파일은 상태·단계 머신만 소유한다. 단계별 화면은
  * launch-verification / launch-asset-fields / launch-summary / launch-submitted 로 분리.
  */
 
-/* 사다리 상태 — 폼 진행과 1:1로 연동 */
+/* 사다리 상태 - 폼 진행과 1:1로 연동 */
 function buildSteps(
   verified: boolean,
   formValid: boolean,
@@ -53,7 +53,7 @@ function buildSteps(
   ];
 }
 
-/* 상단 타이틀·소개 카피 — 규제 검토를 거친 문구. 의미를 바꾸는 수정 금지 (2026-08-09 표현만 정리) */
+/* 상단 타이틀·소개 카피 - 규제 검토를 거친 문구. 의미를 바꾸는 수정 금지 (2026-08-09 표현만 정리) */
 function LaunchIntro() {
   return (
     <>
@@ -98,7 +98,7 @@ export function LaunchForm() {
 
   const steps = buildSteps(verified, formValid, submitted);
 
-  // 검증 시뮬레이션 타이머 — 리셋·언마운트 시 정리해 유령 setState 를 막는다
+  // 검증 시뮬레이션 타이머 - 리셋·언마운트 시 정리해 유령 setState 를 막는다
   const verifyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearVerifyTimer = () => {
@@ -110,7 +110,7 @@ export function LaunchForm() {
 
   useEffect(() => clearVerifyTimer, []);
 
-  // 데모 시뮬레이션 — 실제 검증은 도장/GIWA ID 연동 후 대체된다
+  // 데모 시뮬레이션 - 실제 검증은 도장/GIWA ID 연동 후 대체된다
   const scheduleVerifySimulation = () => {
     verifyTimer.current = setTimeout(() => setGateStatus("verified"), 1400);
   };
@@ -156,7 +156,7 @@ export function LaunchForm() {
     <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
       <LaunchIntro />
 
-      {/* 진행 사다리 — 폼 상태와 연동 */}
+      {/* 진행 사다리 - 폼 상태와 연동 */}
       <div className="mt-8 max-w-[980px]">
         <Stepper steps={steps} />
       </div>
@@ -164,7 +164,7 @@ export function LaunchForm() {
       <div className="mt-9 flex flex-col items-start gap-5 xl:flex-row">
         {/* 좌: 단계별 폼 */}
         <div className="w-full min-w-0 flex-1 space-y-4">
-          {/* 1. 신원 검증 — 게이트가 1단계다 */}
+          {/* 1. 신원 검증 - 게이트가 1단계다 */}
           <LaunchVerificationSection
             gate={gate}
             gateStatus={gateStatus}

@@ -5,9 +5,9 @@ import type { Table } from "@tanstack/react-table";
 import type { LiveAsset } from "@/components/asset/asset-board-model";
 
 /**
- * 자산 보드 — 데스크톱 테이블 렌더.
+ * 자산 보드 - 데스크톱 테이블 렌더.
  * 모바일 카드(asset-board-cards)와의 전환은 컨테이너의 <Responsive> 조립이 정한다
- * — 여기는 뷰포트를 모른다. 상태·컬럼 정의도 asset-board(컨테이너) 소유.
+ * - 여기는 뷰포트를 모른다. 상태·컬럼 정의도 asset-board(컨테이너) 소유.
  */
 
 const RIGHT_ALIGNED = new Set([
@@ -21,7 +21,7 @@ const RIGHT_ALIGNED = new Set([
   "age",
 ]);
 
-/** 컬럼별 고정 폭 — 나머지는 자산 컬럼이 흡수한다 */
+/** 컬럼별 고정 폭 - 나머지는 자산 컬럼이 흡수한다 */
 const COL_WIDTH: Record<string, string> = {
   issuer: "w-[150px]",
   price: "w-[170px]",
@@ -46,7 +46,7 @@ export function AssetBoardTable({
   const rows = table.getRowModel().rows;
 
   return (
-    /* 테이블 — 감싸는 패널 없이 전폭으로 펼친다. 행은 투명하게 두고
+    /* 테이블 - 감싸는 패널 없이 전폭으로 펼친다. 행은 투명하게 두고
        영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */
     <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
       <div className="overflow-x-auto">

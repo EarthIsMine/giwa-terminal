@@ -67,7 +67,7 @@ function ChannelLink({
   );
 }
 
-/** 온체인 정보 + 신원 검증 카드 — 우측 사이드바의 정적 정보 블록 */
+/** 온체인 정보 + 신원 검증 카드 - 우측 사이드바의 정적 정보 블록 */
 export function AssetDetailInfo({
   asset,
   ethKrw,

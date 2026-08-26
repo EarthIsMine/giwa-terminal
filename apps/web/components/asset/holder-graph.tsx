@@ -14,12 +14,12 @@ import { shortHex } from "@giwa/shared";
 import type { HolderGraphWire } from "@/lib/indexer";
 
 /**
- * 홀더 관계도 (버블맵) — 명세서 §2.2 / Bubblemaps 공개 방법론.
+ * 홀더 관계도 (버블맵) - 명세서 §2.2 / Bubblemaps 공개 방법론.
  * 버블 = 상위 홀더(크기 = 보유 비중), 선 = 두 지갑 간 직접 전송 이력,
- * 클러스터 = 연결 성분(계산은 인덱서 API의 union-find — 여기는 그리기만 한다).
+ * 클러스터 = 연결 성분(계산은 인덱서 API의 union-find - 여기는 그리기만 한다).
  * 색: 발행자 연계 = 하락 빨강 계열(경고 아님, 등록 라벨 표시), 연결 클러스터 = 한지색,
  * 단독 = 저채도 브라운. 액센트 금지(데이터 인코딩 금지 규칙).
- * 시뮬레이션은 마운트 후에만 돈다 — SSR 결정성 문제를 피한다.
+ * 시뮬레이션은 마운트 후에만 돈다 - SSR 결정성 문제를 피한다.
  */
 
 interface SimNode extends SimulationNodeDatum {
@@ -38,17 +38,17 @@ interface Layout {
 }
 
 /**
- * 그림판 크기 — viewBox 단위이자 실제 렌더 상한(px)이다.
+ * 그림판 크기 - viewBox 단위이자 실제 렌더 상한(px)이다.
  * `w-full` 만 주면 SVG 높이가 컨테이너 폭에 비례해 자란다(폭 1,670px → 높이 1,044px):
  * 상위 홀더 표가 옆에 붙지 않는 폭에서는 관계도 하나가 화면을 넘겼다.
- * 그래서 폭에 상한을 두고, 비율은 넓고 낮은 띠로 잡는다 — 높이가 상한(HEIGHT)을 넘지 않는다.
+ * 그래서 폭에 상한을 두고, 비율은 넓고 낮은 띠로 잡는다 - 높이가 상한(HEIGHT)을 넘지 않는다.
  */
 const WIDTH = 900;
 const HEIGHT = 320;
 
 /**
  * 클러스터 앵커를 놓는 타원의 반경(그림판 대비 비율).
- * 작게 두면 버블이 가운데로 뭉쳐 위아래가 텅 빈다 — 홀더가 몇 개뿐인 자산에서 특히.
+ * 작게 두면 버블이 가운데로 뭉쳐 위아래가 텅 빈다 - 홀더가 몇 개뿐인 자산에서 특히.
  */
 const ANCHOR_SPREAD = 0.34;
 
@@ -58,9 +58,9 @@ function radiusOf(permille: number): number {
 }
 
 function nodeFill(n: SimNode): string {
-  if (n.issuerLinked) return "rgba(246, 70, 93, 0.65)"; // 발행자 연계 — down 계열
-  if (n.clustered) return "rgba(179, 166, 144, 0.75)"; // 연결 클러스터 — 한지색
-  return "rgba(141, 128, 104, 0.45)"; // 단독 — 저채도
+  if (n.issuerLinked) return "rgba(246, 70, 93, 0.65)"; // 발행자 연계 - down 계열
+  if (n.clustered) return "rgba(179, 166, 144, 0.75)"; // 연결 클러스터 - 한지색
+  return "rgba(141, 128, 104, 0.45)"; // 단독 - 저채도
 }
 
 function runLayout(graph: HolderGraphWire): Layout {
@@ -81,7 +81,7 @@ function runLayout(graph: HolderGraphWire): Layout {
       target: byId.get(l.target) as SimNode,
     }));
 
-  // 같은 클러스터끼리 같은 앵커로 모은다 — 성분별 시각적 군집
+  // 같은 클러스터끼리 같은 앵커로 모은다 - 성분별 시각적 군집
   const clusterIds = [...new Set(nodes.map((n) => n.clusterId))];
   const anchor = new Map<string, { x: number; y: number }>();
   clusterIds.forEach((id, i) => {
@@ -175,7 +175,7 @@ export function HolderGraph({ graph }: { graph: HolderGraphWire }) {
           </g>
         ))}
       </svg>
-      {/* 범례는 실제로 그려진 것만 설명한다 — 연결이 없는데 클러스터 색을 안내하면
+      {/* 범례는 실제로 그려진 것만 설명한다 - 연결이 없는데 클러스터 색을 안내하면
           "왜 저 색이 없지"를 유발한다 */}
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] text-ink-3">
         <span className="flex items-center gap-1.5">

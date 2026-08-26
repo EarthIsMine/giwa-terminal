@@ -3,7 +3,7 @@ import { VERIFICATION_LEAD } from "@/lib/site";
 import { AddressRow, KeyValueTable, Term } from "@/components/docs/docs-primitives";
 
 /**
- * 기술 문서 콘텐츠 — 섹션 목록과 본문의 단일 소스.
+ * 기술 문서 콘텐츠 - 섹션 목록과 본문의 단일 소스.
  * 섹션을 추가·삭제할 때는 이 파일의 DOC_SECTIONS 배열만 고치면
  * 사이드바 목차와 본문이 함께 따라온다. 내용의 원본은 CLAUDE.md / 개발 명세서 v1.3.
  */

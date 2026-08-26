@@ -2,7 +2,7 @@
 
 import { giwaChain } from "@giwa/config";
 
-/* 네트워크 상태 행 — 로그인 모달의 연결 전/후 패널이 공유 */
+/* 네트워크 상태 행 - 로그인 모달의 연결 전/후 패널이 공유 */
 export function NetworkRow({
   onGiwa,
   pending,

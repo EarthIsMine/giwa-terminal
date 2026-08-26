@@ -9,7 +9,7 @@ const registryAbi = parseAbi([
 
 /**
  * 온체인 레지스트리에서 현행 시드 세대(v2) 토큰의 심볼→주소 맵을 읽는다.
- * 멱등성의 근거 — 같은 심볼이라도 구세대(v1) 토큰은 무시하므로 재발행이 막히지 않고,
+ * 멱등성의 근거 - 같은 심볼이라도 구세대(v1) 토큰은 무시하므로 재발행이 막히지 않고,
  * 봇도 현행 세대만 거래한다.
  */
 export async function issuedSymbols(): Promise<Map<string, Address>> {

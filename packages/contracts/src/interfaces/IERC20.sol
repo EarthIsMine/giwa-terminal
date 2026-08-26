@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @notice 최소 ERC-20 인터페이스 — 페어/라우터가 임의 토큰을 다룰 때 쓰는 표면만 정의한다.
+/// @notice 최소 ERC-20 인터페이스 - 페어/라우터가 임의 토큰을 다룰 때 쓰는 표면만 정의한다.
 interface IERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);

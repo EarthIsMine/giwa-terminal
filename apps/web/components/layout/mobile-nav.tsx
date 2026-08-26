@@ -13,9 +13,9 @@ import { NAV_ITEMS } from "@/components/layout/main-nav";
 import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
 /**
- * 모바일 헤더 메뉴 — 햄버거 버튼 + 위에서 내려오는 시트.
+ * 모바일 헤더 메뉴 - 햄버거 버튼 + 위에서 내려오는 시트.
  * 데스크톱 MainNav·HeaderSearch 와 항목·검색을 공유하되 터치 타깃 크기로 다시 그린다.
- * 시트는 body 포털로 띄운다 — 헤더의 backdrop-filter 가 fixed 기준을 가로챈다
+ * 시트는 body 포털로 띄운다 - 헤더의 backdrop-filter 가 fixed 기준을 가로챈다
  * (로그인 모달과 같은 이유). 열림 상태는 React state 로만 유지한다 (스토리지 금지 규칙).
  */
 export function MobileNav() {
@@ -25,15 +25,15 @@ export function MobileNav() {
 
   useEscapeKey(open, () => setOpen(false));
 
-  /* 라우트가 바뀌면 닫는다 — 링크 이동 후 시트가 화면을 덮은 채 남는 것 방지.
+  /* 라우트가 바뀌면 닫는다 - 링크 이동 후 시트가 화면을 덮은 채 남는 것 방지.
      이것만으로는 부족하다: 지금 있는 화면과 같은 항목을 누르면 pathname 이
      안 바뀌어 시트가 그대로 남는다(그 항목이 활성 표시라 오히려 누르기 쉽다).
-     그래서 링크 탭에서도 직접 닫는다 — 여기는 뒤로가기 등 링크 밖 이동을 받는다 */
+     그래서 링크 탭에서도 직접 닫는다 - 여기는 뒤로가기 등 링크 밖 이동을 받는다 */
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  /* 뷰포트가 데스크톱으로 넓어지면 닫는다 — md 이상에선 트리거 자체가 사라진다 */
+  /* 뷰포트가 데스크톱으로 넓어지면 닫는다 - md 이상에선 트리거 자체가 사라진다 */
   useEffect(() => {
     if (!isMobile) setOpen(false);
   }, [isMobile]);
@@ -113,7 +113,7 @@ export function MobileNav() {
                 </div>
 
                 <div className="mt-3">
-                  {/* 검색이 끝나면 시트가 비켜선다 — 홈에서는 라우트가 안 바뀌어
+                  {/* 검색이 끝나면 시트가 비켜선다 - 홈에서는 라우트가 안 바뀌어
                       pathname 이펙트가 안 돌고, 시트가 방금 걸러진 보드를 덮는다 */}
                   <HeaderSearch onSearched={() => setOpen(false)} />
                 </div>

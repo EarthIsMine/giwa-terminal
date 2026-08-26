@@ -8,7 +8,7 @@ import { getAssetMarket, getHolderGraph } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
 import { getLiveAsset } from "@/lib/onchain";
 
-/** 온체인 실데이터 상세 — 주소는 동적, 15초 재생성 */
+/** 온체인 실데이터 상세 - 주소는 동적, 15초 재생성 */
 export const revalidate = 15;
 
 export async function generateMetadata({

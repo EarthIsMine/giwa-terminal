@@ -13,7 +13,7 @@ import { giwaChain } from "@giwa/config";
 /**
  * 핸들러 순서 보장: Ponder 는 (블록, logIndex) 순으로 이벤트를 처리한다.
  * V2 Pair.swap() 은 Sync → Swap 순으로 이벤트를 내므로, Swap 핸들러 시점에는
- * pairs 행이 이미 체결 직후 준비금으로 갱신되어 있다 — 그 가격을 캔들에 쓴다.
+ * pairs 행이 이미 체결 직후 준비금으로 갱신되어 있다 - 그 가격을 캔들에 쓴다.
  * 멱등성은 Ponder 체크포인트(리오그 롤백 포함)가 보장한다.
  */
 
@@ -43,9 +43,9 @@ ponder.on("TokenFactory:TokenIssued", async ({ event, context }) => {
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 /**
- * 발행 토큰 Transfer 전수 — 홀더 잔고(델타 누적)와 전송 그래프 에지.
+ * 발행 토큰 Transfer 전수 - 홀더 잔고(델타 누적)와 전송 그래프 에지.
  * 주의: 발행 tx 안에서 mint Transfer 는 TokenIssued 보다 logIndex 가 빠르므로
- * 팩토리 잔고가 음수로 남을 수 있다 — 팩토리는 인프라 주소라 조회 시점에 걸러진다.
+ * 팩토리 잔고가 음수로 남을 수 있다 - 팩토리는 인프라 주소라 조회 시점에 걸러진다.
  */
 ponder.on("NaruToken:Transfer", async ({ event, context }) => {
   const token = event.log.address;
@@ -65,7 +65,7 @@ ponder.on("NaruToken:Transfer", async ({ event, context }) => {
       .onConflictDoUpdate((row) => ({ balance: row.balance + value }));
   }
 
-  // 에지 원장 — 민트/소각 제외. 인프라 필터는 조회 시점(그래프 API)에서
+  // 에지 원장 - 민트/소각 제외. 인프라 필터는 조회 시점(그래프 API)에서
   if (from !== ZERO_ADDRESS && to !== ZERO_ADDRESS) {
     await context.db
       .insert(transferLinks)
@@ -96,7 +96,7 @@ ponder.on("NaruswapV2Factory:PairCreated", async ({ event, context }) => {
   const { token0, token1, pair } = event.args;
   const t0IsWeth = token0.toLowerCase() === WETH;
   const t1IsWeth = token1.toLowerCase() === WETH;
-  // WETH 가 없는 페어는 quote 가격 정의가 없다 — 인덱싱하지 않는다
+  // WETH 가 없는 페어는 quote 가격 정의가 없다 - 인덱싱하지 않는다
   if (t0IsWeth === t1IsWeth) return;
 
   await context.db.insert(pairs).values({
@@ -122,11 +122,11 @@ ponder.on("NaruswapV2Pair:Sync", async ({ event, context }) => {
   const wethReserve = pair.tokenIsToken0
     ? event.args.reserve1
     : event.args.reserve0;
-  // 가격 = WETH 준비금 / 토큰 준비금 (지표 정의 §가격 — 양쪽 18 decimals 라 보정 불필요)
+  // 가격 = WETH 준비금 / 토큰 준비금 (지표 정의 §가격 - 양쪽 18 decimals 라 보정 불필요)
   const priceWei =
     tokenReserve === 0n ? 0n : (wethReserve * 10n ** 18n) / tokenReserve;
 
-  // 갱신 전 가격을 한 칸 보관 — Swap 핸들러에서 "체결 직전 가격"으로 쓴다
+  // 갱신 전 가격을 한 칸 보관 - Swap 핸들러에서 "체결 직전 가격"으로 쓴다
   await context.db
     .update(pairs, { address: event.log.address })
     .set({ tokenReserve, wethReserve, priceWei, prevPriceWei: pair.priceWei });
@@ -142,14 +142,14 @@ ponder.on("NaruswapV2Pair:Swap", async ({ event, context }) => {
   const wethIn = pair.tokenIsToken0 ? amount1In : amount0In;
   const wethOut = pair.tokenIsToken0 ? amount1Out : amount0Out;
 
-  // 순유입 기준 방향 판정 — 양방향 금액이 다 찍히는 비정상 스왑도 순액으로 흡수
+  // 순유입 기준 방향 판정 - 양방향 금액이 다 찍히는 비정상 스왑도 순액으로 흡수
   const side = tokenOut > tokenIn ? "buy" : "sell";
   const tokenAmount = side === "buy" ? tokenOut - tokenIn : tokenIn - tokenOut;
   const wethAmount = side === "buy" ? wethIn - wethOut : wethOut - wethIn;
   if (tokenAmount <= 0n || wethAmount <= 0n) return;
 
   const price = pair.priceWei;
-  // 체결 직전 가격 — 버킷 신규 생성 시 open. 직전 가격이 없으면(최초 체결) 체결 후 가격 폴백.
+  // 체결 직전 가격 - 버킷 신규 생성 시 open. 직전 가격이 없으면(최초 체결) 체결 후 가격 폴백.
   // Sync 가 항상 Swap 에 선행하므로 prevPriceWei 는 정확히 "이 체결 직전" 상태다.
   const openPrice = pair.prevPriceWei === 0n ? price : pair.prevPriceWei;
   const ts = Number(event.block.timestamp);
@@ -177,7 +177,7 @@ ponder.on("NaruswapV2Pair:Swap", async ({ event, context }) => {
     logIndex: event.log.logIndex,
   });
 
-  // 캔들 갱신 — 1m 원본과 1h/1d 롤업을 같은 트랜잭션에서 upsert
+  // 캔들 갱신 - 1m 원본과 1h/1d 롤업을 같은 트랜잭션에서 upsert
   for (const { interval, seconds } of INTERVALS) {
     const bucket = ts - (ts % seconds);
     await context.db
@@ -204,7 +204,7 @@ ponder.on("NaruswapV2Pair:Swap", async ({ event, context }) => {
 });
 
 /**
- * 유동성 공급·회수 — 활동 원장에만 기록한다.
+ * 유동성 공급·회수 - 활동 원장에만 기록한다.
  * 가격·거래대금에는 넣지 않는다(스왑이 아니라 준비금 변경이고,
  * 가격 갱신은 같은 tx 의 Sync 가 이미 처리한다).
  */

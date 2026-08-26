@@ -28,7 +28,7 @@ export interface Step {
   state: StepState;
 }
 
-/** 신청 → 상장 사다리를 항상 보여준다 — 지금 어디까지 왔는지가 한눈에 읽힌다 */
+/** 신청 → 상장 사다리를 항상 보여준다 - 지금 어디까지 왔는지가 한눈에 읽힌다 */
 export function Stepper({ steps }: { steps: readonly Step[] }) {
   return (
     <ol className="flex flex-wrap gap-y-4">

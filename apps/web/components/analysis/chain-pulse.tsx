@@ -4,18 +4,18 @@ import {
   formatKrw,
   weiToDisplayKrw,
 } from "@giwa/shared";
-// 체인 이름을 카피에 박지 않는다 — 메인넷 전환 시 config 만 바뀌어야 한다 (절대 규칙 4)
+// 체인 이름을 카피에 박지 않는다 - 메인넷 전환 시 config 만 바뀌어야 한다 (절대 규칙 4)
 import { giwaChain } from "@giwa/config";
 import type { ChainOverview } from "@/lib/chain";
 import { ChainActivityChart } from "@/components/analysis/chain-activity-chart";
 
 /**
- * 기와체인 활동 — 분석 화면의 첫 레이어.
+ * 기와체인 활동 - 분석 화면의 첫 레이어.
  *
  * DEX 스캐너의 반대로 간다 (절대 규칙 3). 지표를 표로 늘어놓지 않고
  * 문장 하나로 판을 요약한 뒤, 업저씨가 실제로 궁금해할 넷만 크게 세운다:
  * 얼마나 돌아가나 · 몇 명이 있나 · 한 번에 얼마 드나 · 얼마나 빠른가.
- * 값이 없으면 그 자리를 비운다 — 0 이나 "-" 로 채우면 무거래와 구분이 안 된다.
+ * 값이 없으면 그 자리를 비운다 - 0 이나 "-" 로 채우면 무거래와 구분이 안 된다.
  */
 
 /**
@@ -71,7 +71,7 @@ export function ChainPulse({
       ? weiToDisplayKrw(chain.medianFeeWei, ethKrw)
       : null;
 
-  // 원천(Blockscout)이 통째로 죽으면 제목만 남은 빈 섹션이 된다 — 보드째 감춘다
+  // 원천(Blockscout)이 통째로 죽으면 제목만 남은 빈 섹션이 된다 - 보드째 감춘다
   // (명세서: 외부 데이터 원천 장애 시 해당 보드만 숨긴다)
   const hasAnything =
     chain.txTotal !== null ||
@@ -86,7 +86,7 @@ export function ChainPulse({
       <h2 className="text-[15px] font-semibold">기와체인 활동</h2>
 
       {/*
-        누적 규모는 표가 아니라 문장으로 말한다 — 숫자 나열보다 먼저 읽히고,
+        누적 규모는 표가 아니라 문장으로 말한다 - 숫자 나열보다 먼저 읽히고,
         카드에서 빠지므로 카드는 "지금 어떤가" 세 장으로 줄어든다 (절대 규칙 3).
       */}
       <p className="mt-2 max-w-[720px] text-[13px] leading-relaxed text-ink-2">
@@ -116,7 +116,7 @@ export function ChainPulse({
           />
         ) : null}
 
-        {/* 업비트 출금 수수료와 곧장 비교되는 자리 — 업저씨가 가장 먼저 계산해 볼 숫자다 */}
+        {/* 업비트 출금 수수료와 곧장 비교되는 자리 - 업저씨가 가장 먼저 계산해 볼 숫자다 */}
         {chain.medianFeeWei !== null ? (
           <Stat
             label="거래 수수료"

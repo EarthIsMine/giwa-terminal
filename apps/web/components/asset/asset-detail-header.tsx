@@ -5,7 +5,7 @@ import { AssetAvatar } from "@/components/ui/asset-avatar";
 import { CopyAddress } from "@/components/ui/copy-address";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 
-/** 자산 상세 헤더 — 심볼·검증 배지·주소와 현재가. 환율 없으면 ETH 단위로 폴백 */
+/** 자산 상세 헤더 - 심볼·검증 배지·주소와 현재가. 환율 없으면 ETH 단위로 폴백 */
 export function AssetDetailHeader({
   asset,
   ethKrw,

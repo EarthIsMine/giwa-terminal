@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-/// @notice 신원 검증 조회 인터페이스 — 발행 게이트(TokenFactory)가 의존하는 유일한 표면.
+/// @notice 신원 검증 조회 인터페이스 - 발행 게이트(TokenFactory)가 의존하는 유일한 표면.
 ///
 /// 나루 런치패드의 정체성은 "신원 검증 발행"이다 (2026-07-21 팀 결정).
 /// v1은 운영자 어테스테이션 방식의 IdentityRegistry가 이 인터페이스를 구현하고,

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isKycVerified } from "@/lib/onchain";
 
-/** 도장 KYC 인증 조회 — 포인트 게이트용 (서버 RPC 경유, 지갑 주소별 신선 조회) */
+/** 도장 KYC 인증 조회 - 포인트 게이트용 (서버 RPC 경유, 지갑 주소별 신선 조회) */
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {

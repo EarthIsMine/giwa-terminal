@@ -14,14 +14,14 @@ import { NaruFeedDrawer } from "@/components/feed/naru-feed-drawer";
 import { previewText, relativeTime, TAG } from "@/components/feed/naru-feed-item";
 
 /**
- * 나루터 소식 도크 v0 — 화면 하단 고정 바 + 접이식 패널 (GMGN식 하단 도크 참고).
+ * 나루터 소식 도크 v0 - 화면 하단 고정 바 + 접이식 패널 (GMGN식 하단 도크 참고).
  * 접힌 상태가 기본(절대 규칙 3: 밀도를 낮춘다), 접힌 바에는 최신 소식 1줄만 흐른다.
- * 문구는 사실 서술만 — 해석·경고성 표현 금지. 발행자 매도는 금액 무관 무조건 노출.
+ * 문구는 사실 서술만 - 해석·경고성 표현 금지. 발행자 매도는 금액 무관 무조건 노출.
  * 열림 상태는 React state 로만 유지한다 (브라우저 스토리지 금지 규칙).
  */
 
 /**
- * 업비트 주요 원화 시세 — 업저씨의 기준점을 상시 띄운다.
+ * 업비트 주요 원화 시세 - 업저씨의 기준점을 상시 띄운다.
  * 나루 화면의 원화는 "환산 참고값"이지만 이건 거래소 실제 체결가라
  * 출처(업비트)를 라벨로 붙여 구분한다.
  */
@@ -66,7 +66,7 @@ export function NaruFeedDock() {
         setItems(data.items);
         setEthKrwRaw(data.ethKrw);
       }
-      // 시세는 인덱서와 무관한 외부 소스 — 소식이 없어도 표시한다
+      // 시세는 인덱서와 무관한 외부 소스 - 소식이 없어도 표시한다
       setTickers(data.tickers ?? []);
     } catch {
       /* 소식·시세 모두 조용히 폴백 (바는 유지) */
@@ -76,7 +76,7 @@ export function NaruFeedDock() {
   // 드로어가 열려 있는 동안 ESC 로 닫는다 (오버레이 관례)
   useEscapeKey(open, () => setOpen(false));
 
-  // 기술 문서는 독립 문서 화면 — 터미널 도크를 얹지 않는다
+  // 기술 문서는 독립 문서 화면 - 터미널 도크를 얹지 않는다
   if (pathname?.startsWith("/docs")) return null;
 
   const ethKrw = ethKrwRaw ? BigInt(ethKrwRaw) : null;
@@ -95,9 +95,9 @@ export function NaruFeedDock() {
       />
 
       <div className="fixed inset-x-0 bottom-0 z-30">
-        {/* 하단 바 — 좌측은 소식 토글, 우측은 온보딩 가이드 상주 링크 */}
+        {/* 하단 바 - 좌측은 소식 토글, 우측은 온보딩 가이드 상주 링크 */}
         <div className="border-t border-hairline bg-base/90 backdrop-blur-md">
-          {/* 바는 뷰포트 전폭을 쓴다 — 우측 끝까지 시세를 붙이고 도움말은 딱 맞게 */}
+          {/* 바는 뷰포트 전폭을 쓴다 - 우측 끝까지 시세를 붙이고 도움말은 딱 맞게 */}
           <div className="flex h-10 w-full items-center gap-3 pl-page pr-3">
             <button
               type="button"
@@ -141,10 +141,10 @@ export function NaruFeedDock() {
                 </span>
               )}
             </button>
-            {/* 업비트 주요 시세 — 업저씨의 기준점 */}
+            {/* 업비트 주요 시세 - 업저씨의 기준점 */}
             <TickerStrip tickers={tickers} />
 
-            {/* 온보딩 가이드 — 물음표 아이콘 하나로 (문구 없이 직관적으로) */}
+            {/* 온보딩 가이드 - 물음표 아이콘 하나로 (문구 없이 직관적으로) */}
             <span aria-hidden className="h-4 w-px shrink-0 bg-hairline" />
             <button
               type="button"

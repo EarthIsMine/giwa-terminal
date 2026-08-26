@@ -1,16 +1,16 @@
 /**
- * 상장 한 판의 배분 구조 — 문장을 그림으로 옮긴 것.
+ * 상장 한 판의 배분 구조 - 문장을 그림으로 옮긴 것.
  *
  * ① 지갑들의 점수 기둥과 기준선: 넘은 기둥만 밝다.
  * ② 넘은 지갑이 각 15점을 차감하며 참여를 확정한다.
  * ③ 배분 물량을 넘은 지갑 수대로 똑같이 자른다: 조각 크기가 전부 같다.
  *
  * 이 그림의 요점은 "포인트가 많아도 몫이 커지지 않는다"이다. 기준 점수는 자격이고
- * 배분은 지갑당 균등이다 — 점수 비례 배분처럼 보이면 그리는 의미가 없으므로
+ * 배분은 지갑당 균등이다 - 점수 비례 배분처럼 보이면 그리는 의미가 없으므로
  * 조각은 반드시 같은 폭으로 그린다. 배분 물량의 크기는 상장마다 공지되는
  * 값이라 여기 숫자를 적지 않는다 (미확정 값을 확정처럼 그리지 않는다).
  *
- * 기둥 수·높이는 개념도용 임의값이다(데이터 아님). 색은 한지빛 한 계열 —
+ * 기둥 수·높이는 개념도용 임의값이다(데이터 아님). 색은 한지빛 한 계열 -
  * 넘음/못 넘음을 농도로만 가른다 (액센트는 데이터 인코딩에 쓰지 않는다).
  */
 
@@ -30,10 +30,10 @@ export function PointsAllocationDiagram() {
       </p>
 
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-8">
-        {/* ① 자격 — 점수 기둥과 기준선 */}
+        {/* ① 자격 - 점수 기둥과 기준선 */}
         <div className="flex-1">
           <div className="relative flex h-[96px] items-end gap-2.5 pr-14">
-            {/* 기준선 — 이 위에 선 기둥만 참여할 수 있다 */}
+            {/* 기준선 - 이 위에 선 기둥만 참여할 수 있다 */}
             <span
               aria-hidden
               className="absolute inset-x-0 border-t border-dashed border-ink-3/60"
@@ -62,7 +62,7 @@ export function PointsAllocationDiagram() {
           </p>
         </div>
 
-        {/* ② 차감 — 참여 확정의 값 */}
+        {/* ② 차감 - 참여 확정의 값 */}
         <div className="flex shrink-0 flex-col items-start justify-center gap-1 lg:items-center">
           <span aria-hidden className="hidden text-[18px] text-ink-3 lg:block">
             →
@@ -75,7 +75,7 @@ export function PointsAllocationDiagram() {
           </p>
         </div>
 
-        {/* ③ 균등 배분 — 같은 폭의 조각 */}
+        {/* ③ 균등 배분 - 같은 폭의 조각 */}
         <div className="flex flex-1 flex-col justify-end">
           <p className="text-[10.5px] tracking-[0.06em] text-ink-3">
             배분 물량 · 상장마다 공지

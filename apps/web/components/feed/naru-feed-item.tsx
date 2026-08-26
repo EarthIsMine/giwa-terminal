@@ -10,11 +10,11 @@ import {
 import type { FeedItemWire } from "@/lib/indexer";
 
 /**
- * 나루터 소식 항목 표현 — 태그·상대시간·요약·본문.
+ * 나루터 소식 항목 표현 - 태그·상대시간·요약·본문.
  * 드로어와 접힌 바 미리보기가 같은 표현 규칙을 공유한다.
  */
 
-/** 색은 라벨과 같이 side 로 갈린다 — 매도를 상승색으로 칠하면 색만 보는 사람이 반대로 읽는다 */
+/** 색은 라벨과 같이 side 로 갈린다 - 매도를 상승색으로 칠하면 색만 보는 사람이 반대로 읽는다 */
 export const TAG: Record<
   FeedItemWire["type"],
   {

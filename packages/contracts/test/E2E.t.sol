@@ -69,7 +69,7 @@ contract E2ETest is Test {
             assertGt(wethR * 1e18 / tokenR, uint256(10 ether) * 1e18 / 400_000e18);
         }
 
-        // 4) 전량 매도 — 수수료(0.3% × 2회) 때문에 1 ETH보다 약간 적게 돌려받는다
+        // 4) 전량 매도 - 수수료(0.3% × 2회) 때문에 1 ETH보다 약간 적게 돌려받는다
         address[] memory sellPath = new address[](2);
         sellPath[0] = token;
         sellPath[1] = address(weth);
@@ -101,7 +101,7 @@ contract E2ETest is Test {
         {
             (uint112 r0, uint112 r1,) = NaruswapV2Pair(pair).getReserves();
             // LP 절반 회수 후에도 남은 준비금 비율로 환산한 K/LP지분이 증가했는지는
-            // 수수료 누적의 결과 — 절반 회수 전 기준으로 검증하면 복잡하므로
+            // 수수료 누적의 결과 - 절반 회수 전 기준으로 검증하면 복잡하므로
             // 준비금이 모두 양수이고 페어가 정상 동작함을 확인하는 선에서 마감
             assertGt(uint256(r0), 0);
             assertGt(uint256(r1), 0);
@@ -119,7 +119,7 @@ contract E2ETest is Test {
             keccak256("Swap(address,uint256,uint256,uint256,uint256,address)"),
             bytes32(0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822)
         );
-        // Sync 는 가격 재계산 트리거 — 인덱서가 준비금·가격 갱신에 의존하는 핵심 이벤트
+        // Sync 는 가격 재계산 트리거 - 인덱서가 준비금·가격 갱신에 의존하는 핵심 이벤트
         assertEq(
             keccak256("Sync(uint112,uint112)"),
             bytes32(0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1)
@@ -128,7 +128,7 @@ contract E2ETest is Test {
             keccak256("Transfer(address,address,uint256)"),
             bytes32(0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef)
         );
-        // 나루 고유 이벤트 — 인덱서 설정에 쓸 topic0를 여기 고정해둔다 (cast keccak 계산값)
+        // 나루 고유 이벤트 - 인덱서 설정에 쓸 topic0를 여기 고정해둔다 (cast keccak 계산값)
         assertEq(
             keccak256("TokenIssued(address,address,string,string,uint256,bytes32,string)"),
             bytes32(0x9074df6f9d0eeb5e3741c275f37406408558e11d1a64e936a810afd9b67c3b0a)

@@ -3,7 +3,7 @@
 import { CheckIcon } from "@/components/launch/launch-stepper";
 
 /*
- * 1. 신원 검증 섹션 — 게이트가 1단계다.
+ * 1. 신원 검증 섹션 - 게이트가 1단계다.
  * 검증 상태·전이는 부모(LaunchForm)가 소유하고, 여기는 렌더와 입력 이벤트만 담당한다.
  */
 
@@ -55,7 +55,7 @@ function GateTile({
   );
 }
 
-/* 검증 상태 표시 배지 — idle / verifying / verified */
+/* 검증 상태 표시 배지 - idle / verifying / verified */
 function GateStatusBadge({ status }: { status: GateStatus }) {
   return (
     <span className="ml-auto flex items-center gap-1.5 text-[12px]">

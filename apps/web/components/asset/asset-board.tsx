@@ -32,17 +32,17 @@ import { useSearch } from "@/contexts/search-context";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
 
 /**
- * 자산 보드 컨테이너 — GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
+ * 자산 보드 컨테이너 - GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
  * 현재가·예치 규모는 페어 준비금에서, 자산 메타는 발행 게이트 레지스트리에서 온다.
  * 상태(정렬·기간·검색)와 컬럼 정의는 여기가 쥐고, 렌더는 뷰포트별 분리:
- * 데스크톱 = asset-board-table, 모바일 = asset-board-cards — 전환은
+ * 데스크톱 = asset-board-table, 모바일 = asset-board-cards - 전환은
  * <Responsive> 조립으로 명시한다 (ui/responsive.tsx 에 방식·이유 주석).
  */
 
 /**
  * 데이터 없는 값은 정렬에서 항상 맨 아래로 보낸다.
  * `?? 0`(또는 `-1`)로 채우면 "데이터 없음"이 보합·0건으로 취급돼 하락 자산보다
- * 위에 랭크된다 — 셀은 "—"로 그리는데 순서만 0%처럼 도는 모순이다(절대 규칙 1).
+ * 위에 랭크된다 - 셀은 "-"로 그리는데 순서만 0%처럼 도는 모순이다(절대 규칙 1).
  * TanStack 은 `sortUndefined: "last"` 를 desc 반전보다 먼저 처리하므로
  * (table-core RowSorting: undefined 분기에서 즉시 return) 방향과 무관하게 아래로 간다.
  * 조건은 accessorFn 이 null 이 아니라 undefined 를 내보내는 것.
@@ -67,7 +67,7 @@ function AssetCell({ asset }: { asset: LiveAsset }) {
             {asset.symbol}
           </Link>
           <VerifiedBadge verification={asset.verification} />
-          {/* 컨트랙트 주소 복사 — 주소 문자열은 노출하지 않고 버튼만 둔다.
+          {/* 컨트랙트 주소 복사 - 주소 문자열은 노출하지 않고 버튼만 둔다.
               0x… 를 19행에 깔면 정보 밀도가 튀지만(절대 규칙 3), 복사 자체는
               지갑·익스플로러로 옮겨 확인하는 실제 동선이라 목록에 남긴다 */}
           <CopyAddress address={asset.address} />
@@ -92,7 +92,7 @@ export function AssetBoard({
   const [sorting, setSorting] = useState<SortingState>([
     { id: "liquidity", desc: true },
   ]);
-  // 기본은 7일 — "오늘"은 UTC 자정(09:00 KST) 경계라 한국 오전에 열면 창이 몇 분짜리다
+  // 기본은 7일 - "오늘"은 UTC 자정(09:00 KST) 경계라 한국 오전에 열면 창이 몇 분짜리다
   const [window_, setWindow] = useState<BoardWindow>("7d");
 
   const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
@@ -102,7 +102,7 @@ export function AssetBoard({
   const data = useMemo<LiveAsset[]>(() => {
     const parsed = assets.map((a) => {
       const entry = boardStats?.[a.pair.toLowerCase()];
-      // windows 옵셔널 체이닝 — 인덱서 응답 캐시가 구버전일 수 있다
+      // windows 옵셔널 체이닝 - 인덱서 응답 캐시가 구버전일 수 있다
       const w = entry?.windows?.[window_];
       const priceWei = BigInt(a.priceWei);
       return {
@@ -159,7 +159,7 @@ export function AssetBoard({
           cmpBigint(a.original.priceWei, b.original.priceWei),
         cell: ({ row }) =>
           ethKrw ? (
-            // 원화가 보이면 ETH 병기는 뺀다 — 업저씨에게 wei 단위 소수는 잡음이다
+            // 원화가 보이면 ETH 병기는 뺀다 - 업저씨에게 wei 단위 소수는 잡음이다
             // (절대 규칙 3). 환산 실패 시에만 ETH 단위로 폴백한다
             <p className="font-mono text-[13.5px] font-medium tabular-nums">
               <span className="mr-px text-ink-2">₩</span>
@@ -182,9 +182,9 @@ export function AssetBoard({
           (a.original.changeBps ?? 0) - (b.original.changeBps ?? 0),
         cell: ({ row }) => {
           const bps = row.original.changeBps;
-          // 데이터 없음과 0.00%는 다르다 — 없으면 자리표시로 둔다
+          // 데이터 없음과 0.00%는 다르다 - 없으면 자리표시로 둔다
           if (bps === null) {
-            return <span className="font-mono text-[12px] text-ink-3">—</span>;
+            return <span className="font-mono text-[12px] text-ink-3">-</span>;
           }
           return (
             <span
@@ -226,7 +226,7 @@ export function AssetBoard({
         cell: ({ row }) => {
           const v = row.original.volumeWei;
           if (v === null) {
-            return <span className="font-mono text-[12px] text-ink-3">—</span>;
+            return <span className="font-mono text-[12px] text-ink-3">-</span>;
           }
           return ethKrw ? (
             <KrwCompact v={v} ethKrw={ethKrw} />
@@ -248,7 +248,7 @@ export function AssetBoard({
         cell: ({ row }) => (
           <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
             {row.original.trades === null ? (
-              <span className="text-ink-3">—</span>
+              <span className="text-ink-3">-</span>
             ) : (
               formatCount(row.original.trades)
             )}
@@ -264,7 +264,7 @@ export function AssetBoard({
         cell: ({ row }) => (
           <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
             {row.original.traders === null ? (
-              <span className="text-ink-3">—</span>
+              <span className="text-ink-3">-</span>
             ) : (
               formatCount(row.original.traders)
             )}
@@ -316,13 +316,13 @@ export function AssetBoard({
     getSortedRowModel: getSortedRowModel(),
   });
 
-  // 정렬·필터가 적용된 행 모델 — 모바일 카드도 같은 순서를 쓴다
+  // 정렬·필터가 적용된 행 모델 - 모바일 카드도 같은 순서를 쓴다
   const sortedAssets = table.getRowModel().rows.map((r) => r.original);
   const goToAsset = (a: LiveAsset) => router.push(`/asset/${a.address}`);
 
   return (
     <div>
-      {/* 툴바 — 기간 토글 + 새로고침. 기간은 일 단위만 연다 (절대 규칙 3) */}
+      {/* 툴바 - 기간 토글 + 새로고침. 기간은 일 단위만 연다 (절대 규칙 3) */}
       <div className="flex flex-wrap items-center justify-end gap-2.5 px-page">
         <div
           role="group"
@@ -369,7 +369,7 @@ export function AssetBoard({
           </svg>
         </button>
 
-        {/* 테스트넷 표시 칩 — 시드 데이터 상세 고지는 푸터에 유지 (절대 규칙 5) */}
+        {/* 테스트넷 표시 칩 - 시드 데이터 상세 고지는 푸터에 유지 (절대 규칙 5) */}
         <span className="flex h-8 items-center gap-2 rounded-lg border border-hairline bg-panel px-2.5 text-[12px] text-ink-2">
           <span
             aria-hidden
