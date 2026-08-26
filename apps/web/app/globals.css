@@ -221,3 +221,13 @@ body {
   outline: 2px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
   outline-offset: 2px;
 }
+
+/*
+ * Tailwind v4 Preflight 가 <button> 기본 커서를 pointer → default 로 바꿨다.
+ * 활성 버튼·role=button 에 손가락 커서를 되살린다 (비활성은 제외).
+ * 버튼마다 cursor-pointer 를 붙이면 22곳에 흩어져 한둘씩 빠진다 - 한 곳에서 복원한다.
+ */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
