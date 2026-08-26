@@ -1,0 +1,39 @@
+# CI — main 머지 게이트. 두 잡(typecheck·contracts)이 브랜치 보호의 필수 체크다.
+# 잡 이름을 바꾸면 브랜치 보호의 required checks 목록도 같이 바꿔야 한다.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  # TS 워크스페이스 — 타입체크 전부 + shared 지표 산식 테스트
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # 버전은 package.json packageManager 필드를 읽는다
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24 # shared 테스트가 node --test로 .ts를 직접 돌린다 (타입 스트리핑)
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # contracts의 typecheck는 forge build라 Foundry 잡에서 따로 돈다
+      - run: pnpm --filter '!@giwa-terminal/contracts' -r typecheck
+      - run: pnpm --filter @giwa/shared test
+
+  # Foundry — 컨트랙트 빌드 + 테스트 (재배포 금지 기간에도 소스 회귀는 잡는다)
+  contracts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/contracts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive # forge-std가 서브모듈이다
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: forge build
+      - run: forge test -vv
