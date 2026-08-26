@@ -10,4 +10,4 @@
 # 저장소가 퍼블릭으로 전환되면서 Free 플랜 제약이 풀렸고, main 에 다음이 걸려 있다:
 #   PR 필수 + 코드오너 승인 1개 + CI 필수 체크(typecheck·contracts) + 직접 push 금지.
 # 즉 여기 적힌 사람의 approve 와 CI 초록불 없이는 main 에 들어갈 수 없다.
-# (관리자는 우회 가능 — 코드오너 본인 PR 은 self-approve 가 안 되기 때문에 열어둔 것)
+# (관리자는 우회 가능 - 코드오너 본인 PR 은 self-approve 가 안 되기 때문에 열어둔 것)
