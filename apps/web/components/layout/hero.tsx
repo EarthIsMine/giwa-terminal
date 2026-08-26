@@ -26,7 +26,7 @@ export function Hero({
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(19,13,7,0.68),rgba(19,13,7,0.26)_45%,transparent_60%)]"
       />
 
-      <div className="relative mx-auto flex min-h-[220px] w-full max-w-[1840px] flex-wrap items-end justify-between gap-x-10 gap-y-6 px-page pb-7 pt-9 sm:min-h-[280px] sm:gap-y-7 sm:pb-10 sm:pt-12">
+      <div className="relative mx-auto flex min-h-[220px] w-full max-w-page flex-wrap items-end justify-between gap-x-10 gap-y-6 px-page pb-7 pt-9 sm:min-h-[280px] sm:gap-y-7 sm:pb-10 sm:pt-12">
         {/* 헤드라인은 위쪽에 둔다 - 아래로 내려오면 물결·배와 겹쳐 액센트가 묻힌다 */}
         <div className="max-w-[680px] self-start">
           <h1 className="font-serif text-[26px] font-bold leading-[1.32] tracking-[-0.01em] text-ink sm:text-[32px] lg:text-[36px]">

@@ -213,7 +213,7 @@ export function PortfolioView() {
   /* ---------- 미연결 상태 ---------- */
   if (!account) {
     return (
-      <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
+      <div className="mx-auto w-full max-w-page px-page pb-4 pt-8 sm:pt-12">
         <h1 className="text-[24px] font-bold tracking-tight sm:text-[28px]">내 자산</h1>
         <div className="mx-auto mt-16 max-w-[520px] rounded-2xl carved p-6 text-center sm:p-10">
           <p className="text-[16px] font-semibold">
@@ -248,7 +248,7 @@ export function PortfolioView() {
 
   /* ---------- 연결됨 ---------- */
   return (
-    <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
+    <div className="mx-auto w-full max-w-page px-page pb-4 pt-8 sm:pt-12">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-[24px] font-bold tracking-tight sm:text-[28px]">내 자산</h1>
         {signedAccount !== account ? (

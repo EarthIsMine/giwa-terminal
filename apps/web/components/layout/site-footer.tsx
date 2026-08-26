@@ -7,7 +7,7 @@ export function SiteFooter() {
   return (
     // 본문 마루와 구분되는 짙은 그늘 영역 - 나무는 배경으로 희미하게만 비친다
     <footer className="mt-14 border-t border-black/50 bg-[#150d07]/85">
-      <div className="mx-auto grid w-full max-w-[1840px] grid-cols-1 gap-8 px-page py-10 text-[13px] sm:py-12 md:grid-cols-[1.2fr_1fr_1.6fr] md:gap-10">
+      <div className="mx-auto grid w-full max-w-page grid-cols-1 gap-8 px-page py-10 text-[13px] sm:py-12 md:grid-cols-[1.2fr_1fr_1.6fr] md:gap-10">
         <div>
           <div className="flex items-center gap-2">
             <BrandLogo size={20} />
@@ -121,7 +121,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-hairline/60">
-        <p className="mx-auto w-full max-w-[1840px] px-page py-5 text-[12px] text-ink-3">
+        <p className="mx-auto w-full max-w-page px-page py-5 text-[12px] text-ink-3">
           © 2026 나루 NARU · GIWA 가속 데모
         </p>
       </div>

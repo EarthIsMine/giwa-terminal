@@ -153,7 +153,7 @@ export function LaunchForm() {
 
   /* ---------- 발행 폼 ---------- */
   return (
-    <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
+    <div className="mx-auto w-full max-w-page px-page pb-4 pt-8 sm:pt-12">
       <LaunchIntro />
 
       {/* 진행 사다리 - 폼 상태와 연동 */}
