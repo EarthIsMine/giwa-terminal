@@ -21,6 +21,7 @@ export {
   SWAP_FEE_NUMERATOR,
   feeFromAmountIn,
   feeFromAmountOut,
+  feeFromVolume,
   getAmountOut,
 } from "./amm.ts";
 export {
