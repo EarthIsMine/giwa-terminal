@@ -6,6 +6,7 @@ import {
   SWAP_FEE_NUMERATOR,
   feeFromAmountIn,
   feeFromAmountOut,
+  feeFromVolume,
   getAmountOut,
 } from "../src/amm.ts";
 import { ethToWei } from "../src/convert.ts";
@@ -56,6 +57,14 @@ test("feeFromAmountOut: 수령액에서 역산한다 (매도 레그)", () => {
   // 수령 997 이면 수수료 3 이 이미 빠진 상태 → 역산하면 3
   assert.equal(feeFromAmountOut(997n), 3n);
   assert.equal(feeFromAmountOut(0n), 0n);
+});
+
+test("feeFromVolume: 누적 거래대금의 0.3% 가 총수수료 (입력 레그와 같은 분모)", () => {
+  // 거래대금은 스왑 입력액의 합이라 feeFromAmountIn 과 같은 값이어야 한다
+  assert.equal(feeFromVolume(ethToWei("1") as bigint), 3_000_000_000_000_000n);
+  assert.equal(feeFromVolume(1_000n), 3n);
+  assert.equal(feeFromVolume(0n), 0n);
+  assert.equal(feeFromVolume(ethToWei("10") as bigint), feeFromAmountIn(ethToWei("10") as bigint));
 });
 
 test("수수료 두 방향이 서로 정합한다", () => {

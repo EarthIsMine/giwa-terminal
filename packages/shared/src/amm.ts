@@ -49,3 +49,12 @@ export function feeFromAmountIn(amountIn: bigint): bigint {
 export function feeFromAmountOut(amountOut: bigint): bigint {
   return (amountOut * FEE_SHARE) / SWAP_FEE_NUMERATOR;
 }
+
+/**
+ * 누적 거래대금(quote 토큰 wei)이 생성한 총 수수료 절대액.
+ * 거래대금은 각 스왑 입력액의 합이므로 입력 레그와 같은 분모(SWAP_FEE_DENOMINATOR)를 쓴다.
+ * 현행 테스트넷은 이 전액이 LP 귀속이다 - 메인넷 플랫폼 몫 분리(P2)도 여기서 파생한다.
+ */
+export function feeFromVolume(volumeWei: bigint): bigint {
+  return (volumeWei * FEE_SHARE) / SWAP_FEE_DENOMINATOR;
+}

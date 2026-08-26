@@ -18,7 +18,7 @@ const ICON_BUTTON_CLASS =
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-base/60 backdrop-blur-md">
-      <div className="mx-auto flex h-14 w-full max-w-[1840px] items-center gap-3 px-page md:h-16 md:gap-7">
+      <div className="mx-auto flex h-14 w-full max-w-page items-center gap-3 px-page md:h-16 md:gap-7">
         <Link
           href="/"
           aria-label="나루 홈으로"

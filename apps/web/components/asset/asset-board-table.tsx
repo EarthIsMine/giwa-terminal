@@ -18,20 +18,26 @@ const RIGHT_ALIGNED = new Set([
   "trades",
   "traders",
   "liquidity",
+  "totalFees",
   "age",
 ]);
 
-/** 컬럼별 고정 폭 - 나머지는 자산 컬럼이 흡수한다 */
+/**
+ * 컬럼별 고정 폭 - 나머지는 자산 컬럼이 흡수한다.
+ * 풀폭 전환(2026-08-26) 후 자산 컬럼 하나가 남는 공간을 전부 삼켜 이름과 지표
+ * 사이에 큰 빈 띠가 생겼다. 지표 컬럼 폭을 넓혀 그 여백을 나눠 갖게 한다.
+ */
 const COL_WIDTH: Record<string, string> = {
-  issuer: "w-[150px]",
-  price: "w-[170px]",
-  change: "w-[110px]",
-  marketCap: "w-[120px]",
-  volume: "w-[120px]",
-  trades: "w-[90px]",
-  traders: "w-[100px]",
-  liquidity: "w-[120px]",
-  age: "w-[90px]",
+  issuer: "w-[200px]",
+  price: "w-[200px]",
+  change: "w-[140px]",
+  marketCap: "w-[150px]",
+  volume: "w-[150px]",
+  trades: "w-[120px]",
+  traders: "w-[140px]",
+  liquidity: "w-[150px]",
+  totalFees: "w-[150px]",
+  age: "w-[120px]",
 };
 
 export function AssetBoardTable({
@@ -50,7 +56,7 @@ export function AssetBoardTable({
        영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */
     <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1440px] border-collapse text-left">
+        <table className="w-full min-w-[1760px] border-collapse text-left">
           <caption className="sr-only">
             기와체인 검증 자산 목록. 실데이터: 현재가, 예치 규모,
             발행자
@@ -81,7 +87,7 @@ export function AssetBoardTable({
                             ? "descending"
                             : undefined
                       }
-                      className={`px-4 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
+                      className={`px-6 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
                     >
                       {header.column.getCanSort() ? (
                         <button
@@ -117,7 +123,7 @@ export function AssetBoardTable({
             {rows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={12}
+                  colSpan={13}
                   className="py-14 text-center text-[13.5px] text-ink-3"
                 >
                   {query.trim() === ""
@@ -138,7 +144,7 @@ export function AssetBoardTable({
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className={`px-4 py-2.5 last:pr-8 ${RIGHT_ALIGNED.has(cell.column.id) ? "text-right" : ""}`}
+                      className={`px-6 py-2.5 last:pr-8 ${RIGHT_ALIGNED.has(cell.column.id) ? "text-right" : ""}`}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>

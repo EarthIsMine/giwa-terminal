@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-table";
 import type { ColumnDef, Row, SortingState } from "@tanstack/react-table";
 import {
+  feeFromVolume,
   formatChangeBps,
   formatCount,
   formatEth,
@@ -104,6 +105,8 @@ export function AssetBoard({
       const entry = boardStats?.[a.pair.toLowerCase()];
       // windows 옵셔널 체이닝 - 인덱서 응답 캐시가 구버전일 수 있다
       const w = entry?.windows?.[window_];
+      // 총수수료는 lifetime 값이라 선택 윈도우가 아니라 항상 전체(all) 누적에서 낸다
+      const allVolume = entry?.windows?.all?.volumeWeth;
       const priceWei = BigInt(a.priceWei);
       return {
         address: a.address,
@@ -119,6 +122,9 @@ export function AssetBoard({
         volumeWei: w ? wei(BigInt(w.volumeWeth)) : null,
         trades: w?.trades ?? null,
         traders: w?.traders ?? null,
+        totalFeesWei: allVolume
+          ? wei(feeFromVolume(BigInt(allVolume)))
+          : null,
         ageDays: Math.max(0, Math.floor((nowSec - a.issuedAt) / 86_400)),
       };
     });
@@ -289,6 +295,33 @@ export function AssetBoard({
           ),
       },
       {
+        id: "totalFees",
+        accessorFn: (a) => a.totalFeesWei ?? undefined,
+        header: "총수수료",
+        sortDescFirst: true,
+        ...NO_DATA_SORT,
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
+          cmpBigint(
+            a.original.totalFeesWei ?? wei(0n),
+            b.original.totalFeesWei ?? wei(0n),
+          ),
+        cell: ({ row }) => {
+          const f = row.original.totalFeesWei;
+          // 데이터 없음(인덱서 미연결)과 0원은 다르다 - 없으면 자리표시로 둔다
+          if (f === null) {
+            return <span className="font-mono text-[12px] text-ink-3">-</span>;
+          }
+          return ethKrw ? (
+            <KrwCompact v={f} ethKrw={ethKrw} />
+          ) : (
+            <span className="font-mono text-[13px] tabular-nums">
+              {formatEth(f, 4)}{" "}
+              <span className="text-[11px] text-ink-3">ETH</span>
+            </span>
+          );
+        },
+      },
+      {
         id: "age",
         accessorFn: (a) => a.ageDays,
         header: "상장",
@@ -403,8 +436,8 @@ export function AssetBoard({
         </p>
         <p>
           · 목록·가격·예치 규모는 기와체인에 기록된 실데이터입니다. 변동률 ·
-          거래대금 · 참여 인원은 인덱서 연결 후 제공되며, 거래 데이터는 데모
-          시드 봇이 생성합니다.
+          거래대금 · 참여 인원 · 총수수료는 인덱서 연결 후 제공되며, 거래
+          데이터는 데모 시드 봇이 생성합니다.
         </p>
         <p>
           · <b className="font-medium text-ink-2">{VERIFICATION_LEAD}.</b>{" "}

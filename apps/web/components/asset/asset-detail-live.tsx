@@ -30,7 +30,7 @@ export function AssetDetailLive({
   const ethKrw = ethKrwRaw ? BigInt(ethKrwRaw) : null;
 
   return (
-    <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-6 sm:pt-10">
+    <div className="mx-auto w-full max-w-page px-page pb-4 pt-6 sm:pt-10">
       <Link
         href="/"
         className="text-[12.5px] text-ink-3 transition-colors hover:text-ink-2"

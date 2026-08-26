@@ -27,6 +27,8 @@ export interface LiveAsset {
   volumeWei: WeiAmount | null;
   trades: number | null;
   traders: number | null;
+  /** 총수수료 = 전체 누적 거래대금 × 0.3% (WETH wei). 윈도우 선택과 무관한 lifetime 값 */
+  totalFeesWei: WeiAmount | null;
   /** 상장 후 경과 일수 */
   ageDays: number;
 }

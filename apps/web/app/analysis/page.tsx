@@ -77,7 +77,7 @@ export default async function AnalysisPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-[1280px] px-page pb-20 pt-8 sm:pt-12">
+      <main className="mx-auto w-full max-w-page px-page pb-20 pt-8 sm:pt-12">
         <AnalysisIntro />
         <ChainPulse chain={chain} ethKrw={ethKrw} />
         <AnalysisCoverage verifiedCount={assets.length} />

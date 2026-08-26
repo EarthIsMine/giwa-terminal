@@ -36,12 +36,6 @@ const INTERVAL_SECONDS: Record<ChartInterval, number> = {
   "1d": 86_400,
 };
 
-const INTERVAL_LABEL: Record<ChartInterval, string> = {
-  "1m": "분봉",
-  "1h": "시간봉",
-  "1d": "일봉",
-};
-
 /** 인덱서 캔들(wei 문자열) → 차트 float. 환율 있으면 원화, 없으면 ETH 단위 */
 function toChartCandles(
   candles: readonly CandleWire[],
@@ -131,11 +125,6 @@ export function AssetChartPanel({
             );
           })}
         </div>
-        {range && (
-          <span className="text-[11px] text-ink-3">
-            {INTERVAL_LABEL[range.interval]} · {chartCandles.length}개 구간
-          </span>
-        )}
       </div>
 
       {chartCandles.length > 0 ? (

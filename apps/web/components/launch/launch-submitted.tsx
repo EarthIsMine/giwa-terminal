@@ -27,7 +27,7 @@ export function LaunchSubmitted({
   onReset: () => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[1840px] px-page pb-4 pt-8 sm:pt-12">
+    <div className="mx-auto w-full max-w-page px-page pb-4 pt-8 sm:pt-12">
       <div className="mx-auto max-w-[640px]">
         <Stepper steps={steps} />
       </div>

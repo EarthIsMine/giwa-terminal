@@ -1,3 +1,4 @@
+import { explorerTokenUrl } from "@giwa/config";
 import { formatEth, formatKrw, wei, weiToDisplayKrw } from "@giwa/shared";
 import type { WeiAmount } from "@giwa/shared";
 import type { LiveAssetWire } from "@/lib/onchain";
@@ -25,6 +26,24 @@ export function AssetDetailHeader({
           </h1>
           <VerifiedBadge verification={asset.verification} />
           <CopyAddress address={asset.address} />
+          <a
+            href={explorerTokenUrl(asset.address)}
+            target="_blank"
+            rel="noreferrer"
+            title="기와체인 원본 기록"
+            aria-label={`${asset.symbol} 토큰 원본 기록 열기`}
+            className="group grid place-items-center"
+          >
+            {/* 기와 공식 마크(누끼 PNG) - 검정 원화라 다크 배경에선 invert로 밝힌다 (site-header 와 동일 처리) */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/giwa-mark.png"
+              alt=""
+              width={13}
+              height={13}
+              className="opacity-55 invert transition-opacity group-hover:opacity-90"
+            />
+          </a>
         </div>
         <p className="mt-0.5 text-[13px] text-ink-3">
           {asset.nameKo} · 발행 {asset.issuerName}

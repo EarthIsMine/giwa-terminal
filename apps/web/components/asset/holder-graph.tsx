@@ -52,9 +52,18 @@ const HEIGHT = 320;
  */
 const ANCHOR_SPREAD = 0.34;
 
-function radiusOf(permille: number): number {
-  // 면적 ∝ 보유 비중 (√ 스케일), 화면 하한·상한
-  return Math.max(5, Math.min(36, Math.sqrt(permille) * 3.4));
+const R_MIN = 5;
+const R_MAX = 36;
+
+/**
+ * 면적 ∝ 보유 비중 (√ 스케일). 최대 보유자를 상한(R_MAX)에 맞춰 정규화한다.
+ * 절대 스케일에 상한 클램프를 걸면 대형 홀더가 전부 상한에 잘려
+ * 60%와 30%가 같은 크기로 보인다(비율 왜곡) - 범례가 "크기 = 보유 비중"이라 거짓말이 된다.
+ * 하한(R_MIN)은 극소 지분의 가시성·호버 면적용이고, 그 구간만 비율이 과장된다.
+ */
+function radiusOf(permille: number, maxPermille: number): number {
+  if (maxPermille <= 0) return R_MIN;
+  return Math.max(R_MIN, R_MAX * Math.sqrt(permille / maxPermille));
 }
 
 function nodeFill(n: SimNode): string {
@@ -64,9 +73,10 @@ function nodeFill(n: SimNode): string {
 }
 
 function runLayout(graph: HolderGraphWire): Layout {
+  const maxPermille = Math.max(0, ...graph.nodes.map((n) => n.permille));
   const nodes: SimNode[] = graph.nodes.map((n) => ({
     id: n.address,
-    r: radiusOf(n.permille),
+    r: radiusOf(n.permille, maxPermille),
     permille: n.permille,
     isIssuer: n.isIssuer,
     issuerLinked: n.issuerLinked,
