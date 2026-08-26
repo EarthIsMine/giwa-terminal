@@ -93,3 +93,8 @@ export function explorerAddressUrl(address: string): string {
 export function explorerTxUrl(hash: string): string {
   return `${giwaChain.explorerUrl}/tx/${hash}`;
 }
+
+/** 익스플로러 토큰 상세 페이지 링크 - Blockscout 는 /address 와 별개로 토큰 전용 화면을 둔다 */
+export function explorerTokenUrl(address: string): string {
+  return `${giwaChain.explorerUrl}/token/${address}`;
+}
