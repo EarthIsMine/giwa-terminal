@@ -1,5 +1,10 @@
 # CI - main 머지 게이트. 세 잡(typecheck·contracts·no-emdash)이 브랜치 보호의 필수 체크다.
 # 잡 이름을 바꾸면 브랜치 보호의 required checks 목록도 같이 바꿔야 한다.
+#
+# 트리거 정책(2026-08-26, go-ethereum go.yml 정렬): main 대상 PR과 main push마다 돈다.
+# "WIP 푸시마다 러너 낭비" 문제는 승인 게이트가 아니라 concurrency로 뒤늦은 실행을 취소해서 푼다
+# (go-ethereum과 동일한 접근). 외부 포크 PR의 승인-후-실행이 필요하면 그건 워크플로가 아니라
+# 저장소 Actions 정책(Settings > Actions > Fork pull request workflows)에서 켠다.
 name: CI
 
 on:
@@ -7,6 +12,12 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
+
+# 같은 PR에 새 커밋이 푸시되면 이전 실행을 취소한다(러너 절약). main push는 취소하지 않는다.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # TS 워크스페이스 - 타입체크 전부 + shared 지표 산식 테스트
