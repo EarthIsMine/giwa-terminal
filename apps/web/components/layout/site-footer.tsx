@@ -46,7 +46,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="text-[11px] font-medium tracking-[0.08em] text-ink-3">
+          <h2 className="text-[11px] font-semibold tracking-[0.18em] text-accent/90">
             네트워크
           </h2>
           <ul className="mt-3 space-y-1.5 text-ink-2">
@@ -99,7 +99,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="text-[11px] font-medium tracking-[0.08em] text-ink-3">
+          <h2 className="text-[11px] font-semibold tracking-[0.18em] text-accent/90">
             고지
           </h2>
           <ul className="mt-3 space-y-1.5 leading-relaxed text-ink-3">
