@@ -38,6 +38,22 @@ const COL_WIDTH: Record<string, string> = {
   totalFees: "w-[150px]",
 };
 
+/**
+ * 좁은 데스크톱(md~xl 사이)에서 우선순위 낮은 컬럼을 숨긴다 - 가로 스크롤 없이
+ * 테이블을 항상 화면 폭에 고정하기 위해서다(2026-08-29). 컬럼 최소폭 합이
+ * 화면을 넘으면 어떤 폭 배분으로도 안 들어가므로, 줄이는 게 아니라 숨긴다.
+ * 자산·현재가·변동률·예치 규모는 항상 보인다 - 목록에서 자산을 고르는 핵심 지표.
+ * th/td 양쪽에 같은 클래스를 건다 (한쪽만 걸면 열이 어긋난다).
+ */
+const COL_HIDE: Record<string, string> = {
+  issuer: "hidden lg:table-cell",
+  marketCap: "hidden lg:table-cell",
+  volume: "hidden lg:table-cell",
+  trades: "hidden xl:table-cell",
+  traders: "hidden xl:table-cell",
+  totalFees: "hidden xl:table-cell",
+};
+
 export function AssetBoardTable({
   table,
   query,
@@ -54,10 +70,10 @@ export function AssetBoardTable({
        영역 전체에 옅은 그늘 하나만 얹어 나무 결이 그대로 비치게 한다 */
     <div className="mt-4 border-y border-black/45 bg-black/[0.12]">
       {/* min-w 고정폭은 뺐다(2026-08-29) - 1760px 미만 데스크톱에서 무조건 가로
-         스크롤이 생겼다. 테이블은 화면 폭에 고정하고, 남는 공간 배분은 위
-         COL_WIDTH 가 맡는다. overflow-x-auto 는 md 직후(768px대)처럼 컬럼
-         최소폭 합이 화면을 넘는 좁은 뷰포트에서 레이아웃이 깨지는 것을 막는
-         안전망으로만 남긴다 - 일반 데스크톱에서는 스크롤이 생기지 않는다 */}
+         스크롤이 생겼다. 테이블은 화면 폭에 고정하고, 남는 공간 배분은 COL_WIDTH,
+         좁은 폭 대응은 COL_HIDE(컬럼 숨김)가 맡는다. overflow-x-auto 는 예상 밖
+         콘텐츠(아주 긴 자산명 등)로 레이아웃이 깨질 때의 마지막 안전망일 뿐,
+         정상 상태에서는 어떤 폭에서도 스크롤이 생기지 않는다 */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">
@@ -90,7 +106,7 @@ export function AssetBoardTable({
                             ? "descending"
                             : undefined
                       }
-                      className={`whitespace-nowrap px-6 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
+                      className={`whitespace-nowrap px-6 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""} ${COL_HIDE[header.column.id] ?? ""}`}
                     >
                       {header.column.getCanSort() ? (
                         <button
@@ -148,7 +164,7 @@ export function AssetBoardTable({
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
-                      className={`px-6 py-2.5 last:pr-8 ${RIGHT_ALIGNED.has(cell.column.id) ? "text-right" : ""}`}
+                      className={`px-6 py-2.5 last:pr-8 ${RIGHT_ALIGNED.has(cell.column.id) ? "text-right" : ""} ${COL_HIDE[cell.column.id] ?? ""}`}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
