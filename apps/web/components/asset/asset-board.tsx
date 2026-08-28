@@ -394,14 +394,8 @@ export function AssetBoard({
           </svg>
         </button>
 
-        {/* 테스트넷 표시 칩 - 시드 데이터 상세 고지는 푸터에 유지 (절대 규칙 5) */}
-        <span className="flex h-8 items-center gap-2 rounded-lg border border-hairline bg-panel px-2.5 text-[12px] text-ink-2">
-          <span
-            aria-hidden
-            className="size-1.5 rounded-full bg-warn animate-pulse-dot"
-          />
-          테스트넷
-        </span>
+        {/* 테스트넷 칩은 뺐다(2026-08-29) - 상단 배너가 같은 사실을 전 페이지
+            상시 고지한다 (절대 규칙 5 충족). 같은 화면에 두 번 말할 필요 없다 */}
       </div>
 
       <Responsive
