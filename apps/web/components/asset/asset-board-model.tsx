@@ -23,7 +23,7 @@ export interface LiveAsset {
    *  NaruToken 은 공급 고정이고 소각 기능이 없어 락업·소각 차감분이 없다
    *  (CLAUDE.md 시가총액 정의: 제외 정책을 주석으로 남긴다) */
   marketCapWei: WeiAmount;
-  /** 선택 윈도우의 거래대금(WETH wei) · 체결 건수 · 참여 인원 */
+  /** 선택 윈도우의 거래대금(WETH wei) · 체결 건수 · 참여 지갑 */
   volumeWei: WeiAmount | null;
   trades: number | null;
   traders: number | null;

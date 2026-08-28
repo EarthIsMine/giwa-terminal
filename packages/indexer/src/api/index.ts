@@ -96,7 +96,7 @@ app.get("/trades/:pair", async (c) => {
  * 지갑의 체결 원장 - 내 자산 손익(지표 정의 §손익)의 재료.
  *
  * `origin`(tx.origin)으로 거른다. 라우터 경유라 `msg.sender`를 쓰면 라우터
- * 주소 하나로 뭉친다(§거래 수 / 참여 인원과 같은 이유).
+ * 주소 하나로 뭉친다(§거래 수 / 참여 지갑과 같은 이유).
  *
  * 이동평균 원가는 첫 매수부터 순서대로 재생해야 맞으므로 **오름차순**으로 준다
  * (다른 /trades 는 최신순이다 - 여기만 다른 이유가 그것이다). limit 을 넘겨
@@ -159,9 +159,9 @@ app.get("/board", async (c) => {
       .from(schema.candles)
       .where(eq(schema.candles.interval, "1d"))
       .orderBy(asc(schema.candles.bucket)),
-    // 거래 수·참여 인원은 활동 원장에서 센다 - 매수·매도뿐 아니라
+    // 거래 수·참여 지갑은 활동 원장에서 센다 - 매수·매도뿐 아니라
     // 유동성 공급·회수까지 포함해야 "이 자산에 몇 명이 무엇을 했나"가 맞는다.
-    // 시간 필터를 걸지 않는다: 30일로 자르면 "전체" 윈도우의 거래 수·참여 인원만
+    // 시간 필터를 걸지 않는다: 30일로 자르면 "전체" 윈도우의 거래 수·참여 지갑만
     // 30일에 묶여 거래대금·변동률(전 기간)과 산술적으로 모순된 행이 나온다.
     db
       .select({
@@ -217,7 +217,7 @@ app.get("/board", async (c) => {
         volumeWeth: inWindow
           .reduce((acc, r) => acc + r.volumeWeth, 0n)
           .toString(),
-        // 거래 수·참여 인원은 매수·매도·유동성 공급·회수 전부.
+        // 거래 수·참여 지갑은 매수·매도·유동성 공급·회수 전부.
         // 활동 원장을 전 기간 읽으므로 all 윈도우도 정확하다 (근사 아님)
         trades: actCount,
         traders: origins.size,

@@ -109,7 +109,7 @@ export const trades = onchainTable(
 
 /**
  * 페어 활동 원장 - 매수·매도·유동성 공급·회수 전부.
- * "거래 수"는 이 원장의 건수이고 "참여 인원"은 distinct tx.origin 이다
+ * "거래 수"는 이 원장의 건수이고 "참여 지갑"은 distinct tx.origin 이다
  * (체결만 세면 유동성 공급자가 지표에서 빠진다).
  */
 export const activities = onchainTable(

@@ -261,7 +261,7 @@ export function AssetBoard({
       {
         id: "traders",
         accessorFn: (a) => a.traders ?? undefined,
-        header: "참여 인원",
+        header: "참여 지갑",
         sortDescFirst: true,
         ...NO_DATA_SORT,
         cell: ({ row }) => (
@@ -423,7 +423,7 @@ export function AssetBoard({
         </p>
         <p>
           · 목록·가격·예치 규모는 기와체인에 기록된 실데이터입니다. 변동률 ·
-          거래대금 · 참여 인원 · 총수수료는 인덱서 연결 후 제공되며, 거래
+          거래대금 · 참여 지갑 · 총수수료는 인덱서 연결 후 제공되며, 거래
           데이터는 데모 시드 봇이 생성합니다.
         </p>
         <p>

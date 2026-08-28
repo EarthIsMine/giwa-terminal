@@ -25,7 +25,7 @@ NaruswapV2Pair:Swap           ─→ trades       (체결 원장, tx.origin 보�
 |---|---|
 | `GET /candles/:pair?interval=1m\|1h\|1d&limit=` | OHLCV (오름차순, wei 문자열) |
 | `GET /trades/:pair?limit=` | 최근 체결 (최신순) |
-| `GET /stats/:pair` | 당일 변동률(bps)·거래대금·체결 수·distinct `tx.origin` 참여 인원 |
+| `GET /stats/:pair` | 당일 변동률(bps)·거래대금·체결 수·distinct `tx.origin` 참여 지갑 |
 | `GET /pairs` | 인덱싱된 페어 목록 (검증용) |
 
 모든 화폐 값은 wei bigint 를 문자열로 직렬화한다 - 환산·포맷팅은 소비자 몫.
