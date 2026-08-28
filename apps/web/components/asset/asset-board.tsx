@@ -98,8 +98,6 @@ export function AssetBoard({
 
   const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
 
-  const nowSec = useMemo(() => Math.floor(Date.now() / 1_000), []);
-
   const data = useMemo<LiveAsset[]>(() => {
     const parsed = assets.map((a) => {
       const entry = boardStats?.[a.pair.toLowerCase()];
@@ -125,7 +123,6 @@ export function AssetBoard({
         totalFeesWei: allVolume
           ? wei(feeFromVolume(BigInt(allVolume)))
           : null,
-        ageDays: Math.max(0, Math.floor((nowSec - a.issuedAt) / 86_400)),
       };
     });
     const q = query.trim().toLowerCase();
@@ -136,7 +133,7 @@ export function AssetBoard({
         a.nameKo.includes(q) ||
         a.address.toLowerCase().includes(q),
     );
-  }, [assets, query, boardStats, window_, nowSec]);
+  }, [assets, query, boardStats, window_]);
 
   const columns = useMemo<ColumnDef<LiveAsset>[]>(
     () => [
@@ -321,18 +318,8 @@ export function AssetBoard({
           );
         },
       },
-      {
-        id: "age",
-        accessorFn: (a) => a.ageDays,
-        header: "상장",
-        cell: ({ row }) => (
-          <span className="font-mono text-[12.5px] tabular-nums text-ink-3">
-            {row.original.ageDays === 0
-              ? "오늘"
-              : `${formatCount(row.original.ageDays)}일`}
-          </span>
-        ),
-      },
+      // 상장 경과일 열도 뺐다. 총수수료가 들어오며 열이 늘었는데, 며칠 됐는지는
+      // 목록에서 자산을 고르는 판단에 쓰이지 않는다 (자산 상세의 "상장일"에 남아 있다).
       // 컨트랙트 주소 열은 뺐다. 목록 19행에 0x… 를 깔면 화면이 가장 크게
       // "여기는 크립토다"라고 외치는데, 타겟 유저가 그 열을 볼 일은 없다.
       // 원본 기록은 자산 상세에 남아 있다 (감추는 건 배관이지 고지가 아니다).
