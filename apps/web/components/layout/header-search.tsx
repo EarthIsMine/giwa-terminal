@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
@@ -123,6 +123,16 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
 
   const inputRef = useAutoFocus<HTMLInputElement>(open);
   useEscapeKey(open, () => setOpen(false));
+
+  /* 모달이 열린 동안 배경 스크롤 잠금 (로그인 모달·모바일 시트와 같은 관례)
+     - 스크롤은 결과 목록(overflow-y-auto) 안에서만 돈다 */
+  useEffect(() => {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   /** 자산 목록 지연 로드 - 첫 열림에 1회, 실패 시 결과만 비활성 */
   const ensureAssets = async () => {
