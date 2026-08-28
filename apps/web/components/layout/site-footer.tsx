@@ -39,9 +39,12 @@ export function SiteFooter() {
   return (
     // 본문 마루와 구분되는 짙은 그늘 영역 - 나무는 배경으로 희미하게만 비친다
     <footer className="mt-14 border-t border-black/50 bg-[#150d07]/85">
-      {/* 1행: 브랜드 + 태그라인 | 네트워크 링크 + 소셜 */}
-      <div className="mx-auto flex w-full max-w-page flex-col gap-6 px-page py-8 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
+      {/* 1행: 브랜드 + 태그라인 | 네트워크 링크 + 소셜.
+          브랜드 블록은 shrink-0 + nowrap - 잠그지 않으면 좁은 데스크톱에서
+          오른쪽 링크 묶음에 밀려 "나루"가 글자 단위로 꺾인다. 공간이
+          모자라면 flex-wrap 으로 링크 묶음이 다음 줄로 내려온다 */}
+      <div className="mx-auto flex w-full max-w-page flex-col gap-6 px-page py-8 md:flex-row md:flex-wrap md:items-center md:justify-between">
+        <div className="flex flex-col gap-2.5 whitespace-nowrap sm:flex-row sm:items-center sm:gap-4 md:shrink-0">
           <div className="flex items-center gap-2">
             <BrandLogo size={20} />
             <span className="flex items-baseline gap-1.5">
