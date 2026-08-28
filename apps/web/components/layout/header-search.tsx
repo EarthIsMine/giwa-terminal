@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   formatEth,
@@ -68,20 +69,20 @@ function HitRow({
       aria-selected={active}
       onClick={onPick}
       onMouseEnter={onHover}
-      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${active ? "bg-accent/10" : ""}`}
+      className={`flex w-full items-center gap-3.5 px-5 py-3 text-left transition-colors ${active ? "bg-white/[0.05]" : ""}`}
     >
-      <AssetAvatar symbol={hit.symbol} size={30} />
+      <AssetAvatar symbol={hit.symbol} size={38} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
-          <span className="text-[13.5px] font-semibold">{hit.symbol}</span>
+          <span className="text-[15px] font-semibold tracking-wide">{hit.symbol}</span>
           <VerifiedBadge verification={hit.verification} />
         </span>
-        <span className="mt-0.5 block truncate text-[11.5px] text-ink-3">
+        <span className="mt-0.5 block truncate text-[12.5px] text-ink-3">
           {hit.nameKo} · {hit.issuerName}
         </span>
       </span>
       <span className="shrink-0 text-right">
-        <span className="block font-mono text-[13px] tabular-nums">
+        <span className="block font-mono text-[14.5px] tabular-nums">
           {ethKrw ? (
             <>
               <span className="mr-px text-[11px] text-ink-3">₩</span>
@@ -94,7 +95,7 @@ function HitRow({
             </>
           )}
         </span>
-        <span className="mt-0.5 block font-mono text-[11px] tabular-nums text-ink-3">
+        <span className="mt-1 block font-mono text-[12px] tabular-nums text-ink-3">
           예치{" "}
           {ethKrw
             ? formatKrwCompact(weiToDisplayKrw(liq, ethKrw))
@@ -151,7 +152,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
             const d = BigInt(b.liquidityWei) - BigInt(a.liquidityWei);
             return d > 0n ? 1 : d < 0n ? -1 : 0;
           })
-          .slice(0, 8)
+          .slice(0, 10)
       : data.assets
           .filter(
             (a) =>
@@ -159,7 +160,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
               a.nameKo.includes(q.trim()) ||
               a.address.toLowerCase().includes(trimmed),
           )
-          .slice(0, 8)
+          .slice(0, 10)
     : [];
 
   const close = () => setOpen(false);
@@ -195,19 +196,23 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
         </span>
       </button>
 
-      {open ? (
+      {/* 포털로 body 에 렌더 - 헤더의 backdrop-blur 가 fixed 의 기준을
+          헤더 박스로 바꿔서(필터의 containing block), 헤더 안에서 그리면
+          오버레이가 헤더 스트립만 덮는다 */}
+      {open
+        ? createPortal(
         <div className="fixed inset-0 z-50">
           <button
             type="button"
             aria-label="검색 닫기"
             onClick={close}
-            className="absolute inset-0 cursor-default bg-black/60 backdrop-blur-[2px]"
+            className="absolute inset-0 cursor-default bg-black/75 backdrop-blur-md"
           />
           <div
             role="dialog"
             aria-modal="true"
             aria-label="자산 검색"
-            className="relative mx-auto mt-[12vh] w-[calc(100%-32px)] max-w-[640px] overflow-hidden rounded-xl border border-hairline bg-[#1d140c] shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+            className="relative mx-auto mt-[9vh] w-[calc(100%-32px)] max-w-[880px] overflow-hidden rounded-xl border border-hairline bg-[#1d140c] shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
           >
             <div className="flex items-center gap-2.5 border-b border-hairline/60 px-4">
               <span className="text-ink-3">
@@ -238,7 +243,10 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
                 }}
                 placeholder="자산 · 심볼 · 주소 검색"
                 aria-label="자산 검색"
-                className="h-12 w-full bg-transparent text-[14px] text-ink outline-none placeholder:text-ink-3"
+                /* !outline-none - 전역 :focus-visible 골든 링이 레이어 순서상
+                   유틸리티를 이긴다. 자동 포커스라 링이 항상 떠서 모달 전체가
+                   노랗게 읽힌다 - 입력 위치는 모달 구조가 이미 말해준다 */
+                className="h-14 w-full bg-transparent text-[15.5px] text-ink !outline-none placeholder:text-ink-3"
               />
               <kbd className="rounded border border-hairline px-1.5 py-0.5 font-mono text-[10px] text-ink-3">
                 ESC
@@ -247,13 +255,13 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
 
             {hits.length > 0 ? (
               <>
-                <p className="px-4 pb-1 pt-3 text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+                <p className="px-5 pb-1.5 pt-3.5 text-[11px] font-medium tracking-[0.12em] text-ink-3">
                   {trimmed === "" ? "검증 자산 · 예치 규모 순" : "검색 결과"}
                 </p>
                 <ul
                   role="listbox"
                   aria-label="자산 검색 결과"
-                  className="max-h-[52vh] overflow-y-auto pb-1.5"
+                  className="max-h-[58vh] overflow-y-auto pb-2"
                 >
                   {hits.map((h, i) => (
                     <li key={h.address}>
@@ -279,8 +287,10 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
               </p>
             )}
           </div>
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+        : null}
     </>
   );
 }
