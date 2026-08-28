@@ -1,5 +1,5 @@
 import { giwaChain } from "@giwa/config";
-import { SITE_LINKS, VERIFICATION_DISCLAIMER } from "@/lib/site";
+import { SITE_LINKS } from "@/lib/site";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
@@ -102,17 +102,15 @@ export function SiteFooter() {
           <h2 className="text-[11px] font-semibold tracking-[0.18em] text-accent/90">
             고지
           </h2>
+          {/* 고지 정리(2026-08-29): 테스트넷·시드 봇은 상단 배너, 환산 상세와
+              검증 디스클레이머는 보드 각주가 담당한다 - 같은 문장을 푸터에
+              또 쓰면 고지가 벽이 된다. 여기는 다른 곳에 없는 문장만 남긴다 */}
           <ul className="mt-3 space-y-1.5 leading-relaxed text-ink-3">
             <li>
-              본 화면은 {giwaChain.name} 테스트넷 데모이며, 거래 데이터는 데모
-              시드 봇이 생성합니다.
-            </li>
-            <li>
-              원화 금액은 업비트 KRW-ETH 시세로 환산한 참고값입니다. 원화
-              자산이 기와체인에 존재하는 것은 아닙니다.
+              화면의 원화는 환산 표시이며, 원화 자산이 기와체인에 존재하는
+              것은 아닙니다.
             </li>
             <li>표시 자산은 신원 검증을 통과한 자산으로 한정됩니다.</li>
-            <li>{VERIFICATION_DISCLAIMER}</li>
             <li>
               나루는 두나무가 만든 GIWA 체인 위에서 동작하는 독립 서비스이며,
               업비트·두나무와 제휴 관계가 아닙니다.
