@@ -2,26 +2,32 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  formatEth,
+  formatKrw,
+  formatKrwCompact,
+  wei,
+  weiToDisplayKrw,
+} from "@giwa/shared";
+import type { AssetsResponse } from "@/lib/api-types";
 import { useSearch } from "@/contexts/search-context";
 import { useAutoFocus } from "@/hooks/use-auto-focus";
 import { useEscapeKey } from "@/hooks/use-escape-key";
+import { AssetAvatar } from "@/components/ui/asset-avatar";
+import { VerifiedBadge } from "@/components/ui/verified-badge";
 
 /**
  * 헤더 전역 검색 - 트리거 버튼 + 모달(2026-08-29 개편).
  * 이전에는 헤더 인라인 입력 + 드롭다운이었는데, 클릭하면 모달을 띄우는
  * 커맨드 팔레트 방식으로 바꿨다. 좁은 헤더 폭에 드롭다운을 구겨 넣는 대신
  * 화면 중앙에서 넉넉히 보여준다.
+ * - 입력 전에는 예치 규모 상위 자산을 보여준다 (빈 판을 띄우지 않는다)
  * - 결과 클릭/Enter → 자산 상세 이동
  * - 매칭 없이 Enter → 전역 query 로 홈 보드 필터 (기존 폴백 유지)
  * - 한글 IME 조합 중 Enter/화살표는 무시한다 (isComposing)
  */
 
-interface AssetHit {
-  address: `0x${string}`;
-  symbol: string;
-  nameKo: string;
-  issuerName: string;
-}
+type AssetHit = AssetsResponse["assets"][number];
 
 const SearchIcon = ({ size = 14 }: { size?: number }) => (
   <svg
@@ -39,6 +45,66 @@ const SearchIcon = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 
+/** 결과 한 행 - 아바타 · 심볼 · 이름 · 발행자 | 현재가 · 예치 규모 */
+function HitRow({
+  hit,
+  ethKrw,
+  active,
+  onPick,
+  onHover,
+}: {
+  hit: AssetHit;
+  ethKrw: bigint | null;
+  active: boolean;
+  onPick: () => void;
+  onHover: () => void;
+}) {
+  const price = wei(BigInt(hit.priceWei));
+  const liq = wei(BigInt(hit.liquidityWei));
+  return (
+    <button
+      type="button"
+      role="option"
+      aria-selected={active}
+      onClick={onPick}
+      onMouseEnter={onHover}
+      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${active ? "bg-accent/10" : ""}`}
+    >
+      <AssetAvatar symbol={hit.symbol} size={30} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1.5">
+          <span className="text-[13.5px] font-semibold">{hit.symbol}</span>
+          <VerifiedBadge verification={hit.verification} />
+        </span>
+        <span className="mt-0.5 block truncate text-[11.5px] text-ink-3">
+          {hit.nameKo} · {hit.issuerName}
+        </span>
+      </span>
+      <span className="shrink-0 text-right">
+        <span className="block font-mono text-[13px] tabular-nums">
+          {ethKrw ? (
+            <>
+              <span className="mr-px text-[11px] text-ink-3">₩</span>
+              {formatKrw(weiToDisplayKrw(price, ethKrw))}
+            </>
+          ) : (
+            <>
+              {formatEth(price, 6)}{" "}
+              <span className="text-[10.5px] text-ink-3">ETH</span>
+            </>
+          )}
+        </span>
+        <span className="mt-0.5 block font-mono text-[11px] tabular-nums text-ink-3">
+          예치{" "}
+          {ethKrw
+            ? formatKrwCompact(weiToDisplayKrw(liq, ethKrw))
+            : `${formatEth(liq, 2)} ETH`}
+        </span>
+      </span>
+    </button>
+  );
+}
+
 /**
  * @param onSearched 검색이 "동작을 마쳤다"고 알리는 신호 - 자산으로 이동했거나
  *   보드 필터가 걸렸을 때 호출한다. 모바일 시트처럼 트리거를 품은 호스트가
@@ -52,20 +118,17 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
   /** 모달 안 입력은 로컬 상태 - 타이핑 중 보드가 뒤에서 같이 필터되지 않게 분리 */
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState(0);
-  const [assets, setAssets] = useState<AssetHit[] | null>(null);
+  const [data, setData] = useState<AssetsResponse | null>(null);
 
   const inputRef = useAutoFocus<HTMLInputElement>(open);
   useEscapeKey(open, () => setOpen(false));
 
   /** 자산 목록 지연 로드 - 첫 열림에 1회, 실패 시 결과만 비활성 */
   const ensureAssets = async () => {
-    if (assets !== null) return;
+    if (data !== null) return;
     try {
       const res = await fetch("/api/assets");
-      if (res.ok) {
-        const d = (await res.json()) as { assets: AssetHit[] };
-        setAssets(d.assets);
-      }
+      if (res.ok) setData((await res.json()) as AssetsResponse);
     } catch {
       /* 폴백(보드 필터)은 영향 없음 */
     }
@@ -78,10 +141,18 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
     void ensureAssets();
   };
 
+  const ethKrw = data?.ethKrw ? BigInt(data.ethKrw) : null;
   const trimmed = q.trim().toLowerCase();
-  const hits =
-    trimmed !== "" && assets
-      ? assets
+  /** 입력 전에는 예치 규모 상위 - GMGN류 검색 팔레트처럼 빈 판을 띄우지 않는다 */
+  const hits = data
+    ? trimmed === ""
+      ? [...data.assets]
+          .sort((a, b) => {
+            const d = BigInt(b.liquidityWei) - BigInt(a.liquidityWei);
+            return d > 0n ? 1 : d < 0n ? -1 : 0;
+          })
+          .slice(0, 8)
+      : data.assets
           .filter(
             (a) =>
               a.symbol.toLowerCase().includes(trimmed) ||
@@ -89,7 +160,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
               a.address.toLowerCase().includes(trimmed),
           )
           .slice(0, 8)
-      : [];
+    : [];
 
   const close = () => setOpen(false);
 
@@ -136,7 +207,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
             role="dialog"
             aria-modal="true"
             aria-label="자산 검색"
-            className="relative mx-auto mt-[14vh] w-[calc(100%-32px)] max-w-[520px] overflow-hidden rounded-xl border border-hairline bg-[#1d140c] shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
+            className="relative mx-auto mt-[12vh] w-[calc(100%-32px)] max-w-[640px] overflow-hidden rounded-xl border border-hairline bg-[#1d140c] shadow-[0_24px_64px_rgba(0,0,0,0.6)]"
           >
             <div className="flex items-center gap-2.5 border-b border-hairline/60 px-4">
               <span className="text-ink-3">
@@ -162,7 +233,7 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
                     e.preventDefault();
                     const hit = hits[selected] ?? hits[0];
                     if (hit) goAsset(hit.address);
-                    else goBoardFilter();
+                    else if (trimmed !== "") goBoardFilter();
                   }
                 }}
                 placeholder="자산 · 심볼 · 주소 검색"
@@ -175,25 +246,28 @@ export function HeaderSearch({ onSearched }: { onSearched?: () => void }) {
             </div>
 
             {hits.length > 0 ? (
-              <ul role="listbox" aria-label="자산 검색 결과" className="py-1.5">
-                {hits.map((h, i) => (
-                  <li key={h.address}>
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={i === selected}
-                      onClick={() => goAsset(h.address)}
-                      onMouseEnter={() => setSelected(i)}
-                      className={`flex w-full items-baseline gap-2 px-4 py-2.5 text-left text-[13.5px] transition-colors ${i === selected ? "bg-accent/10" : ""}`}
-                    >
-                      <span className="font-semibold">{h.symbol}</span>
-                      <span className="min-w-0 truncate text-[12px] text-ink-3">
-                        {h.nameKo} · {h.issuerName}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <>
+                <p className="px-4 pb-1 pt-3 text-[10.5px] font-medium tracking-[0.12em] text-ink-3">
+                  {trimmed === "" ? "검증 자산 · 예치 규모 순" : "검색 결과"}
+                </p>
+                <ul
+                  role="listbox"
+                  aria-label="자산 검색 결과"
+                  className="max-h-[52vh] overflow-y-auto pb-1.5"
+                >
+                  {hits.map((h, i) => (
+                    <li key={h.address}>
+                      <HitRow
+                        hit={h}
+                        ethKrw={ethKrw}
+                        active={i === selected}
+                        onPick={() => goAsset(h.address)}
+                        onHover={() => setSelected(i)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </>
             ) : trimmed !== "" ? (
               <p className="px-4 py-5 text-[13px] text-ink-3">
                 일치하는 자산이 없습니다. Enter 를 누르면 홈 목록에서
