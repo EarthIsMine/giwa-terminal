@@ -1,5 +1,5 @@
 import { giwaChain } from "@giwa/config";
-import { SITE_LINKS } from "@/lib/site";
+import { SITE_LINKS, VERIFICATION_DISCLAIMER } from "@/lib/site";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { TelegramIcon, XIcon } from "@/components/ui/social-icons";
 
@@ -7,8 +7,8 @@ export function SiteFooter() {
   return (
     // 본문 마루와 구분되는 짙은 그늘 영역 - 나무는 배경으로 희미하게만 비친다
     <footer className="mt-14 border-t border-black/50 bg-[#150d07]/85">
-      {/* 고지가 3줄로 줄며(2026-08-29) 세로 여백도 같이 줄인다 - 내용보다
-          공기가 많으면 푸터가 빈 띠처럼 길어 보인다 */}
+      {/* 세로 여백은 내용에 맞게 조인 상태(2026-08-29) - 내용보다 공기가
+          많으면 푸터가 빈 띠처럼 길어 보인다 */}
       <div className="mx-auto grid w-full max-w-page grid-cols-1 gap-6 px-page py-7 text-[13px] md:grid-cols-[1.2fr_1fr_1.6fr] md:gap-10">
         <div>
           <div className="flex items-center gap-2">
@@ -104,15 +104,22 @@ export function SiteFooter() {
           <h2 className="text-[11px] font-semibold tracking-[0.18em] text-accent/90">
             고지
           </h2>
-          {/* 고지 정리(2026-08-29): 테스트넷·시드 봇은 상단 배너, 환산 상세와
-              검증 디스클레이머는 보드 각주가 담당한다 - 같은 문장을 푸터에
-              또 쓰면 고지가 벽이 된다. 여기는 다른 곳에 없는 문장만 남긴다 */}
+          {/* 고지 단일화(2026-08-29): 보드 밑 각주 3문장을 여기로 흡수했다 -
+              전부 사이트 전체에 해당하는 문장이라 두 군데로 갈라져 있으면
+              표현이 조용히 어긋난다(검증 문구 단일 소스 원칙과 같은 이유).
+              테스트넷·시드 봇의 "데모" 고지 자체는 상단 배너가 담당한다 */}
           <ul className="mt-3 space-y-1.5 leading-relaxed text-ink-3">
             <li>
-              화면의 원화는 환산 표시이며, 원화 자산이 기와체인에 존재하는
-              것은 아닙니다.
+              원화 금액은 업비트 KRW-ETH 시세(60초 갱신)로 환산한
+              참고값이며, 원화 자산이 기와체인에 존재하는 것은 아닙니다.
+            </li>
+            <li>
+              목록·가격·예치 규모는 기와체인에 기록된 실데이터입니다. 변동률
+              · 거래대금 · 참여 지갑 · 총수수료는 인덱서 연결 후 제공되며,
+              거래 데이터는 데모 시드 봇이 생성합니다.
             </li>
             <li>표시 자산은 신원 검증을 통과한 자산으로 한정됩니다.</li>
+            <li>{VERIFICATION_DISCLAIMER}</li>
             <li>
               나루는 두나무가 만든 GIWA 체인 위에서 동작하는 독립 서비스이며,
               업비트·두나무와 제휴 관계가 아닙니다.

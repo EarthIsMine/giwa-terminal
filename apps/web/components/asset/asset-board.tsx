@@ -21,7 +21,6 @@ import {
 import { BOARD_WINDOWS } from "@/lib/indexer";
 import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
-import { VERIFICATION_DETAIL, VERIFICATION_LEAD } from "@/lib/site";
 import { AssetBoardCards } from "@/components/asset/asset-board-cards";
 import { KrwCompact, WINDOW_LABEL } from "@/components/asset/asset-board-model";
 import type { LiveAsset } from "@/components/asset/asset-board-model";
@@ -413,23 +412,14 @@ export function AssetBoard({
         }
       />
 
-      {/* 환산·집계 고지 (절대 규칙 1·5) */}
-      <div className="mt-3 space-y-1 px-page text-[11.5px] leading-relaxed text-ink-3">
-        <p>
-          {ethKrw
-            ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다.`
-            : "· 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다."}
+      {/* 환산·집계·검증 고지는 푸터 "고지"로 합쳤다(2026-08-29) - 전부 사이트
+          전체에 해당하는 문장이라 보드 밑에 또 쓰면 고지가 두 군데로 갈라진다.
+          단, 시세 조회 실패는 상태 표시라 여기 남긴다 (정적 푸터로 못 옮긴다) */}
+      {ethKrw === null ? (
+        <p className="mt-3 px-page text-[11.5px] leading-relaxed text-ink-3">
+          · 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다.
         </p>
-        <p>
-          · 목록·가격·예치 규모는 기와체인에 기록된 실데이터입니다. 변동률 ·
-          거래대금 · 참여 지갑 · 총수수료는 인덱서 연결 후 제공되며, 거래
-          데이터는 데모 시드 봇이 생성합니다.
-        </p>
-        <p>
-          · <b className="font-medium text-ink-2">{VERIFICATION_LEAD}.</b>{" "}
-          {VERIFICATION_DETAIL}
-        </p>
-      </div>
+      ) : null}
     </div>
   );
 }
