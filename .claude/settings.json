@@ -2,8 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(pnpm typecheck *)",
-      "Bash(pnpm --filter web exec tsc --noEmit)",
-      "Bash(pnpm exec *)"
+      "Bash(pnpm --filter web exec tsc --noEmit)"
     ]
   }
 }
