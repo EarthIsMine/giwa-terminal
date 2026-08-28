@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -89,6 +89,9 @@ export function AssetBoard({
   boardStats: BoardStatsWire | null;
 }) {
   const router = useRouter();
+  // 새로고침 = 서버 데이터 재조회(router.refresh)지 페이지 전체 리로드가 아니다
+  // - 전체 리로드는 선택한 기간·정렬·스크롤까지 날린다
+  const [refreshing, startRefresh] = useTransition();
   const { query } = useSearch();
   const [sorting, setSorting] = useState<SortingState>([
     { id: "liquidity", desc: true },
@@ -370,8 +373,9 @@ export function AssetBoard({
           type="button"
           title="새로고침"
           aria-label="새로고침"
-          onClick={() => window.location.reload()}
-          className="grid size-8 place-items-center rounded-lg border border-hairline bg-panel text-ink-3 transition-colors hover:text-ink-2"
+          disabled={refreshing}
+          onClick={() => startRefresh(() => router.refresh())}
+          className="grid size-8 place-items-center rounded-lg border border-hairline bg-panel text-ink-3 transition-colors hover:text-ink-2 disabled:opacity-60"
         >
           <svg
             viewBox="0 0 16 16"
@@ -383,6 +387,7 @@ export function AssetBoard({
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden
+            className={refreshing ? "animate-spin" : undefined}
           >
             <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" />
             <path d="M13.5 1.8v2.7h-2.7" />
