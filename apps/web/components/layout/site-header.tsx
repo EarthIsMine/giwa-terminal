@@ -61,11 +61,11 @@ export function SiteHeader() {
             />
           </a>
 
-          {/* 공식 브릿지 - 아이콘 + "브릿지" 글자 라벨(2026-08-29).
+          {/* 공식 브릿지 - "브릿지" 글자 라벨만(2026-08-29).
               처음엔 헤더 밀도 때문에 아이콘 단독이었지만, 다리 실루엣이든
               화살표든 첫 방문자는 아이콘만으로 브릿지를 못 알아본다 -
               타겟 유저(업저씨)에겐 그림 수수께끼가 밀도보다 비싸다.
-              그림은 크립토 관용 기호(양방향 화살표) + 나루 물결만 남긴다.
+              그림은 어떤 시안도 뜻을 더하지 못해 뺐다 - 글자가 곧 라벨이다.
               모바일에선 시트의 글자 링크로 대체 (헤더 밀도 절제) */}
           <a
             href={giwaChain.bridgeUrl}
@@ -73,23 +73,8 @@ export function SiteHeader() {
             rel="noreferrer"
             title="기와 공식 브릿지로 건너오기"
             aria-label="기와 공식 브릿지 열기"
-            className="hidden h-9 items-center gap-1.5 rounded-lg border border-hairline px-3 text-[12.5px] text-ink-3 transition-colors hover:border-ink-3/40 hover:text-ink-2 md:flex"
+            className="hidden h-9 items-center rounded-lg border border-hairline px-3 text-[12.5px] text-ink-3 transition-colors hover:border-ink-3/40 hover:text-ink-2 md:flex"
           >
-            <svg
-              viewBox="0 0 18 18"
-              width={15}
-              height={15}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M4.4 5.8h9.2M11.4 3.4l2.6 2.4-2.6 2.4" />
-              <path d="M13.6 10.6H4.4M7 8.2 4.4 10.6 7 13" />
-              <path d="M1.6 15.8q2.1-1.3 4.2 0t4.2 0t4.2 0" />
-            </svg>
             브릿지
           </a>
 
