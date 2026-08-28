@@ -90,7 +90,7 @@ export function AssetBoardTable({
                             ? "descending"
                             : undefined
                       }
-                      className={`px-6 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
+                      className={`whitespace-nowrap px-6 py-2.5 text-[11.5px] font-medium tracking-[0.1em] text-ink-3 last:pr-8 ${right ? "text-right" : ""} ${COL_WIDTH[header.column.id] ?? ""}`}
                     >
                       {header.column.getCanSort() ? (
                         <button
