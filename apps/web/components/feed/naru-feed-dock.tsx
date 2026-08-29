@@ -4,7 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { formatChangeBps, formatKrw } from "@giwa/shared";
 import type { DisplayKrw } from "@giwa/shared";
-import type { FeedResponse } from "@/lib/api-types";
+import type { FeedResponse, TickersResponse } from "@/lib/api-types";
 import type { FeedItemWire } from "@/lib/indexer";
 import type { MarketTickerWire } from "@/lib/krw";
 import { useEscapeKey } from "@/hooks/use-escape-key";
@@ -66,12 +66,24 @@ export function NaruFeedDock() {
         setItems(data.items);
         setEthKrwRaw(data.ethKrw);
       }
-      // 시세는 인덱서와 무관한 외부 소스 - 소식이 없어도 표시한다
-      setTickers(data.tickers ?? []);
     } catch {
-      /* 소식·시세 모두 조용히 폴백 (바는 유지) */
+      /* 조용히 폴백 (바는 유지) */
     }
   }, 60_000);
+
+  // 시세 바는 1초 갱신 - 소식(60초)과 주기가 달라 폴링을 분리했다.
+  // 실패 프레임에는 마지막 값을 유지한다 (1초 주기라 빈 배열로 덮으면 바가 깜빡인다)
+  usePoll(async (isCancelled) => {
+    try {
+      const res = await fetch("/api/tickers");
+      if (!res.ok) return;
+      const data = (await res.json()) as TickersResponse;
+      if (isCancelled()) return;
+      if (data.tickers.length > 0) setTickers(data.tickers);
+    } catch {
+      /* 조용히 폴백 */
+    }
+  }, 1_000);
 
   // 드로어가 열려 있는 동안 ESC 로 닫는다 (오버레이 관례)
   useEscapeKey(open, () => setOpen(false));

@@ -28,6 +28,10 @@ export interface PortfolioResponse extends PortfolioWire {
 export interface FeedResponse {
   items: FeedItemWire[] | null;
   ethKrw: string | null;
+}
+
+/** GET /api/tickers - 하단 바 시세 전용. 피드(60초)와 폴링 주기가 달라 라우트를 분리했다 */
+export interface TickersResponse {
   tickers: MarketTickerWire[];
 }
 
