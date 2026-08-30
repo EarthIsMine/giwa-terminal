@@ -134,49 +134,77 @@ app.get("/wallet/:address/trades", async (c) => {
 
 /**
  * 보드 일괄 요약 - 전 페어의 기간별 변동률·거래량을 한 번에 준다.
- * 윈도우는 일 단위(24h/7d/30d/전체)로만 연다 - 5분·1시간 변동률은 만들지 않는다
- * (절대 규칙 3: 정보 밀도를 낮춘다).
+ * 윈도우는 롤링 단기(15m/1h/4h/24h)다 (2026-08-31 팀 결정) - 이전의 일·월
+ * 경계(업비트 일봉 정렬)에서 rolling 으로 전환했다. 절대 규칙 3(정보 밀도·일월
+ * 단위)을 팀이 명시적으로 개정한 결과이며, CLAUDE.md 규칙 3·지표 정의도 함께 고쳤다.
  *
- * 산식: 윈도우 시작 이후 첫 1d 캔들의 open 대비 최신 캔들의 close.
- * 데이터가 없는 페어는 응답에서 빠진다 - 0.00%로 채우지 않는다.
+ * 산식: 윈도우 시작(now - Δ) 이후 첫 1m 캔들의 open 대비 최신 1m 캔들의 close.
+ * 롤링 단기 변동률은 1d 캔들로 못 내므로 분 단위 캔들을 본다. 데이터가 없는
+ * 페어·윈도우는 응답에서 빠진다 - 0.00%로 채우지 않는다.
  *
- * 구현 메모: 1d 캔들 전량을 읽어 메모리에서 집계한다. 자산이 수십 종 이내이고
- * 일봉이라 행 수가 작다는 전제이며, 규모가 커지면 SQL 윈도우 집계로 옮긴다.
+ * 총수수료는 윈도우와 무관한 lifetime 값이라 별도로 준다(`lifetimeVolumeWeth`):
+ * 1d 캔들 전량의 거래대금 합. 단기 윈도우로는 lifetime 을 못 낸다.
+ *
+ * 구현 메모: 1m 캔들은 최근 24h 만 읽는다(자산 수십 종 × 1440분이라 전량 스캔은
+ * 피한다). 총수수료용 1d 캔들과 활동 원장(최근 24h)만 추가로 읽는다.
  */
 app.get("/board", async (c) => {
   const now = Math.floor(Date.now() / 1_000);
-  const dayStart = now - (now % 86_400);
+  // 롤링 윈도우 - now 기준 과거 Δ초. 15분·1시간·4시간·24시간.
   const WINDOWS = {
-    "24h": dayStart,
-    "7d": dayStart - 6 * 86_400,
-    "30d": dayStart - 29 * 86_400,
-    all: 0,
+    "15m": now - 900,
+    "1h": now - 3_600,
+    "4h": now - 14_400,
+    "24h": now - 86_400,
   } as const;
+  // 1m 캔들·활동 원장 읽기 하한 = 가장 긴 윈도우(24h)
+  const windowFrom = now - 86_400;
 
-  const [rows, activityRows] = await Promise.all([
+  const [minuteRows, dailyRows, activityRows] = await Promise.all([
+    // 롤링 단기 변동률·거래량은 분 단위 캔들에서 낸다. 최근 24h 만.
     db
       .select()
       .from(schema.candles)
-      .where(eq(schema.candles.interval, "1d"))
+      .where(
+        and(
+          eq(schema.candles.interval, "1m"),
+          gte(schema.candles.bucket, windowFrom),
+        ),
+      )
       .orderBy(asc(schema.candles.bucket)),
-    // 거래 수·참여 지갑은 활동 원장에서 센다 - 매수·매도뿐 아니라
-    // 유동성 공급·회수까지 포함해야 "이 자산에 몇 명이 무엇을 했나"가 맞는다.
-    // 시간 필터를 걸지 않는다: 30일로 자르면 "전체" 윈도우의 거래 수·참여 지갑만
-    // 30일에 묶여 거래대금·변동률(전 기간)과 산술적으로 모순된 행이 나온다.
+    // 총수수료(lifetime)용 - 1d 캔들 전량의 거래대금 합. 윈도우와 무관.
+    db
+      .select({
+        pair: schema.candles.pair,
+        volumeWeth: schema.candles.volumeWeth,
+      })
+      .from(schema.candles)
+      .where(eq(schema.candles.interval, "1d")),
+    // 거래 수·참여 지갑은 활동 원장에서 센다 - 매수·매도뿐 아니라 유동성
+    // 공급·회수까지 포함해야 "이 자산에 몇 개 지갑이 무엇을 했나"가 맞는다.
+    // 보드 윈도우는 최대 24h 지만, 분석 탭의 "30일 참여 지갑"이 이 응답의
+    // traders30d 를 쓰므로 최근 30일을 읽는다(윈도우 집계는 그 안에서 24h 로 자른다).
     db
       .select({
         pair: schema.activities.pair,
         origin: schema.activities.origin,
         timestamp: schema.activities.timestamp,
       })
-      .from(schema.activities),
+      .from(schema.activities)
+      .where(gte(schema.activities.timestamp, now - 30 * 86_400)),
   ]);
 
-  const byPair = new Map<string, typeof rows>();
-  for (const r of rows) {
+  const byPair = new Map<string, typeof minuteRows>();
+  for (const r of minuteRows) {
     const list = byPair.get(r.pair);
     if (list) list.push(r);
     else byPair.set(r.pair, [r]);
+  }
+
+  // 총수수료용 lifetime 거래대금 - 페어별 1d 캔들 볼륨 합
+  const lifetimeByPair = new Map<string, bigint>();
+  for (const r of dailyRows) {
+    lifetimeByPair.set(r.pair, (lifetimeByPair.get(r.pair) ?? 0n) + r.volumeWeth);
   }
 
   const actByPair = new Map<string, typeof activityRows>();
@@ -189,43 +217,88 @@ app.get("/board", async (c) => {
   interface WindowStat {
     changeBps: number;
     volumeWeth: string;
+    /** 순유입 = 윈도우 내 총매수 - 총매도 (WETH wei, 부호 있음, 지표 정의 §순유입) */
+    netInflowWeth: string;
     trades: number;
     traders: number;
   }
-  const out: Record<string, { windows: Record<string, WindowStat> }> = {};
+  const out: Record<
+    string,
+    {
+      windows: Record<string, WindowStat>;
+      lifetimeVolumeWeth: string;
+      /** 분석 탭 전용 - 최근 30일 distinct tx.origin (보드 윈도우와 별개) */
+      traders30d: number;
+    }
+  > = {};
 
-  for (const [pair, candles] of byPair) {
+  const thirtyDaysAgo = now - 30 * 86_400;
+
+  // 통계 대상 = 최근 24h 캔들(단기 지표)·lifetime 거래(총수수료)·30일 활동
+  // (분석 탭 참여 지갑) 중 하나라도 있는 페어. 셋의 합집합을 돈다.
+  const pairSet = new Set<string>([
+    ...byPair.keys(),
+    ...lifetimeByPair.keys(),
+    ...actByPair.keys(),
+  ]);
+
+  for (const pair of pairSet) {
+    const candles = byPair.get(pair) ?? [];
     const latest = candles[candles.length - 1];
-    if (!latest) continue;
     const windows: Record<string, WindowStat> = {};
     const pairActs = actByPair.get(pair) ?? [];
 
-    for (const [key, from] of Object.entries(WINDOWS)) {
-      const inWindow = candles.filter((r) => r.bucket >= from);
-      const first = inWindow[0];
-      if (!first || first.open === 0n) continue;
-      const origins = new Set<string>();
-      let actCount = 0;
-      for (const a of pairActs) {
-        if (a.timestamp < from) continue;
-        actCount += 1;
-        origins.add(a.origin);
-      }
-      windows[key] = {
-        changeBps: Number(((latest.close - first.open) * 10_000n) / first.open),
-        // 거래대금은 스왑 체결액만 - 유동성 공급은 거래가 아니다 (지표 정의 §거래량)
-        volumeWeth: inWindow
-          .reduce((acc, r) => acc + r.volumeWeth, 0n)
-          .toString(),
-        // 거래 수·참여 지갑은 매수·매도·유동성 공급·회수 전부.
-        // 활동 원장을 전 기간 읽으므로 all 윈도우도 정확하다 (근사 아님)
-        trades: actCount,
-        traders: origins.size,
-      };
+    // 분석 탭 30일 참여 지갑 - 보드 윈도우와 무관하게 최근 30일 distinct origin
+    const origins30d = new Set<string>();
+    for (const a of pairActs) {
+      if (a.timestamp >= thirtyDaysAgo) origins30d.add(a.origin);
     }
-    if (Object.keys(windows).length === 0) continue;
 
-    out[pair] = { windows };
+    if (latest) {
+      for (const [key, from] of Object.entries(WINDOWS)) {
+        const inWindow = candles.filter((r) => r.bucket >= from);
+        const first = inWindow[0];
+        if (!first || first.open === 0n) continue;
+        const origins = new Set<string>();
+        let actCount = 0;
+        for (const a of pairActs) {
+          if (a.timestamp < from) continue;
+          actCount += 1;
+          origins.add(a.origin);
+        }
+        windows[key] = {
+          changeBps: Number(
+            ((latest.close - first.open) * 10_000n) / first.open,
+          ),
+          // 거래대금은 스왑 체결액만 - 유동성 공급은 거래가 아니다 (지표 정의 §거래량)
+          volumeWeth: inWindow
+            .reduce((acc, r) => acc + r.volumeWeth, 0n)
+            .toString(),
+          // 순유입 = 총매수 - 총매도. candles 에 방향별로 이미 갈라 쌓아뒀으므로
+          // 여기서도 trades 원장을 스캔하지 않는다 (지표 정의 §순유입)
+          netInflowWeth: inWindow
+            .reduce((acc, r) => acc + r.buyVolumeWeth - r.sellVolumeWeth, 0n)
+            .toString(),
+          trades: actCount,
+          traders: origins.size,
+        };
+      }
+    }
+
+    const lifetime = lifetimeByPair.get(pair) ?? 0n;
+    // 단기 윈도우·lifetime 거래·30일 참여 지갑이 전부 없으면 뺀다 - 0으로 안 채운다
+    if (
+      Object.keys(windows).length === 0 &&
+      lifetime === 0n &&
+      origins30d.size === 0
+    )
+      continue;
+
+    out[pair] = {
+      windows,
+      lifetimeVolumeWeth: lifetime.toString(),
+      traders30d: origins30d.size,
+    };
   }
 
   return c.json({ pairs: out });

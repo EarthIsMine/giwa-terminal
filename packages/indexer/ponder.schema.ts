@@ -140,8 +140,14 @@ export const candles = onchainTable(
     high: t.bigint().notNull(),
     low: t.bigint().notNull(),
     close: t.bigint().notNull(),
-    /** quote(WETH) 환산 거래대금 합 */
+    /** quote(WETH) 환산 거래대금 합 (매수+매도) */
     volumeWeth: t.bigint().notNull(),
+    /** 순유입 산식의 재료 - 매수·매도 방향별로 나눠 누적한다.
+     *  candles 는 방향을 잃은 volumeWeth만 있었으니, /board 가 trades 원장을
+     *  직접 스캔하지 않고도 순유입을 낼 수 있게 스왑 시점에 갈라 쌓는다
+     *  (지표 정의 §순유입, "스왑 원장 스캔 금지" 원칙 유지) */
+    buyVolumeWeth: t.bigint().notNull(),
+    sellVolumeWeth: t.bigint().notNull(),
     trades: t.integer().notNull(),
   }),
   (table) => ({

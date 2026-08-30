@@ -15,6 +15,7 @@ import {
   formatCount,
   formatEth,
   formatKrw,
+  shortHex,
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
@@ -55,24 +56,33 @@ function cmpBigint(a: bigint, b: bigint): number {
 
 function AssetCell({ asset }: { asset: LiveAsset }) {
   return (
-    <div className="flex items-center gap-2.5">
-      <AssetAvatar symbol={asset.symbol} size={30} />
+    <div className="flex items-center gap-3">
+      <AssetAvatar symbol={asset.symbol} size={36} />
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
           <Link
             href={`/asset/${asset.address}`}
             onClick={(e) => e.stopPropagation()}
-            className="text-[13.5px] font-semibold tracking-wide"
+            className="text-[14px] font-semibold tracking-wide"
           >
             {asset.symbol}
           </Link>
           <VerifiedBadge verification={asset.verification} />
-          {/* 컨트랙트 주소 복사 - 주소 문자열은 노출하지 않고 버튼만 둔다.
-              0x… 를 19행에 깔면 정보 밀도가 튀지만(절대 규칙 3), 복사 자체는
-              지갑·익스플로러로 옮겨 확인하는 실제 동선이라 목록에 남긴다 */}
+        </div>
+        {/* 둘째 줄 - 한글명 + 축약 주소(2026-08-31, 팀 결정으로 노출 전환).
+            이전엔 주소 문자열을 아예 감췄으나(절대 규칙 3), 축약 표기 +
+            복사 버튼을 한 줄로 묶는 편이 식별성이 높다는 팀 판단으로 바꿨다.
+            전체 0x… 풀 주소는 여전히 안 보여준다 - shortHex 로 자른다.
+            whitespace-nowrap: 공백 없는 한글명은 안 걸면 글자 단위로 세로로
+            쪼개진다(자산 컬럼이 좁을 때). 넘치면 셀이 아니라 표가 스크롤한다 */}
+        <div className="mt-1 flex items-center gap-1.5 whitespace-nowrap text-[11.5px] text-ink-3">
+          <span>{asset.nameKo}</span>
+          <span aria-hidden className="text-ink-3/50">
+            ·
+          </span>
+          <span className="font-mono">{shortHex(asset.address)}</span>
           <CopyAddress address={asset.address} />
         </div>
-        <p className="mt-0.5 text-[11.5px] text-ink-3">{asset.nameKo}</p>
       </div>
     </div>
   );
@@ -95,8 +105,8 @@ export function AssetBoard({
   const [sorting, setSorting] = useState<SortingState>([
     { id: "liquidity", desc: true },
   ]);
-  // 기본은 7일 - "오늘"은 UTC 자정(09:00 KST) 경계라 한국 오전에 열면 창이 몇 분짜리다
-  const [window_, setWindow] = useState<BoardWindow>("7d");
+  // 기본은 24시간 - 롤링 단기 윈도우 중 가장 넓어 저활동 자산도 지표가 덜 빈다
+  const [window_, setWindow] = useState<BoardWindow>("24h");
 
   const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
 
@@ -105,8 +115,9 @@ export function AssetBoard({
       const entry = boardStats?.[a.pair.toLowerCase()];
       // windows 옵셔널 체이닝 - 인덱서 응답 캐시가 구버전일 수 있다
       const w = entry?.windows?.[window_];
-      // 총수수료는 lifetime 값이라 선택 윈도우가 아니라 항상 전체(all) 누적에서 낸다
-      const allVolume = entry?.windows?.all?.volumeWeth;
+      // 총수수료는 lifetime 값이라 선택 윈도우가 아니라 전체 누적 거래대금에서 낸다.
+      // 롤링 윈도우 전환(2026-08-31)으로 "all" 윈도우가 사라져 인덱서가 별도 필드로 준다
+      const allVolume = entry?.lifetimeVolumeWeth;
       const priceWei = BigInt(a.priceWei);
       return {
         address: a.address,
@@ -120,6 +131,7 @@ export function AssetBoard({
         changeBps: w?.changeBps ?? null,
         marketCapWei: wei((BigInt(a.totalSupply) * priceWei) / 10n ** 18n),
         volumeWei: w ? wei(BigInt(w.volumeWeth)) : null,
+        netInflowWei: w ? wei(BigInt(w.netInflowWeth)) : null,
         trades: w?.trades ?? null,
         traders: w?.traders ?? null,
         totalFeesWei: allVolume
@@ -146,16 +158,6 @@ export function AssetBoard({
         cell: ({ row }) => <AssetCell asset={row.original} />,
       },
       {
-        id: "issuer",
-        header: "발행자",
-        enableSorting: false,
-        cell: ({ row }) => (
-          <span className="text-[12.5px] text-ink-2">
-            {row.original.issuerName}
-          </span>
-        ),
-      },
-      {
         id: "price",
         accessorFn: (a) => a.priceWei,
         header: "현재가",
@@ -180,7 +182,9 @@ export function AssetBoard({
       {
         id: "change",
         accessorFn: (a) => a.changeBps ?? undefined,
-        header: WINDOW_LABEL[window_],
+        // "15분"만 두면 무슨 지표인지 안 보인다(다른 윈도우 의존 컬럼은 지표명이
+        // 헤더다) - 지표명 "변동"만 둔다. 어느 윈도우인지는 기간 토글이 정한다
+        header: "변동",
         sortDescFirst: true,
         ...NO_DATA_SORT,
         sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
@@ -239,6 +243,45 @@ export function AssetBoard({
             <span className="font-mono text-[13px] tabular-nums">
               {formatEth(v, 4)}{" "}
               <span className="text-[11px] text-ink-3">ETH</span>
+            </span>
+          );
+        },
+      },
+      {
+        id: "netInflow",
+        accessorFn: (a) => a.netInflowWei ?? undefined,
+        // 순유입 = 총매수 - 총매도. 유동성 공급/회수는 방향성 있는 매수·매도가
+        // 아니라서 제외한다 (지표 정의 §순유입) - "거래대금"과 달리 부호가 있다
+        header: "순유입",
+        sortDescFirst: true,
+        ...NO_DATA_SORT,
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
+          cmpBigint(
+            a.original.netInflowWei ?? wei(0n),
+            b.original.netInflowWei ?? wei(0n),
+          ),
+        cell: ({ row }) => {
+          const v = row.original.netInflowWei;
+          if (v === null) {
+            return <span className="font-mono text-[12px] text-ink-3">-</span>;
+          }
+          // 상승/하락과 같은 색 관례(초록/빨강, 국제 관례) 재사용 - 순매수 우위는
+          // 상승과 같은 방향 신호라 새 색을 만들 필요가 없다
+          const sign = v > 0n ? "+" : v < 0n ? "-" : "";
+          const abs = wei(v < 0n ? -v : v);
+          return (
+            <span
+              className={`inline-flex items-baseline gap-0.5 font-mono text-[13px] tabular-nums ${v >= 0n ? "text-up" : "text-down"}`}
+            >
+              {sign}
+              {ethKrw ? (
+                <KrwCompact v={abs} ethKrw={ethKrw} />
+              ) : (
+                <>
+                  {formatEth(abs, 4)}{" "}
+                  <span className="text-[11px] text-ink-3">ETH</span>
+                </>
+              )}
             </span>
           );
         },
