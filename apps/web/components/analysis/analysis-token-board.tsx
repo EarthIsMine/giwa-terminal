@@ -83,7 +83,7 @@ const HEADERS = [
   { key: "holders", label: "홀더", right: true },
   { key: "issuer", label: "발행자 물량", right: true },
   { key: "top10", label: "상위 10 집중도", right: true },
-  { key: "traders", label: "참여 인원 · 30일", right: true },
+  { key: "traders", label: "참여 지갑 · 30일", right: true },
 ] as const;
 
 export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
@@ -102,7 +102,7 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
           <table className="w-full min-w-[860px] border-collapse text-left">
             <caption className="sr-only">
               상장 자산 보유 현황 비교. 홀더 수, 발행자 물량, 상위 10 집중도,
-              참여 인원
+              참여 지갑
             </caption>
             <thead>
               <tr className="border-b border-black/45 bg-[#120c06]/[0.97]">
@@ -179,7 +179,7 @@ export function AnalysisTokenBoard({ rows }: { rows: AnalysisTokenRow[] }) {
           아닙니다. 상장 초기에는 발행자 물량이 높은 것이 일반적입니다.
         </p>
         <p>
-          · 참여 인원은 최근 30일 매수 · 매도 · 예치 · 회수에 참여한
+          · 참여 지갑은 최근 30일 매수 · 매도 · 예치 · 회수에 참여한
           지갑 수입니다. 테스트넷 데모라 시드 봇 · 운영 지갑이 포함됩니다.
         </p>
         <p>

@@ -191,6 +191,8 @@ ponder.on("NaruswapV2Pair:Swap", async ({ event, context }) => {
         low: openPrice < price ? openPrice : price,
         close: price,
         volumeWeth: wethAmount,
+        buyVolumeWeth: side === "buy" ? wethAmount : 0n,
+        sellVolumeWeth: side === "sell" ? wethAmount : 0n,
         trades: 1,
       })
       .onConflictDoUpdate((row) => ({
@@ -198,6 +200,10 @@ ponder.on("NaruswapV2Pair:Swap", async ({ event, context }) => {
         low: row.low < price ? row.low : price,
         close: price,
         volumeWeth: row.volumeWeth + wethAmount,
+        buyVolumeWeth:
+          row.buyVolumeWeth + (side === "buy" ? wethAmount : 0n),
+        sellVolumeWeth:
+          row.sellVolumeWeth + (side === "sell" ? wethAmount : 0n),
         trades: row.trades + 1,
       }));
   }

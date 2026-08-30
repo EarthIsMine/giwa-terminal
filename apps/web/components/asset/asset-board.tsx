@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,13 +15,13 @@ import {
   formatCount,
   formatEth,
   formatKrw,
+  shortHex,
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
 import { BOARD_WINDOWS } from "@/lib/indexer";
 import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
-import { VERIFICATION_DETAIL, VERIFICATION_LEAD } from "@/lib/site";
 import { AssetBoardCards } from "@/components/asset/asset-board-cards";
 import { KrwCompact, WINDOW_LABEL } from "@/components/asset/asset-board-model";
 import type { LiveAsset } from "@/components/asset/asset-board-model";
@@ -56,24 +56,33 @@ function cmpBigint(a: bigint, b: bigint): number {
 
 function AssetCell({ asset }: { asset: LiveAsset }) {
   return (
-    <div className="flex items-center gap-2.5">
-      <AssetAvatar symbol={asset.symbol} size={30} />
+    <div className="flex items-center gap-3">
+      <AssetAvatar symbol={asset.symbol} size={36} />
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
           <Link
             href={`/asset/${asset.address}`}
             onClick={(e) => e.stopPropagation()}
-            className="text-[13.5px] font-semibold tracking-wide"
+            className="text-[14px] font-semibold tracking-wide"
           >
             {asset.symbol}
           </Link>
           <VerifiedBadge verification={asset.verification} />
-          {/* 컨트랙트 주소 복사 - 주소 문자열은 노출하지 않고 버튼만 둔다.
-              0x… 를 19행에 깔면 정보 밀도가 튀지만(절대 규칙 3), 복사 자체는
-              지갑·익스플로러로 옮겨 확인하는 실제 동선이라 목록에 남긴다 */}
+        </div>
+        {/* 둘째 줄 - 한글명 + 축약 주소(2026-08-31, 팀 결정으로 노출 전환).
+            이전엔 주소 문자열을 아예 감췄으나(절대 규칙 3), 축약 표기 +
+            복사 버튼을 한 줄로 묶는 편이 식별성이 높다는 팀 판단으로 바꿨다.
+            전체 0x… 풀 주소는 여전히 안 보여준다 - shortHex 로 자른다.
+            whitespace-nowrap: 공백 없는 한글명은 안 걸면 글자 단위로 세로로
+            쪼개진다(자산 컬럼이 좁을 때). 넘치면 셀이 아니라 표가 스크롤한다 */}
+        <div className="mt-1 flex items-center gap-1.5 whitespace-nowrap text-[11.5px] text-ink-3">
+          <span>{asset.nameKo}</span>
+          <span aria-hidden className="text-ink-3/50">
+            ·
+          </span>
+          <span className="font-mono">{shortHex(asset.address)}</span>
           <CopyAddress address={asset.address} />
         </div>
-        <p className="mt-0.5 text-[11.5px] text-ink-3">{asset.nameKo}</p>
       </div>
     </div>
   );
@@ -89,24 +98,26 @@ export function AssetBoard({
   boardStats: BoardStatsWire | null;
 }) {
   const router = useRouter();
+  // 새로고침 = 서버 데이터 재조회(router.refresh)지 페이지 전체 리로드가 아니다
+  // - 전체 리로드는 선택한 기간·정렬·스크롤까지 날린다
+  const [refreshing, startRefresh] = useTransition();
   const { query } = useSearch();
   const [sorting, setSorting] = useState<SortingState>([
     { id: "liquidity", desc: true },
   ]);
-  // 기본은 7일 - "오늘"은 UTC 자정(09:00 KST) 경계라 한국 오전에 열면 창이 몇 분짜리다
-  const [window_, setWindow] = useState<BoardWindow>("7d");
+  // 기본은 24시간 - 롤링 단기 윈도우 중 가장 넓어 저활동 자산도 지표가 덜 빈다
+  const [window_, setWindow] = useState<BoardWindow>("24h");
 
   const ethKrw = useMemo(() => (ethKrwRaw ? BigInt(ethKrwRaw) : null), [ethKrwRaw]);
-
-  const nowSec = useMemo(() => Math.floor(Date.now() / 1_000), []);
 
   const data = useMemo<LiveAsset[]>(() => {
     const parsed = assets.map((a) => {
       const entry = boardStats?.[a.pair.toLowerCase()];
       // windows 옵셔널 체이닝 - 인덱서 응답 캐시가 구버전일 수 있다
       const w = entry?.windows?.[window_];
-      // 총수수료는 lifetime 값이라 선택 윈도우가 아니라 항상 전체(all) 누적에서 낸다
-      const allVolume = entry?.windows?.all?.volumeWeth;
+      // 총수수료는 lifetime 값이라 선택 윈도우가 아니라 전체 누적 거래대금에서 낸다.
+      // 롤링 윈도우 전환(2026-08-31)으로 "all" 윈도우가 사라져 인덱서가 별도 필드로 준다
+      const allVolume = entry?.lifetimeVolumeWeth;
       const priceWei = BigInt(a.priceWei);
       return {
         address: a.address,
@@ -120,12 +131,12 @@ export function AssetBoard({
         changeBps: w?.changeBps ?? null,
         marketCapWei: wei((BigInt(a.totalSupply) * priceWei) / 10n ** 18n),
         volumeWei: w ? wei(BigInt(w.volumeWeth)) : null,
+        netInflowWei: w ? wei(BigInt(w.netInflowWeth)) : null,
         trades: w?.trades ?? null,
         traders: w?.traders ?? null,
         totalFeesWei: allVolume
           ? wei(feeFromVolume(BigInt(allVolume)))
           : null,
-        ageDays: Math.max(0, Math.floor((nowSec - a.issuedAt) / 86_400)),
       };
     });
     const q = query.trim().toLowerCase();
@@ -136,7 +147,7 @@ export function AssetBoard({
         a.nameKo.includes(q) ||
         a.address.toLowerCase().includes(q),
     );
-  }, [assets, query, boardStats, window_, nowSec]);
+  }, [assets, query, boardStats, window_]);
 
   const columns = useMemo<ColumnDef<LiveAsset>[]>(
     () => [
@@ -145,16 +156,6 @@ export function AssetBoard({
         header: "자산",
         enableSorting: false,
         cell: ({ row }) => <AssetCell asset={row.original} />,
-      },
-      {
-        id: "issuer",
-        header: "발행자",
-        enableSorting: false,
-        cell: ({ row }) => (
-          <span className="text-[12.5px] text-ink-2">
-            {row.original.issuerName}
-          </span>
-        ),
       },
       {
         id: "price",
@@ -181,7 +182,9 @@ export function AssetBoard({
       {
         id: "change",
         accessorFn: (a) => a.changeBps ?? undefined,
-        header: WINDOW_LABEL[window_],
+        // "15분"만 두면 무슨 지표인지 안 보인다(다른 윈도우 의존 컬럼은 지표명이
+        // 헤더다) - 지표명 "변동"만 둔다. 어느 윈도우인지는 기간 토글이 정한다
+        header: "변동",
         sortDescFirst: true,
         ...NO_DATA_SORT,
         sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
@@ -245,6 +248,45 @@ export function AssetBoard({
         },
       },
       {
+        id: "netInflow",
+        accessorFn: (a) => a.netInflowWei ?? undefined,
+        // 순유입 = 총매수 - 총매도. 유동성 공급/회수는 방향성 있는 매수·매도가
+        // 아니라서 제외한다 (지표 정의 §순유입) - "거래대금"과 달리 부호가 있다
+        header: "순유입",
+        sortDescFirst: true,
+        ...NO_DATA_SORT,
+        sortingFn: (a: Row<LiveAsset>, b: Row<LiveAsset>) =>
+          cmpBigint(
+            a.original.netInflowWei ?? wei(0n),
+            b.original.netInflowWei ?? wei(0n),
+          ),
+        cell: ({ row }) => {
+          const v = row.original.netInflowWei;
+          if (v === null) {
+            return <span className="font-mono text-[12px] text-ink-3">-</span>;
+          }
+          // 상승/하락과 같은 색 관례(초록/빨강, 국제 관례) 재사용 - 순매수 우위는
+          // 상승과 같은 방향 신호라 새 색을 만들 필요가 없다
+          const sign = v > 0n ? "+" : v < 0n ? "-" : "";
+          const abs = wei(v < 0n ? -v : v);
+          return (
+            <span
+              className={`inline-flex items-baseline gap-0.5 font-mono text-[13px] tabular-nums ${v >= 0n ? "text-up" : "text-down"}`}
+            >
+              {sign}
+              {ethKrw ? (
+                <KrwCompact v={abs} ethKrw={ethKrw} />
+              ) : (
+                <>
+                  {formatEth(abs, 4)}{" "}
+                  <span className="text-[11px] text-ink-3">ETH</span>
+                </>
+              )}
+            </span>
+          );
+        },
+      },
+      {
         id: "trades",
         accessorFn: (a) => a.trades ?? undefined,
         // 매수·매도에 유동성 공급/회수까지 포함하므로 "체결"이 아니라 "거래"다
@@ -264,7 +306,7 @@ export function AssetBoard({
       {
         id: "traders",
         accessorFn: (a) => a.traders ?? undefined,
-        header: "참여 인원",
+        header: "참여 지갑",
         sortDescFirst: true,
         ...NO_DATA_SORT,
         cell: ({ row }) => (
@@ -321,18 +363,8 @@ export function AssetBoard({
           );
         },
       },
-      {
-        id: "age",
-        accessorFn: (a) => a.ageDays,
-        header: "상장",
-        cell: ({ row }) => (
-          <span className="font-mono text-[12.5px] tabular-nums text-ink-3">
-            {row.original.ageDays === 0
-              ? "오늘"
-              : `${formatCount(row.original.ageDays)}일`}
-          </span>
-        ),
-      },
+      // 상장 경과일 열도 뺐다. 총수수료가 들어오며 열이 늘었는데, 며칠 됐는지는
+      // 목록에서 자산을 고르는 판단에 쓰이지 않는다 (자산 상세의 "상장일"에 남아 있다).
       // 컨트랙트 주소 열은 뺐다. 목록 19행에 0x… 를 깔면 화면이 가장 크게
       // "여기는 크립토다"라고 외치는데, 타겟 유저가 그 열을 볼 일은 없다.
       // 원본 기록은 자산 상세에 남아 있다 (감추는 건 배관이지 고지가 아니다).
@@ -383,8 +415,9 @@ export function AssetBoard({
           type="button"
           title="새로고침"
           aria-label="새로고침"
-          onClick={() => window.location.reload()}
-          className="grid size-8 place-items-center rounded-lg border border-hairline bg-panel text-ink-3 transition-colors hover:text-ink-2"
+          disabled={refreshing}
+          onClick={() => startRefresh(() => router.refresh())}
+          className="grid size-8 place-items-center rounded-lg border border-hairline bg-panel text-ink-3 transition-colors hover:text-ink-2 disabled:opacity-60"
         >
           <svg
             viewBox="0 0 16 16"
@@ -396,20 +429,15 @@ export function AssetBoard({
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden
+            className={refreshing ? "animate-spin" : undefined}
           >
             <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" />
             <path d="M13.5 1.8v2.7h-2.7" />
           </svg>
         </button>
 
-        {/* 테스트넷 표시 칩 - 시드 데이터 상세 고지는 푸터에 유지 (절대 규칙 5) */}
-        <span className="flex h-8 items-center gap-2 rounded-lg border border-hairline bg-panel px-2.5 text-[12px] text-ink-2">
-          <span
-            aria-hidden
-            className="size-1.5 rounded-full bg-warn animate-pulse-dot"
-          />
-          테스트넷
-        </span>
+        {/* 테스트넷 칩은 뺐다(2026-08-29) - 상단 배너가 같은 사실을 전 페이지
+            상시 고지한다 (절대 규칙 5 충족). 같은 화면에 두 번 말할 필요 없다 */}
       </div>
 
       <Responsive
@@ -427,23 +455,14 @@ export function AssetBoard({
         }
       />
 
-      {/* 환산·집계 고지 (절대 규칙 1·5) */}
-      <div className="mt-3 space-y-1 px-page text-[11.5px] leading-relaxed text-ink-3">
-        <p>
-          {ethKrw
-            ? `· 원화 금액은 업비트 KRW-ETH 시세(₩${formatCount(Number(ethKrw))} · 60초 갱신)로 환산한 참고값입니다.`
-            : "· 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다."}
+      {/* 환산·집계·검증 고지는 푸터 "고지"로 합쳤다(2026-08-29) - 전부 사이트
+          전체에 해당하는 문장이라 보드 밑에 또 쓰면 고지가 두 군데로 갈라진다.
+          단, 시세 조회 실패는 상태 표시라 여기 남긴다 (정적 푸터로 못 옮긴다) */}
+      {ethKrw === null ? (
+        <p className="mt-3 px-page text-[11.5px] leading-relaxed text-ink-3">
+          · 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다.
         </p>
-        <p>
-          · 목록·가격·예치 규모는 기와체인에 기록된 실데이터입니다. 변동률 ·
-          거래대금 · 참여 인원 · 총수수료는 인덱서 연결 후 제공되며, 거래
-          데이터는 데모 시드 봇이 생성합니다.
-        </p>
-        <p>
-          · <b className="font-medium text-ink-2">{VERIFICATION_LEAD}.</b>{" "}
-          {VERIFICATION_DETAIL}
-        </p>
-      </div>
+      ) : null}
     </div>
   );
 }

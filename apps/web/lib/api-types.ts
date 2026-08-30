@@ -1,6 +1,6 @@
 import type { FeedItemWire, WalletTradeWire } from "@/lib/indexer";
 import type { MarketTickerWire } from "@/lib/krw";
-import type { PortfolioWire } from "@/lib/onchain";
+import type { LiveAssetWire, PortfolioWire } from "@/lib/onchain";
 
 /**
  * 내부 API 라우트의 응답 계약 - 단일 소스.
@@ -29,4 +29,24 @@ export interface FeedResponse {
   items: FeedItemWire[] | null;
   ethKrw: string | null;
   tickers: MarketTickerWire[];
+}
+
+/**
+ * GET /api/assets - 헤더 검색 모달용 자산 목록.
+ * Pick 으로 생산자(LiveAssetWire)를 참조한다 - 필드를 베껴 적으면
+ * 생산자 변경이 조용히 어긋난다 (PortfolioResponse 와 같은 이유).
+ */
+export interface AssetsResponse {
+  assets: Pick<
+    LiveAssetWire,
+    | "address"
+    | "symbol"
+    | "nameKo"
+    | "issuerName"
+    | "priceWei"
+    | "liquidityWei"
+    | "verification"
+  >[];
+  /** 원화 환산용 업비트 시세 - 실패 시 null, 화면은 ETH 표기로 폴백 */
+  ethKrw: string | null;
 }

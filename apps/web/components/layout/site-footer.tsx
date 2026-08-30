@@ -7,7 +7,9 @@ export function SiteFooter() {
   return (
     // 본문 마루와 구분되는 짙은 그늘 영역 - 나무는 배경으로 희미하게만 비친다
     <footer className="mt-14 border-t border-black/50 bg-[#150d07]/85">
-      <div className="mx-auto grid w-full max-w-page grid-cols-1 gap-8 px-page py-10 text-[13px] sm:py-12 md:grid-cols-[1.2fr_1fr_1.6fr] md:gap-10">
+      {/* 세로 여백은 내용에 맞게 조인 상태(2026-08-29) - 내용보다 공기가
+          많으면 푸터가 빈 띠처럼 길어 보인다 */}
+      <div className="mx-auto grid w-full max-w-page grid-cols-1 gap-6 px-page py-7 text-[13px] md:grid-cols-[1.2fr_1fr_1.6fr] md:gap-10">
         <div>
           <div className="flex items-center gap-2">
             <BrandLogo size={20} />
@@ -46,7 +48,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="text-[11px] font-medium tracking-[0.08em] text-ink-3">
+          <h2 className="text-[11px] font-semibold tracking-[0.18em] text-accent/90">
             네트워크
           </h2>
           <ul className="mt-3 space-y-1.5 text-ink-2">
@@ -99,17 +101,22 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h2 className="text-[11px] font-medium tracking-[0.08em] text-ink-3">
+          <h2 className="text-[11px] font-semibold tracking-[0.18em] text-accent/90">
             고지
           </h2>
+          {/* 고지 단일화(2026-08-29): 보드 밑 각주 3문장을 여기로 흡수했다 -
+              전부 사이트 전체에 해당하는 문장이라 두 군데로 갈라져 있으면
+              표현이 조용히 어긋난다(검증 문구 단일 소스 원칙과 같은 이유).
+              테스트넷·시드 봇의 "데모" 고지 자체는 상단 배너가 담당한다 */}
           <ul className="mt-3 space-y-1.5 leading-relaxed text-ink-3">
             <li>
-              본 화면은 {giwaChain.name} 테스트넷 데모이며, 거래 데이터는 데모
-              시드 봇이 생성합니다.
+              원화 금액은 업비트 KRW-ETH 시세(60초 갱신)로 환산한
+              참고값이며, 원화 자산이 기와체인에 존재하는 것은 아닙니다.
             </li>
             <li>
-              원화 금액은 업비트 KRW-ETH 시세로 환산한 참고값입니다. 원화
-              자산이 기와체인에 존재하는 것은 아닙니다.
+              목록·가격·예치 규모는 기와체인에 기록된 실데이터입니다. 변동률
+              · 거래대금 · 순유입 · 참여 지갑 · 총수수료는 인덱서 연결 후
+              제공되며, 거래 데이터는 데모 시드 봇이 생성합니다.
             </li>
             <li>표시 자산은 신원 검증을 통과한 자산으로 한정됩니다.</li>
             <li>{VERIFICATION_DISCLAIMER}</li>
@@ -121,7 +128,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-hairline/60">
-        <p className="mx-auto w-full max-w-page px-page py-5 text-[12px] text-ink-3">
+        <p className="mx-auto w-full max-w-page px-page py-3.5 text-[12px] text-ink-3">
           © 2026 나루 NARU · GIWA 가속 데모
         </p>
       </div>

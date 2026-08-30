@@ -69,8 +69,7 @@ export default async function AnalysisPage() {
       holderCount: analysis?.holderCount ?? null,
       issuerPermille: analysis?.issuerPermille ?? null,
       top10Permille: analysis?.top10Permille ?? null,
-      traders30d:
-        boardStats?.[a.pair.toLowerCase()]?.windows["30d"]?.traders ?? null,
+      traders30d: boardStats?.[a.pair.toLowerCase()]?.traders30d ?? null,
     };
   });
 

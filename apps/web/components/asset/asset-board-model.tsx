@@ -23,26 +23,26 @@ export interface LiveAsset {
    *  NaruToken 은 공급 고정이고 소각 기능이 없어 락업·소각 차감분이 없다
    *  (CLAUDE.md 시가총액 정의: 제외 정책을 주석으로 남긴다) */
   marketCapWei: WeiAmount;
-  /** 선택 윈도우의 거래대금(WETH wei) · 체결 건수 · 참여 인원 */
+  /** 선택 윈도우의 거래대금(WETH wei) · 체결 건수 · 참여 지갑 */
   volumeWei: WeiAmount | null;
+  /** 순유입 = 선택 윈도우 총매수 - 총매도 (WETH wei, 부호 있음 - 음수는 순매도 우위) */
+  netInflowWei: WeiAmount | null;
   trades: number | null;
   traders: number | null;
   /** 총수수료 = 전체 누적 거래대금 × 0.3% (WETH wei). 윈도우 선택과 무관한 lifetime 값 */
   totalFeesWei: WeiAmount | null;
-  /** 상장 후 경과 일수 */
-  ageDays: number;
 }
 
 /**
- * 윈도우 라벨 - "24h"는 rolling 24시간이 아니라 UTC 당일(09:00 KST 경계)이다.
- * 업비트 일봉과 같은 경계를 쓰기로 한 결정이라(CLAUDE.md 지표 정의) 계산은 그대로 두고
- * 이름을 "오늘"로 맞춘다. "24시간"이라 부르면 KST 오전에 창이 몇 분짜리가 된다.
+ * 윈도우 라벨 - 롤링 단기(2026-08-31). now 기준 과거 15분·1시간·4시간·24시간이다.
+ * 이전의 일·월 경계(업비트 일봉 정렬)에서 rolling 으로 전환한 팀 결정 - "24h"도
+ * UTC 당일이 아니라 진짜 rolling 24시간이다.
  */
 export const WINDOW_LABEL: Record<BoardWindow, string> = {
-  "24h": "오늘",
-  "7d": "7일",
-  "30d": "30일",
-  all: "전체",
+  "15m": "15분",
+  "1h": "1시간",
+  "4h": "4시간",
+  "24h": "24시간",
 };
 
 /** "1.27억" → 숫자와 단위를 분리해 단위를 한 단계 죽인다 */

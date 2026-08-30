@@ -113,13 +113,15 @@ export async function getFeed(): Promise<FeedItemWire[] | null> {
   return res?.items ?? null;
 }
 
-/** 보드 기간 윈도우 - 일 단위만 연다 (절대 규칙 3) */
-export const BOARD_WINDOWS = ["24h", "7d", "30d", "all"] as const;
+/** 보드 기간 윈도우 - 롤링 단기(2026-08-31 팀 결정으로 일·월 → 분·시간 전환) */
+export const BOARD_WINDOWS = ["15m", "1h", "4h", "24h"] as const;
 export type BoardWindow = (typeof BOARD_WINDOWS)[number];
 
 export interface WindowStatWire {
   changeBps: number;
   volumeWeth: string;
+  /** 순유입 = 윈도우 내 총매수 - 총매도 (부호 있음, 지표 정의 §순유입) */
+  netInflowWeth: string;
   trades: number;
   /** distinct tx.origin - 매수·매도·유동성 공급/회수 전부 포함 */
   traders: number;
@@ -127,6 +129,12 @@ export interface WindowStatWire {
 
 export interface BoardPairWire {
   windows: Partial<Record<BoardWindow, WindowStatWire>>;
+  /** 총수수료 산식의 재료 - 윈도우와 무관한 lifetime 누적 거래대금(WETH wei).
+   *  구버전 캐시 대비 옵셔널 - 없으면 총수수료를 감춘다(0원으로 안 채운다) */
+  lifetimeVolumeWeth?: string;
+  /** 분석 탭 전용 - 최근 30일 distinct tx.origin (보드 윈도우와 별개).
+   *  보드 윈도우가 롤링 단기(≤24h)로 바뀐 뒤에도 분석 탭은 30일 지표를 쓴다 */
+  traders30d?: number;
 }
 
 /** 페어 주소(소문자) → 추이·윈도우별 통계. 데이터 없는 페어·윈도우는 키 자체가 없다 */

@@ -61,33 +61,21 @@ export function SiteHeader() {
             />
           </a>
 
-          {/* 공식 브릿지 - 그림(홍예교 + 물결)으로 "건너온다"를 말한다.
-              글자 라벨을 붙이면 헤더 밀도가 올라가므로 아이콘 + title 만 둔다.
-              익스플로러와 같이 모바일에선 시트 링크로 대체한다 (헤더 밀도 절제) */}
+          {/* 공식 브릿지 - "브릿지" 글자 라벨만(2026-08-29).
+              처음엔 헤더 밀도 때문에 아이콘 단독이었지만, 다리 실루엣이든
+              화살표든 첫 방문자는 아이콘만으로 브릿지를 못 알아본다 -
+              타겟 유저(업저씨)에겐 그림 수수께끼가 밀도보다 비싸다.
+              그림은 어떤 시안도 뜻을 더하지 못해 뺐다 - 글자가 곧 라벨이다.
+              모바일에선 시트의 글자 링크로 대체 (헤더 밀도 절제) */}
           <a
             href={giwaChain.bridgeUrl}
             target="_blank"
             rel="noreferrer"
             title="기와 공식 브릿지로 건너오기"
             aria-label="기와 공식 브릿지 열기"
-            className={`hidden md:grid ${ICON_BUTTON_CLASS}`}
+            className="hidden h-9 items-center rounded-lg border border-hairline px-3 text-[12.5px] text-ink-3 transition-colors hover:border-ink-3/40 hover:text-ink-2 md:flex"
           >
-            <svg
-              viewBox="0 0 18 18"
-              width={17}
-              height={17}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              {/* 상판(홍예) · 교각 · 아래로 흐르는 물 */}
-              <path d="M1.6 10.4C4 6.2 14 6.2 16.4 10.4" />
-              <path d="M5.6 8.3v4.3M12.4 8.3v4.3" />
-              <path d="M1.6 15q2.1-1.3 4.2 0t4.2 0t4.2 0" />
-            </svg>
+            브릿지
           </a>
 
           <LoginButton />
