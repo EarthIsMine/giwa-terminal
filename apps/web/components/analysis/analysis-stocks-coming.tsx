@@ -19,7 +19,7 @@ export function AnalysisStocksComing() {
         </div>
       </div>
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
-        · 여기 표시될 가격은 파생상품 시세이며 주식 소유권이 아닙니다. 시세와
+        여기 표시될 가격은 파생상품 시세이며 주식 소유권이 아닙니다. 시세와
         포지션을 읽기만 하는 조회 전용 보드입니다.
       </p>
     </section>

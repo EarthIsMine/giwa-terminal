@@ -11,7 +11,7 @@ import { VERIFICATION_DISCLAIMER } from "@/lib/site";
 export function AnalysisCoverage({ verifiedCount }: { verifiedCount: number }) {
   return (
     <section className="mt-9 rounded-xl carved px-6 py-5">
-      <h2 className="text-[15px] font-semibold">나루가 다루는 범위</h2>
+      <h2 className="text-[15px] font-semibold">나루에서 표시하는 자산</h2>
       <p className="mt-2 max-w-[720px] text-[13px] leading-relaxed text-ink-2">
         기와체인에는 나루 밖에서 발행된 자산도 있습니다. 나루에는 발행 주체의
         신원을 확인한{" "}
@@ -20,7 +20,7 @@ export function AnalysisCoverage({ verifiedCount }: { verifiedCount: number }) {
         다룹니다.
       </p>
       <p className="mt-2.5 text-[11.5px] leading-relaxed text-ink-3">
-        · {VERIFICATION_DISCLAIMER}
+        {VERIFICATION_DISCLAIMER}
       </p>
     </section>
   );
