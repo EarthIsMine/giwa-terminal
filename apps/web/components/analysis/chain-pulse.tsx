@@ -86,23 +86,26 @@ export function ChainPulse({
       <h2 className="text-[15px] font-semibold">기와체인 활동</h2>
 
       {/*
-        누적 규모는 표가 아니라 문장으로 말한다 - 숫자 나열보다 먼저 읽히고,
-        카드에서 빠지므로 카드는 "지금 어떤가" 세 장으로 줄어든다 (절대 규칙 3).
+        누적 규모는 "라벨: 값" 한 줄로 짧게 - 카드에서 빠지므로 카드는
+        "지금 어떤가" 세 장으로 줄어든다 (절대 규칙 3).
       */}
-      <p className="mt-2 max-w-[720px] text-[13px] leading-relaxed text-ink-2">
+      <p className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[13px] leading-relaxed text-ink-2">
         {chain.txTotal !== null ? (
-          <>
-            기와체인은 지금까지{" "}
+          <span>
+            <span className="text-ink-3">총 거래</span>{" "}
             <strong className="font-semibold text-ink">
               {formatCountCompact(chain.txTotal)}건
             </strong>
-            의 거래를 처리했습니다.{" "}
-          </>
+          </span>
         ) : null}
+        {/* addressTotal 은 지갑+컨트랙트 합이지만 억 단위 축약이라 "지갑"으로 단순화 (업저씨 언어) */}
         {chain.addressTotal !== null ? (
-          <>
-            장부에 올라 있는 주소는 {formatCountCompact(chain.addressTotal)}개입니다.
-          </>
+          <span>
+            <span className="text-ink-3">총 지갑</span>{" "}
+            <strong className="font-semibold text-ink">
+              {formatCountCompact(chain.addressTotal)}개
+            </strong>
+          </span>
         ) : null}
       </p>
 
@@ -112,21 +115,21 @@ export function ChainPulse({
             label="하루 거래"
             value={formatCountCompact(dailyAvg)}
             unit="건"
-            note="최근 7일 평균 · 진행 중인 오늘 제외"
+            note="최근 7일 평균, 진행 중인 오늘 제외"
           />
         ) : null}
 
         {/* 업비트 출금 수수료와 곧장 비교되는 자리 - 업저씨가 가장 먼저 계산해 볼 숫자다 */}
         {chain.medianFeeWei !== null ? (
           <Stat
-            label="거래 수수료"
+            label="현재 수수료"
             value={
               feeKrw !== null
                 ? `₩${formatKrw(feeKrw)}`
                 : formatEth(chain.medianFeeWei, 9)
             }
             unit={feeKrw !== null ? undefined : "ETH"}
-            note="최근 거래 중앙값 · 데이터 수수료 포함"
+            note="최근 거래 중앙값, 데이터 수수료 포함"
           />
         ) : null}
 
@@ -135,7 +138,7 @@ export function ChainPulse({
             label="블록 간격"
             value={chain.blockSeconds.toFixed(chain.blockSeconds < 10 ? 1 : 0)}
             unit="초"
-            note="거래가 장부에 적히는 주기"
+            note="거래 처리 속도"
           />
         ) : null}
       </dl>
@@ -143,9 +146,9 @@ export function ChainPulse({
       <ChainActivityChart daily={chain.daily} />
 
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
-        · 체인 집계는 {giwaChain.name} 공개 기록(Blockscout)에서 가져온 값이며 나루
-        인덱서 집계와 별개입니다. 체인 전체 거래대금·예치 규모는 전 구간 인덱싱 전까지
-        제공하지 않습니다.
+        체인 집계는 {giwaChain.name} 공개 기록(Blockscout)에서 가져온 값이며 나루
+        인덱서 집계와 별개입니다. 체인 전체 거래대금과 예치 규모는 전 구간 인덱싱
+        전까지 제공하지 않습니다.
       </p>
     </section>
   );
