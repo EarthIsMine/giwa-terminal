@@ -9,6 +9,10 @@ import { useEffect, useRef } from "react";
  *
  * ms 가 null 이면 타이머를 아예 걸지 않는다 - 훅 규칙상 조기 반환보다 위에
  * 놓일 수밖에 없는 호출부(로그인 전 화면 등)가 빈 틱을 돌리지 않게 하는 스위치.
+ *
+ * 이전 틱의 load 가 안 끝났으면 그 틱은 건너뛴다 - 짧은 주기(1초 시세 폴)에서
+ * 응답이 주기를 넘길 때 요청이 무한 적체되고, 늦게 도착한 옛 응답이 새 값을
+ * 덮어써 표시가 뒤로 튀는 것을 막는다. 동시 요청이 1개뿐이면 순서 역전이 없다.
  */
 export function usePoll(
   load: (isCancelled: () => boolean) => Promise<void> | void,
@@ -20,7 +24,14 @@ export function usePoll(
   useEffect(() => {
     if (ms === null) return;
     let cancelled = false;
-    const run = () => void loadRef.current(() => cancelled);
+    let inFlight = false;
+    const run = () => {
+      if (inFlight) return;
+      inFlight = true;
+      void Promise.resolve(loadRef.current(() => cancelled)).finally(() => {
+        inFlight = false;
+      });
+    };
     run();
     const timer = setInterval(run, ms);
     return () => {

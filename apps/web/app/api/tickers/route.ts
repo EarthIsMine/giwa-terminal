@@ -12,5 +12,9 @@ import { getMarketTickers } from "@/lib/krw";
 export async function GET() {
   const tickers = await getMarketTickers();
   const body: TickersResponse = { tickers };
-  return NextResponse.json(body);
+  // 상한 1초 = 상류 TTL 과 동일 - 신선도 희생 없이 중복 탭·CDN 이 1초 창을
+  // 재사용하고, 배포 환경(프록시 기본 정책)에 캐시 동작이 좌우되지 않게 명시
+  return NextResponse.json(body, {
+    headers: { "cache-control": "public, max-age=1, s-maxage=1" },
+  });
 }
