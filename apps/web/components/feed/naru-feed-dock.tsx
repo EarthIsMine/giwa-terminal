@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { formatChangeBps, formatKrw } from "@giwa/shared";
 import type { DisplayKrw } from "@giwa/shared";
-import type { FeedResponse } from "@/lib/api-types";
+import type { FeedResponse, TickersResponse } from "@/lib/api-types";
 import type { FeedItemWire } from "@/lib/indexer";
 import type { MarketTickerWire } from "@/lib/krw";
 import { useEscapeKey } from "@/hooks/use-escape-key";
-import { usePoll } from "@/hooks/use-poll";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { usePollJson } from "@/hooks/use-poll-json";
 import { GuideOverlay } from "@/components/guide/guide-overlay";
 import { NaruFeedDrawer } from "@/components/feed/naru-feed-drawer";
 import { previewText, relativeTime, TAG } from "@/components/feed/naru-feed-item";
@@ -25,6 +26,23 @@ import { previewText, relativeTime, TAG } from "@/components/feed/naru-feed-item
  * 나루 화면의 원화는 "환산 참고값"이지만 이건 거래소 실제 체결가라
  * 출처(업비트)를 라벨로 붙여 구분한다.
  */
+/** 연속 이만큼 틱을 실패(빈 응답 포함)하면 스테일로 판정하고 바를 숨긴다 (약 10초) */
+const TICKER_STALE_LIMIT = 10;
+
+/** 시세가 그대로면 이전 배열 참조를 유지시키기 위한 비교 - 1초 폴마다 도크 전체가 리렌더되는 것을 막는다 */
+function tickersEqual(a: MarketTickerWire[], b: MarketTickerWire[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((t, i) => {
+    const o = b[i];
+    return (
+      o !== undefined &&
+      t.symbol === o.symbol &&
+      t.krw === o.krw &&
+      t.changeBps === o.changeBps
+    );
+  });
+}
+
 function TickerStrip({ tickers }: { tickers: MarketTickerWire[] }) {
   if (tickers.length === 0) return null;
   return (
@@ -56,28 +74,46 @@ export function NaruFeedDock() {
   const [open, setOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
 
-  usePoll(async (isCancelled) => {
-    try {
-      const res = await fetch("/api/feed");
-      if (!res.ok) return;
-      const data = (await res.json()) as FeedResponse;
-      if (isCancelled()) return;
-      if (data.items && data.items.length > 0) {
-        setItems(data.items);
-        setEthKrwRaw(data.ethKrw);
-      }
-      // 시세는 인덱서와 무관한 외부 소스 - 소식이 없어도 표시한다
-      setTickers(data.tickers ?? []);
-    } catch {
-      /* 소식·시세 모두 조용히 폴백 (바는 유지) */
+  // 기술 문서는 독립 문서 화면 - 도크를 얹지 않는다. 렌더는 아래 조기 반환이
+  // 막고, 폴링은 ms:null 스위치로 끈다 (훅은 조기 반환 위에서도 실행되므로)
+  const onDocs = pathname?.startsWith("/docs") ?? false;
+
+  usePollJson<FeedResponse>("/api/feed", onDocs ? null : 60_000, (data) => {
+    // 실패(null)·빈 목록은 무시 - 바는 마지막 소식을 유지한다
+    if (data?.items && data.items.length > 0) {
+      setItems(data.items);
+      setEthKrwRaw(data.ethKrw);
     }
-  }, 60_000);
+  });
+
+  // 시세 바는 1초 갱신 - 소식(60초)과 주기가 달라 폴링을 분리했다.
+  // TickerStrip 이 xl 전용(hidden xl:flex)이라 폴도 같은 경계에서만 돌린다 -
+  // 시세가 그려지지 않는 뷰포트가 초당 요청을 내보내지 않게 한다
+  const stripVisible = useMediaQuery("(min-width: 1280px)"); // = Tailwind xl
+  const staleTicks = useRef(0);
+  usePollJson<TickersResponse>(
+    "/api/tickers",
+    onDocs || !stripVisible ? null : 1_000,
+    (data) => {
+      const next = data?.tickers ?? [];
+      if (next.length > 0) {
+        staleTicks.current = 0;
+        // 잠깐의 실패 프레임은 마지막 값을 유지한다 (빈 배열로 덮으면 바가 깜빡인다)
+        setTickers((prev) => (tickersEqual(prev, next) ? prev : next));
+      } else {
+        // 연속 실패가 이어지면 바를 숨긴다 - 업비트 장애 중 멈춘 가격을 현재
+        // 체결가처럼 계속 보여주지 않는다 (추정치를 확정값처럼 보여주지 않는다)
+        staleTicks.current += 1;
+        if (staleTicks.current >= TICKER_STALE_LIMIT)
+          setTickers((prev) => (prev.length === 0 ? prev : []));
+      }
+    },
+  );
 
   // 드로어가 열려 있는 동안 ESC 로 닫는다 (오버레이 관례)
   useEscapeKey(open, () => setOpen(false));
 
-  // 기술 문서는 독립 문서 화면 - 터미널 도크를 얹지 않는다
-  if (pathname?.startsWith("/docs")) return null;
+  if (onDocs) return null;
 
   const ethKrw = ethKrwRaw ? BigInt(ethKrwRaw) : null;
   const latest = items[0] ?? null;
