@@ -57,6 +57,10 @@ app.get("/candles/:pair", async (c) => {
       low: r.low.toString(),
       close: r.close.toString(),
       volumeWeth: r.volumeWeth.toString(),
+      // 순유입 재료 - 분석 탭 나루 집계가 일별 매수-매도를 캔들에서 바로 읽는다
+      // (지표 정의 §순유입: 요청 시점에 trades 원장을 스캔하지 않는다)
+      buyVolumeWeth: r.buyVolumeWeth.toString(),
+      sellVolumeWeth: r.sellVolumeWeth.toString(),
       trades: r.trades,
     })),
   });

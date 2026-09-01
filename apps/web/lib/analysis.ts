@@ -43,6 +43,50 @@ export interface HolderAnalysisWire {
   topHolders: TopHolderWire[];
 }
 
+/**
+ * 메인 보드 편입 컬럼(보유 지갑·발행자 물량·상위 10 집중도, 2026-09-01) 재료 -
+ * 자산 주소(소문자) → 요약. 조회 실패 자산은 키 자체가 없다(셀은 - 폴백).
+ * 분석 탭의 자산 보드·집중도 비교를 없애며 보유 분포가 통째로 메인 보드
+ * 컬럼으로 옮겨온 것 - 원천은 같은 getHolderAnalysis(Blockscout 60초 캐시
+ * + RPC)라 화면 간 숫자가 갈라질 일이 없다.
+ */
+export type HolderBoardStats = Record<
+  string,
+  { holderCount: number; issuerPermille: number; top10Permille: number }
+>;
+
+export async function getHolderBoardStats(
+  assets: {
+    address: `0x${string}`;
+    pair: `0x${string}`;
+    issuer: `0x${string}`;
+    totalSupply: string;
+  }[],
+): Promise<HolderBoardStats> {
+  const analyses = await Promise.all(
+    assets.map((a) =>
+      getHolderAnalysis({
+        token: a.address,
+        pair: a.pair,
+        issuer: a.issuer,
+        totalSupply: a.totalSupply,
+      }),
+    ),
+  );
+  const out: HolderBoardStats = {};
+  assets.forEach((a, i) => {
+    const an = analyses[i];
+    if (an) {
+      out[a.address.toLowerCase()] = {
+        holderCount: an.holderCount,
+        issuerPermille: an.issuerPermille,
+        top10Permille: an.top10Permille,
+      };
+    }
+  });
+  return out;
+}
+
 export async function getHolderAnalysis(args: {
   token: `0x${string}`;
   pair: `0x${string}`;

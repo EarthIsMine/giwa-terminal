@@ -3,6 +3,7 @@ import { AssetBoard } from "@/components/asset/asset-board";
 import { Hero } from "@/components/layout/hero";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getHolderBoardStats } from "@/lib/analysis";
 import { getBoardStats } from "@/lib/indexer";
 import { getEthKrw } from "@/lib/krw";
 import { getLiveAssets } from "@/lib/onchain";
@@ -16,6 +17,9 @@ export default async function Home() {
     getEthKrw(),
     getBoardStats(),
   ]);
+  // 보유 지갑·상위 10 집중도(분석 탭 보드 제거로 편입, 2026-09-01) - 자산 목록이
+  // 확정돼야 조회할 수 있어 뒤에 받는다. Blockscout 60초 캐시가 부하를 묶는다
+  const holderStats = await getHolderBoardStats(assets);
 
   // 총 예치 규모 = 전 자산 유동성 합 (풀 WETH 잔고 × 2의 합)
   const totalLiquidity = wei(
@@ -41,6 +45,7 @@ export default async function Home() {
             assets={assets}
             ethKrw={ethKrw?.toString() ?? null}
             boardStats={boardStats}
+            holderStats={holderStats}
           />
         </section>
       </main>
