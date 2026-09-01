@@ -17,6 +17,10 @@ export interface CandleWire {
   close: string;
   /** quote(WETH) 환산 거래대금 wei */
   volumeWeth: string;
+  /** 방향별 거래대금 - 순유입(매수-매도) 재료. 구버전 인덱서 응답 대비 옵셔널 -
+   *  없으면 순유입을 감춘다(0으로 안 채운다, 지표 정의 §순유입) */
+  buyVolumeWeth?: string;
+  sellVolumeWeth?: string;
   trades: number;
 }
 
@@ -140,8 +144,27 @@ export interface BoardPairWire {
 /** 페어 주소(소문자) → 추이·윈도우별 통계. 데이터 없는 페어·윈도우는 키 자체가 없다 */
 export type BoardStatsWire = Record<string, BoardPairWire>;
 
-/** 보드 기간별 변동률·거래량 - 인덱서 미연결이면 null (보드는 지표 열을 감춘다) */
+/**
+ * 백필 중 방어 - Ponder 는 히스토리 동기화가 끝나야 /ready 가 200 이 된다.
+ * 백필 중의 집계는 "아직 못 읽은 체결이 빠진 0"이라 무거래와 구분되지 않는다 -
+ * 준비 전엔 null 로 돌려 자리표시(-)로 폴백한다 (지표 정의 §나루 전체 집계).
+ */
+async function indexerReady(): Promise<boolean> {
+  if (!INDEXER_URL) return false;
+  try {
+    const res = await fetch(`${INDEXER_URL}/ready`, {
+      next: { revalidate: 5 },
+      signal: AbortSignal.timeout(INDEXER_TIMEOUT_MS),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** 보드 기간별 변동률·거래량 - 인덱서 미연결·백필 중이면 null (보드는 지표 열을 감춘다) */
 export async function getBoardStats(): Promise<BoardStatsWire | null> {
+  if (!(await indexerReady())) return null;
   const res = await fetchJson<{ pairs: BoardStatsWire }>("/board");
   return res?.pairs ?? null;
 }
@@ -178,6 +201,52 @@ export async function getAssetMarket(
   if (Object.values(series).every((c) => c.length === 0)) return null;
 
   return { series, trades: tradesRes?.trades ?? [], stats };
+}
+
+/**
+ * 분석 탭 나루 집계 재료 (지표 정의 §나루 전체 집계).
+ * 1d 는 상장 이후 전량(누적 총수수료가 lifetime 값이라 잘리면 과소 표시),
+ * 1h 는 시간대별 분포용 최근 분량. 페어 주소(소문자) → 캔들 목록.
+ * 인덱서 미연결·백필 중·일부 페어 실패면 null - 화면은 거래 흐름 섹션을
+ * 자리표시로 접는다 (부분 합계를 전체처럼 보여주지 않는다).
+ */
+export interface FlowCandlesWire {
+  daily: Record<string, CandleWire[]>;
+  hourly: Record<string, CandleWire[]>;
+}
+
+async function fetchCandleSet(
+  pairs: `0x${string}`[],
+  interval: "1d" | "1h",
+  limit: number,
+): Promise<Record<string, CandleWire[]> | null> {
+  const results = await Promise.all(
+    pairs.map((p) =>
+      fetchJson<{ candles: CandleWire[] }>(
+        `/candles/${p}?interval=${interval}&limit=${limit}`,
+      ),
+    ),
+  );
+  if (results.some((r) => r === null)) return null;
+  const out: Record<string, CandleWire[]> = {};
+  pairs.forEach((p, i) => {
+    out[p.toLowerCase()] = results[i]?.candles ?? [];
+  });
+  return out;
+}
+
+export async function getFlowCandles(
+  pairs: `0x${string}`[],
+): Promise<FlowCandlesWire | null> {
+  if (!INDEXER_URL || pairs.length === 0) return null;
+  if (!(await indexerReady())) return null;
+  const [daily, hourly] = await Promise.all([
+    fetchCandleSet(pairs, "1d", 400),
+    // 1000시간 ≈ 41일 - 30일 윈도우(720시간)를 여유 있게 덮는다
+    fetchCandleSet(pairs, "1h", 1000),
+  ]);
+  if (!daily || !hourly) return null;
+  return { daily, hourly };
 }
 
 /** 지갑 체결 한 건 - 손익 계산 재료 (지표 정의 §손익) */

@@ -59,6 +59,8 @@ export function AnalysisTabs({
           id={`analysis-panel-${t.key}`}
           aria-labelledby={`analysis-tab-${t.key}`}
           hidden={active !== t.key}
+          // 탭 줄과 패널 사이 숨 - 붙여 두면 패널 카드가 탭의 일부처럼 읽힌다
+          className="mt-6"
         >
           {panels[t.key]}
         </div>

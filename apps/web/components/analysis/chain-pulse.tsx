@@ -82,8 +82,13 @@ export function ChainPulse({
   if (!hasAnything) return null;
 
   return (
-    <section className="mt-9">
-      <h2 className="text-[15px] font-semibold">기와체인 활동</h2>
+    // 분석 화면의 오프너 - "분석" h1 을 시각적으로 없애며(2026-09-01 결정) 첫
+    // 섹션 제목이 화면 제목 역할을 이어받는다. 제목 스타일은 다른 라우트의
+    // h1(font-serif 27px)과 같은 급으로 - 작게 두면 상단이 빈 공간으로 남는다
+    <section>
+      <h2 className="font-serif text-[27px] font-bold tracking-tight">
+        기와체인 활동
+      </h2>
 
       {/*
         누적 규모는 "라벨: 값" 한 줄로 짧게 - 카드에서 빠지므로 카드는

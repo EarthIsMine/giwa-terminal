@@ -18,6 +18,9 @@ const RIGHT_ALIGNED = new Set([
   "netInflow",
   "trades",
   "traders",
+  "holders",
+  "issuerShare",
+  "top10",
   "liquidity",
   "totalFees",
 ]);
@@ -40,6 +43,9 @@ const COL_WIDTH: Record<string, string> = {
   netInflow: "w-[150px]",
   trades: "w-[120px]",
   traders: "w-[140px]",
+  holders: "w-[130px]",
+  issuerShare: "w-[130px]",
+  top10: "w-[150px]",
   liquidity: "w-[150px]",
   totalFees: "w-[150px]",
 };
@@ -59,6 +65,12 @@ const COL_HIDE: Record<string, string> = {
   netInflow: "hidden xl:table-cell",
   trades: "hidden 2xl:table-cell",
   traders: "hidden 2xl:table-cell",
+  // 보유 분포 편입 컬럼(2026-09-01, 분석 탭 보드 제거로 이동) - 2xl 전용.
+  // 2xl 에서 고정폭 합이 뷰포트를 살짝 넘을 수 있으나 셀 전체가 nowrap 이라
+  // 쪼개지지 않고, 진짜 좁으면 overflow-x-auto 안전망으로 넘긴다
+  holders: "hidden 2xl:table-cell",
+  issuerShare: "hidden 2xl:table-cell",
+  top10: "hidden 2xl:table-cell",
   totalFees: "hidden 2xl:table-cell",
 };
 
@@ -148,9 +160,9 @@ export function AssetBoardTable({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                {/* # 열 + 컬럼 10개 */}
+                {/* # 열 + 컬럼 13개 */}
                 <td
-                  colSpan={11}
+                  colSpan={14}
                   className="py-14 text-center text-[13.5px] text-ink-3"
                 >
                   {query.trim() === ""
