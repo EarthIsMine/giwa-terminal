@@ -32,6 +32,7 @@ import { CopyAddress } from "@/components/ui/copy-address";
 import { Responsive } from "@/components/ui/responsive";
 import { useSearch } from "@/contexts/search-context";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
+import { VERIFICATION_LEAD } from "@/lib/site";
 
 /**
  * 자산 보드 컨테이너 - GIWA Sepolia 온체인 실데이터 (목데이터 제거, 2026-07-22).
@@ -524,14 +525,23 @@ export function AssetBoard({
         }
       />
 
-      {/* 환산·집계·검증 고지는 푸터 "고지"로 합쳤다(2026-08-29) - 전부 사이트
-          전체에 해당하는 문장이라 보드 밑에 또 쓰면 고지가 두 군데로 갈라진다.
-          단, 시세 조회 실패는 상태 표시라 여기 남긴다 (정적 푸터로 못 옮긴다) */}
-      {ethKrw === null ? (
-        <p className="mt-3 px-page text-[11.5px] leading-relaxed text-ink-3">
-          · 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다.
+      {/* 푸터 "고지" 컬럼 해체(2026-08-31) - 사이트 공통 고지를 각 화면이
+          직접 진다. 보드 몫 = 원화 환산 라벨(절대 규칙 1) + 검증 한정(규칙 6).
+          시드 봇 고지는 상단 데모 배너 담당(규칙 5) */}
+      <div className="mt-3 space-y-1 px-page text-[11.5px] leading-relaxed text-ink-3">
+        {ethKrw === null ? (
+          <p>· 업비트 시세 조회가 일시적으로 불가해 ETH 단위로 표시 중입니다.</p>
+        ) : (
+          <p>
+            · 원화 금액은 업비트 KRW-ETH 시세(60초 갱신)로 환산한 참고값이며,
+            기와체인에 원화 자산이 존재하는 것은 아닙니다.
+          </p>
+        )}
+        <p>
+          · 표시 자산은 신원 검증을 통과한 자산으로 한정됩니다.{" "}
+          {VERIFICATION_LEAD}.
         </p>
-      ) : null}
+      </div>
     </div>
   );
 }
