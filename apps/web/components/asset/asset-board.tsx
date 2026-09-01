@@ -19,6 +19,7 @@ import {
   wei,
   weiToDisplayKrw,
 } from "@giwa/shared";
+import type { HolderBoardStats } from "@/lib/analysis";
 import { BOARD_WINDOWS } from "@/lib/indexer";
 import type { BoardStatsWire, BoardWindow } from "@/lib/indexer";
 import type { LiveAssetWire } from "@/lib/onchain";
@@ -92,10 +93,13 @@ export function AssetBoard({
   assets,
   ethKrw: ethKrwRaw,
   boardStats,
+  holderStats,
 }: {
   assets: LiveAssetWire[];
   ethKrw: string | null;
   boardStats: BoardStatsWire | null;
+  /** 보유 지갑·상위 10 집중도 - Blockscout 원천(인덱서와 별개), 실패 자산은 키 없음 */
+  holderStats: HolderBoardStats;
 }) {
   const router = useRouter();
   // 새로고침 = 서버 데이터 재조회(router.refresh)지 페이지 전체 리로드가 아니다
@@ -137,6 +141,11 @@ export function AssetBoard({
         totalFeesWei: allVolume
           ? wei(feeFromVolume(BigInt(allVolume)))
           : null,
+        holderCount: holderStats[a.address.toLowerCase()]?.holderCount ?? null,
+        issuerPermille:
+          holderStats[a.address.toLowerCase()]?.issuerPermille ?? null,
+        top10Permille:
+          holderStats[a.address.toLowerCase()]?.top10Permille ?? null,
       };
     });
     const q = query.trim().toLowerCase();
@@ -147,7 +156,7 @@ export function AssetBoard({
         a.nameKo.includes(q) ||
         a.address.toLowerCase().includes(q),
     );
-  }, [assets, query, boardStats, window_]);
+  }, [assets, query, boardStats, holderStats, window_]);
 
   const columns = useMemo<ColumnDef<LiveAsset>[]>(
     () => [
@@ -318,6 +327,66 @@ export function AssetBoard({
             )}
           </span>
         ),
+      },
+      {
+        id: "holders",
+        accessorFn: (a) => a.holderCount ?? undefined,
+        // 분석 탭 자산 보드 제거(2026-09-01)로 편입 - 지금 이 자산을 쥔 지갑 수.
+        // 윈도우 지표 "참여 지갑"(기간 내 거래 지갑)과 다른 값이라 "보유"로 가른다
+        header: "보유 지갑",
+        sortDescFirst: true,
+        ...NO_DATA_SORT,
+        cell: ({ row }) => (
+          <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
+            {row.original.holderCount === null ? (
+              <span className="text-ink-3">-</span>
+            ) : (
+              formatCount(row.original.holderCount)
+            )}
+          </span>
+        ),
+      },
+      {
+        id: "issuerShare",
+        accessorFn: (a) => a.issuerPermille ?? undefined,
+        // 분석 탭 집중도 비교 차트 제거(2026-09-01)로 편입 - 발행자 지갑이 쥔
+        // 총공급 비율. 상장 초기에는 높은 것이 일반적이다 (푸터 고지 참고)
+        header: "발행자 물량",
+        sortDescFirst: true,
+        ...NO_DATA_SORT,
+        cell: ({ row }) => {
+          const p = row.original.issuerPermille;
+          if (p === null) {
+            return <span className="font-mono text-[12px] text-ink-3">-</span>;
+          }
+          return (
+            <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
+              {(p / 10).toFixed(1)}
+              <span className="ml-0.5 text-[11px] text-ink-3">%</span>
+            </span>
+          );
+        },
+      },
+      {
+        id: "top10",
+        accessorFn: (a) => a.top10Permille ?? undefined,
+        // 상위 10개 지갑 합산 ÷ 총공급, 인프라 주소 제외. 등급·경고가 아니라
+        // 사실 비율이다 - 색 인코딩 없이 수치만 둔다 (분석 탭 비교 차트와 동일 원칙)
+        header: "상위 10 집중도",
+        sortDescFirst: true,
+        ...NO_DATA_SORT,
+        cell: ({ row }) => {
+          const p = row.original.top10Permille;
+          if (p === null) {
+            return <span className="font-mono text-[12px] text-ink-3">-</span>;
+          }
+          return (
+            <span className="font-mono text-[12.5px] tabular-nums text-ink-2">
+              {(p / 10).toFixed(1)}
+              <span className="ml-0.5 text-[11px] text-ink-3">%</span>
+            </span>
+          );
+        },
       },
       {
         id: "liquidity",

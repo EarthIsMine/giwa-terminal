@@ -31,6 +31,13 @@ export interface LiveAsset {
   traders: number | null;
   /** 총수수료 = 전체 누적 거래대금 × 0.3% (WETH wei). 윈도우 선택과 무관한 lifetime 값 */
   totalFeesWei: WeiAmount | null;
+  /** 보유 지갑 수 - Blockscout holders_count (지표 정의 §보유 분포).
+   *  윈도우 지표 "참여 지갑"(거래한 지갑)과 다른 값이라 라벨을 가른다 */
+  holderCount: number | null;
+  /** 발행자 지갑 보유 ‰ - issuer 는 TokenIssued 로 등록된 주소 (지표 정의 §보유 분포) */
+  issuerPermille: number | null;
+  /** 상위 10 지갑 합산 ‰ - 인프라 주소(유동성 페어) 제외 (지표 정의 §보유 분포) */
+  top10Permille: number | null;
 }
 
 /**
