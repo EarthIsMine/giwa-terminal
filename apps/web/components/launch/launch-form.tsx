@@ -58,7 +58,7 @@ function LaunchIntro() {
   return (
     <>
       <h1 className="text-[27px] font-bold leading-tight tracking-tight sm:text-[34px] lg:text-[40px]">
-        기와체인 최초의 <span className="text-accent">검증 런치패드</span>
+        기와체인 <span className="text-accent">검증 런치패드</span>
       </h1>
       <div className="mt-4 max-w-[720px] space-y-1 text-[13.5px] leading-relaxed text-ink-2 sm:text-[14.5px]">
         <p>
